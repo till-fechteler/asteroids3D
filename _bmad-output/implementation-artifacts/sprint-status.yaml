@@ -1,0 +1,169 @@
+# generated: 2026-04-22
+# last_updated: 2026-04-22
+# project: asteriods3D
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: {project-root}/_bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog -> in-progress: Automatically when first story is created (via create-story)
+#   - in-progress -> done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-04-22
+last_updated: 2026-04-22
+project: asteriods3D
+project_key: NOKEY
+tracking_system: file-system
+story_location: "{project-root}/_bmad-output/implementation-artifacts"
+
+development_status:
+  # Epic 1: Foundation & Plugin Compatibility Gate
+  epic-1: in-progress
+  1-1-bootstrap-cargo-project-with-hand-authored-cargo-toml: done
+  1-2-plugin-compatibility-verification-gate: backlog
+  1-3-toolchain-lint-and-format-configuration: backlog
+  1-4-three-platform-ci-matrix: backlog
+  1-5-minimal-bevy-app-opens-a-window-on-all-three-platforms: backlog
+  1-6-gamestate-enum-with-bevy-states-skeleton: backlog
+  1-7-splash-screen-shows-asteriods3d-and-transitions-to-mainmenu: backlog
+  1-8-tracing-based-logging-with-panic-hook-to-log-file: backlog
+  epic-1-retrospective: optional
+
+  # Epic 2: Vector Aesthetic Tech Spike
+  epic-2: backlog
+  2-1-visualplugin-skeleton-reference-scene: backlog
+  2-2-semanticaccent-palette-primitives: backlog
+  2-3-wgsl-toon-material-implementation: backlog
+  2-4-bevy-mod-outline-integration-wiring: backlog
+  2-5-three-backend-parity-validation-gate: backlog
+  2-6-go-fallback-decision-document: backlog
+  2-7-fallback-material-scaffold-conditional-on-story-2-6: backlog
+  epic-2-retrospective: optional
+
+  # Epic 3: Arena Flight & First Combat (First Playable)
+  epic-3: backlog
+  3-1-title-screen-stub-mainmenu-arena-transition: backlog
+  3-2-avian-physics-foundation-arena-state-skeleton: backlog
+  3-3-hand-designed-arena-zone-with-static-asteroid-field: backlog
+  3-4-pause-on-focus-loss-pause-menu-stub: backlog
+  3-5-cockpit-camera-playership-entity: backlog
+  3-6-flight-input-6-dof-translation: backlog
+  3-7-flight-input-3-axis-rotation-pitch-yaw-roll: backlog
+  3-8-inertial-dampener-toggle: backlog
+  3-9-weapon-firing-projectile-ballistics: backlog
+  3-10-projectile-asteroid-collision-damage: backlog
+  3-11-hud-baseline-screen-space-placeholders: backlog
+  epic-3-retrospective: optional
+
+  # Epic 4: Enemies Alive & Stop-Ship (Itch.io Prototype)
+  epic-4: backlog
+  4-1-enemy-entity-foundation-semanticaccent-enemy: backlog
+  4-2-enemy-ai-state-machine-detect-pursue-attack: backlog
+  4-3-hull-component-permadeath-postrun-state: backlog
+  4-4-weapon-archetype-system-shotgun-railgun-archetypes: backlog
+  4-5-semanticaccent-wiring-asteroids-salvage-playership-projectiles-playerowned: backlog
+  4-6-persistenceplugin-save-schema-v1: backlog
+  4-7-title-screen-full-fr36-start-settings-credits-quit: backlog
+  4-8-settings-menu-master-sfx-volume-mouse-sensitivity: backlog
+  4-9-post-run-summary-screen-retry-main-menu: backlog
+  4-10-cross-platform-release-workflow-per-os-zips: backlog
+  epic-4-retrospective: optional
+
+  # Epic 5: Ship Subsystem State & Formal Save Schema
+  epic-5: backlog
+  5-1-formal-hullhp-shieldhp-components-refactor-from-health: backlog
+  5-2-shield-regen-system-damage-cooldown-tracking: backlog
+  5-3-damage-routing-shields-absorb-first-spill-to-hull: backlog
+  5-4-hud-wiring-for-shields-hull-instrument-panel-styling: backlog
+  5-5-decoupled-aim-reticle-hold-to-enable: backlog
+  5-6-save-schema-migration-scaffold-missing-save-recovery-prompt: backlog
+  epic-5-retrospective: optional
+
+  # Epic 6: Caravan Run Framework
+  epic-6: backlog
+  6-1-caravan-state-runplugin-skeleton: backlog
+  6-2-arena-caravan-gate-tutorial-complete-sentinel-difficulty-picker-stub: backlog
+  6-3-caravan-zone-layout-start-target-landmarks: backlog
+  6-4-waypoint-pointer-world-space-hud: backlog
+  6-5-salvage-currency-resource-hud-wiring: backlog
+  6-6-caravan-duration-runcompleted-on-target-reached: backlog
+  6-7-salvage-banking-on-run-end-success-death-abort: backlog
+  6-8-combat-pocket-trigger-system: backlog
+  6-9-pay-to-shoot-economy: backlog
+  6-10-tractor-beam-intact-asteroid-capture: backlog
+  6-11-intact-capture-vs-destroyed-yield-math: backlog
+  6-12-boost-rechargeable-resource: backlog
+  6-13-difficulty-variant-system-easy-medium-hard: backlog
+  epic-6-retrospective: optional
+
+  # Epic 7: Roguelite Loop (EA-Viable)
+  epic-7: backlog
+  7-1-meta-currency-display-on-mainmenu-postrun-banked-real-wiring: backlog
+  7-2-unlock-definition-data-model-8-unlock-catalog: backlog
+  7-3-unlockshop-ui-state-access-from-mainmenu-postrun: backlog
+  7-4-purchase-flow-validate-deduct-event-save: backlog
+  7-5-unlock-effects-wiring-runtime-tuningconfig-overlay: backlog
+  7-6-macos-universal-binary-intel-x86-64-arm64: backlog
+  epic-7-retrospective: optional
+
+  # Epic 8: Perception — Sensors & Spatial Audio
+  epic-8: backlog
+  8-1-perceptionplugin-threat-detection-events: backlog
+  8-2-audioplugin-bevy-kira-audio-spatial-channel-setup: backlog
+  8-3-world-space-radar-mesh-on-cockpit: backlog
+  8-4-audio-cues-for-threats-salvage-minimal-gameplay-sfx: backlog
+  8-5-damage-direction-indicator-visual-audio: backlog
+  8-6-world-space-yield-delta-indicator-on-tractorable-salvage: backlog
+  8-7-first-launch-headphone-recommendation-splash: backlog
+  epic-8-retrospective: optional
+
+  # Epic 9: Post-Run Photo Mode
+  epic-9: backlog
+  9-1-freeorbitcamera-component-f3-dev-toggle: backlog
+  9-2-photomode-state-entry-exit-from-postrun-time-freeze-overlay: backlog
+  9-3-photomode-free-cam-orbital-dolly-controls: backlog
+  9-4-depth-of-field-post-processing-click-to-focus: backlog
+  9-5-png-export-16-9-9-16-1-1-aspect-ratio-presets: backlog
+  9-6-toggleable-watermark: backlog
+  epic-9-retrospective: optional
+
+  # Epic 10: Polish Pass & MVP Completion
+  epic-10: backlog
+  10-1-performance-profiling-60-fps-target-on-reference-hardware: backlog
+  10-2-asset-load-at-state-entry-audit-typed-resource-wrappers: backlog
+  10-3-load-time-budget-title-10s-title-gameplay-5s: backlog
+  10-4-string-table-audit-no-hard-coded-player-facing-strings: backlog
+  10-5-hud-legibility-audit-60-80-cm-1080p: backlog
+  10-6-shield-absorb-vfx-toon-style-flash: backlog
+  10-7-audio-pass-2-sfx-mixing-ambient-drone-bed: backlog
+  10-8-ui-polish-scientific-instrument-styling-refinement: backlog
+  10-9-3-additional-unlock-definitions: backlog
+  10-10-macos-codesign-notarization-optional-stretch: backlog
+  10-11-crash-fix-backlog-from-m6-m8-playtesting: backlog
+  10-12-4-journey-playtest-validation-3-platforms-60-fps-zero-crash: backlog
+  epic-10-retrospective: optional
