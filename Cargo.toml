@@ -1,0 +1,38 @@
+[package]
+name = "asteriods3D"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bevy = { version = "0.18", default-features = false, features = ["3d", "png"] }
+avian3d = "0.6"
+bevy_mod_outline = "0.12"
+bevy_kira_audio = "0.25"
+leafwing-input-manager = "0.20"
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+ron = "0.8"
+thiserror = "2"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+directories = "5"
+
+# Linux needs an explicit windowing backend — Windows/macOS get theirs from Bevy defaults.
+[target.'cfg(target_os = "linux")'.dependencies.bevy]
+version = "0.18"
+default-features = false
+features = ["3d", "png", "x11", "wayland"]
+
+# Dev-only GUI tooling (egui panels for FPS, entity inspector, tuning) — stripped from release.
+[target.'cfg(debug_assertions)'.dependencies]
+bevy_egui = "0.39"
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+opt-level = 3
+
+# Bevy dev-speed convention: dependencies compiled with -O1 in dev builds; workspace code stays -O0.
+[profile.dev.package."*"]
+opt-level = 1
