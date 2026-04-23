@@ -2,6 +2,7 @@
 name = "asteroids3D"
 version = "0.1.0"
 edition = "2024"
+rust-version = "1.89"
 
 [dependencies]
 bevy = { version = "0.18", default-features = false, features = ["3d", "png"] }

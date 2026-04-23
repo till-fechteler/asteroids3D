@@ -1,0 +1,7 @@
+# rust-toolchain.toml
+# Pinned for CI reproducibility. Upgrade windows: M4, M6, M9.
+
+[toolchain]
+channel    = "1.94.1"
+components = ["rustfmt", "clippy", "rust-analyzer"]
+profile    = "minimal"

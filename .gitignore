@@ -1,2 +1,14 @@
 /target
 .claude/settings.local.json
+
+# Bevy processed-asset cache (generated at runtime when asset-processing is enabled)
+/imported_assets
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS artifacts
+.DS_Store
+Thumbs.db

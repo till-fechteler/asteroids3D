@@ -1,0 +1,7 @@
+# clippy.toml
+# Thresholds only. Lint deny/allow lists live in source via #![warn(...)] attributes
+# once gameplay modules land (Epic 2+).
+
+cognitive-complexity-threshold = 30
+too-many-arguments-threshold   = 8
+type-complexity-threshold      = 500
