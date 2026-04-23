@@ -23,12 +23,15 @@ jobs:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Install Linux system dependencies
         if: runner.os == 'Linux'
+        env:
+          DEBIAN_FRONTEND: noninteractive
         run: |
           sudo apt-get update -y
           sudo apt-get install -y \
@@ -50,13 +53,13 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       - name: cargo build
-        run: cargo build
+        run: cargo build --locked
 
       - name: cargo test
-        run: cargo test
+        run: cargo test --locked
 
       - name: cargo clippy
-        run: cargo clippy --all-targets -- -D warnings
+        run: cargo clippy --locked --all-targets -- -D warnings
 
       - name: cargo fmt --check
         run: cargo fmt --all -- --check
@@ -64,8 +67,10 @@ jobs:
   msrv-check:
     name: msrv-check (rust 1.89, ubuntu-latest)
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     env:
       RUSTUP_TOOLCHAIN: "1.89"
+      DEBIAN_FRONTEND: noninteractive
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -93,4 +98,4 @@ jobs:
           shared-key: msrv
 
       - name: cargo check (MSRV)
-        run: cargo check
+        run: cargo check --locked
