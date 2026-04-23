@@ -1,5 +1,5 @@
 # generated: 2026-04-22
-# last_updated: 2026-04-23 (story 1.4 in-progress)
+# last_updated: 2026-04-23 (story 1.4 review — CI green)
 # project: asteriods3D
 # project_key: NOKEY
 # tracking_system: file-system
@@ -47,7 +47,7 @@ development_status:
   1-1-bootstrap-cargo-project-with-hand-authored-cargo-toml: done
   1-2-plugin-compatibility-verification-gate: review
   1-3-toolchain-lint-and-format-configuration: done
-  1-4-three-platform-ci-matrix: in-progress
+  1-4-three-platform-ci-matrix: review
   1-5-minimal-bevy-app-opens-a-window-on-all-three-platforms: backlog
   1-6-gamestate-enum-with-bevy-states-skeleton: backlog
   1-7-splash-screen-shows-asteriods3d-and-transitions-to-mainmenu: backlog
