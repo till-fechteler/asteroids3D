@@ -1,0 +1,2 @@
+# Force LF line endings on all platforms. Prevents rustfmt --check regressions on Windows.
+* text=auto eol=lf
