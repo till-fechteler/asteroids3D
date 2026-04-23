@@ -1,5 +1,5 @@
 //! asteroids3D — minimal Bevy app entry point.
-//! Opens a default native window via DefaultPlugins. Story 1.5 scope.
+//! Opens a default native window via DefaultPlugins.
 
 use bevy::prelude::*;
 
