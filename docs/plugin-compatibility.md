@@ -28,7 +28,18 @@
 | `bevy_mod_outline` | `0.12` | `0.12.0` | bevy 0.18.1 (direct) | FR49 silhouette outlines | Upgrade-churn; fork-ready. [Source: prd.md:401-403] |
 | `bevy_kira_audio` | `0.25` | `0.25.0` | bevy 0.18.1 (direct) | FR23 spatial audio channels | Upgrade-churn; fork-ready. |
 | `leafwing-input-manager` | `0.20` | `0.20.0` | bevy 0.18.1 (direct) | FR1–FR8 input abstraction | Well-maintained. |
-| `bevy_egui` | `0.39` | `0.39.1` | bevy 0.18 sub-crates (bevy_app/bevy_render/etc.) | Dev-only debug panels | Dev-path only. Currently leaks into release builds — see Known Issues. |
+
+## Deferred / Planned re-introduction
+
+- **`bevy_egui`** — removed 2026-04-23 by Story 1.5. The original `[target.'cfg(debug_assertions)'.dependencies]` gating did not work: Cargo evaluates `cfg(debug_assertions)` as always-true in dependency tables and emitted the `Found 'debug_assertions' in target.'cfg(...)'.dependencies` manifest warning on every `cargo check`/`cargo build`. Re-introduction is planned at the M2 debug-panels story, as an optional feature-flag dep:
+  ```toml
+  [dependencies]
+  bevy_egui = { version = "<pin re-verified against M2-era Bevy>", optional = true }
+
+  [features]
+  dev-tools = ["dep:bevy_egui"]
+  ```
+  Registration will be `#[cfg(feature = "dev-tools")]`-gated so plain `cargo build` / `cargo run` strip it cleanly. Last verified-compatible pin (pre-removal): `0.39.1` against Bevy `0.18.1`.
 
 ## Resolution Log
 
@@ -38,7 +49,7 @@ _(empty — no resolutions required at M0 start; all four plugins resolved clean
 
 ## Known Issues / Deferred
 
-- **`[target.'cfg(debug_assertions)'.dependencies]` does not strip `bevy_egui` from release builds.** Cargo emits the warning `Found 'debug_assertions' in target.'cfg(...)'.dependencies. This value is not supported for selecting dependencies and will not work as expected.` on every `cargo check`. The compile succeeds, but the design intent ("dev-only egui, stripped from release") is silently broken. Full detail and candidate fixes: `_bmad-output/implementation-artifacts/deferred-work.md` → *Review correction (2026-04-22)*. Scheduled fix: Story 1.5, when the egui plugin is first registered.
+_(empty — the prior `cfg(debug_assertions)` manifest warning was resolved by Story 1.5's removal of `bevy_egui` from `Cargo.toml`; re-introduction plan is documented under **Deferred / Planned re-introduction** above.)_
 
 ## Upgrade policy
 
@@ -49,3 +60,4 @@ Version bumps happen only at M4, M6, M9 milestone-gate windows, with a 4–6 h b
 | Date | Event |
 |---|---|
 | 2026-04-22 | Initial gate pass. Clean `cargo check` on macOS 26.4.1 / arm64 (Rust 1.94.1, Bevy 0.18.1). All four plugins compile. One known warning (`cfg(debug_assertions)`), deferred to Story 1.5. |
+| 2026-04-23 | Story 1.5: removed `bevy_egui` from `Cargo.toml` (the `cfg(debug_assertions)` gating was broken; Cargo treats that predicate as always-true in dependency tables). Manifest warning eliminated. Re-introduction deferred to M2 debug-panels story as a feature-flag dep. |
