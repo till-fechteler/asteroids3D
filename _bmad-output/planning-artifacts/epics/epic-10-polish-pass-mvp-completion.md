@@ -362,7 +362,7 @@ So that the M9 completion gate is met.
 
 **Given** the playtest completes successfully on accessible platforms
 **When** the M9 gate is evaluated
-**Then** asteriods3D is declared MVP-ready
+**Then** asteroids3D is declared MVP-ready
 **And** release.yml produces final ZIPs per Story 4.10 / 7.6
 **And** Itch.io publication follows the runbook (updated unsigned-or-signed depending on Story 10.10 decision)
 

@@ -16,7 +16,7 @@ filesIncluded:
 # Implementation Readiness Assessment Report
 
 **Date:** 2026-04-22
-**Project:** asteriods3D
+**Project:** asteroids3D
 
 ## Step 1: Document Discovery
 
@@ -493,7 +493,7 @@ This assessment identified **5 issues** across **3 categories** (requirements ga
 ---
 
 **Assessor:** Claude (BMad Implementation Readiness skill), 2026-04-22
-**Project:** asteriods3D
+**Project:** asteroids3D
 **User:** Till Fechteler
 
 

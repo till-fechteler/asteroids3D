@@ -202,10 +202,10 @@ So that FR42 is functional.
 **Given** export file location per Till 2026-04-22
 **When** the PNG is written
 **Then** the file goes to:
-- Unix/macOS: `~/Pictures/asteriods3D/screenshots/`
-- Windows: `%USERPROFILE%\Pictures\asteriods3D\screenshots\`
+- Unix/macOS: `~/Pictures/asteroids3D/screenshots/`
+- Windows: `%USERPROFILE%\Pictures\asteroids3D\screenshots\`
 
-**And** the filename is `asteriods3D-<YYYYMMDD>-<HHMMSS>-<ratio>.png` (e.g., `asteriods3D-20260815-143022-16x9.png`)
+**And** the filename is `asteroids3D-<YYYYMMDD>-<HHMMSS>-<ratio>.png` (e.g., `asteroids3D-20260815-143022-16x9.png`)
 **And** the directory is created if absent
 **And** `directories` crate (already a dependency from Story 4.6) resolves the Pictures dir per-OS
 
@@ -228,7 +228,7 @@ So that FR42 is functional.
 ## Story 9.6: Toggleable Watermark
 
 As a player,
-I want an optional "asteriods3D" watermark I can toggle on for credited screenshots,
+I want an optional "asteroids3D" watermark I can toggle on for credited screenshots,
 So that exported PNGs can be identified as from this game.
 
 **Acceptance Criteria:**
@@ -247,7 +247,7 @@ So that exported PNGs can be identified as from this game.
 **Given** Story 9.5's export system
 **When** rendering the final PNG
 **Then** if `watermark_enabled == true`:
-- Small "asteriods3D" text overlay in the bottom-right corner
+- Small "asteroids3D" text overlay in the bottom-right corner
 - Text is semi-transparent (~70% opacity) with a subtle drop-shadow for readability on any background
 - Neutral color (light gray / off-white), not palette-colored
 

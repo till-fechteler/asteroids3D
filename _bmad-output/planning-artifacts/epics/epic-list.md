@@ -2,7 +2,7 @@
 
 ## Epic 1: Foundation & Plugin Compatibility Gate
 
-**User outcome (dev-foundational):** Project compiles and runs on Windows, Linux, and macOS. `cargo run` opens a window showing "asteriods3D" splash on all three platforms. Plugin compatibility matrix (Bevy 0.18, Avian 0.6, bevy_mod_outline, bevy_kira_audio, leafwing-input-manager, bevy_egui) verified and version-pinned. CI matrix green. No gameplay — this is the compatibility gate per Architecture Starter decision.
+**User outcome (dev-foundational):** Project compiles and runs on Windows, Linux, and macOS. `cargo run` opens a window showing "asteroids3D" splash on all three platforms. Plugin compatibility matrix (Bevy 0.18, Avian 0.6, bevy_mod_outline, bevy_kira_audio, leafwing-input-manager, bevy_egui) verified and version-pinned. CI matrix green. No gameplay — this is the compatibility gate per Architecture Starter decision.
 
 **FRs covered:** FR47 (cross-platform binary baseline)
 
@@ -10,7 +10,7 @@
 
 **M-alignment:** M0
 
-**Completion gate:** `cargo run` opens window with "asteriods3D" splash on Win/Linux/macOS; CI green.
+**Completion gate:** `cargo run` opens window with "asteroids3D" splash on Win/Linux/macOS; CI green.
 
 ---
 

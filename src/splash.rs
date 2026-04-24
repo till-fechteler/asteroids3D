@@ -5,7 +5,7 @@ use bevy::prelude::*;
 
 use crate::state::GameState;
 
-const SPLASH_TEXT: &str = "asteriods3D";
+const SPLASH_TEXT: &str = "asteroids3D";
 const SPLASH_DURATION_SECS: f32 = 2.0;
 const SPLASH_FONT_SIZE: f32 = 64.0;
 

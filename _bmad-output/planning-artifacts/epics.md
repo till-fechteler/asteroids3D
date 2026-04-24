@@ -7,16 +7,16 @@ inputDocuments:
   - _bmad-output/planning-artifacts/architecture.md
   - _bmad-output/planning-artifacts/prd-validation-report.md
   - _bmad-output/brainstorming/brainstorming-session-2026-04-21-1114.md
-project_name: 'asteriods3D'
+project_name: 'asteroids3D'
 user_name: 'Till'
 date: '2026-04-22'
 ---
 
-# asteriods3D - Epic Breakdown
+# asteroids3D - Epic Breakdown
 
 ## Overview
 
-This document provides the complete epic and story breakdown for asteriods3D, decomposing the requirements from the PRD and Architecture into implementable stories. No UX Design document exists (cockpit-only game; UX is embedded in PRD Design Philosophy + Architecture HUD strategy — confirmed with Till on 2026-04-22).
+This document provides the complete epic and story breakdown for asteroids3D, decomposing the requirements from the PRD and Architecture into implementable stories. No UX Design document exists (cockpit-only game; UX is embedded in PRD Design Philosophy + Architecture HUD strategy — confirmed with Till on 2026-04-22).
 
 ## Requirements Inventory
 
@@ -124,12 +124,12 @@ This document provides the complete epic and story breakdown for asteriods3D, de
 
 **Starter Template & M0 Gate (Architecture Starter Template decision):**
 - The Architecture specifies a **Hybrid Manual** starter (not greenfield blank, not community template). Epic 1 Story 1 MUST be plugin-compatibility verification, not gameplay code. Concretely:
-  - `cargo new --bin asteriods3d`
+  - `cargo new --bin asteroids3d`
   - Author `Cargo.toml` by hand with pinned versions: Bevy 0.18 (`default-features = false`, features `["3d", "png", "x11"]`), Avian 0.6 (via `avian3d`), `bevy_mod_outline`, `bevy_kira_audio`, `leafwing-input-manager`, `bevy_egui` (dev-only), plus `serde`, `serde_json`, `ron`, `thiserror`, `tracing`, `tracing-subscriber`, `directories`.
   - Verify all plugins have Bevy-0.18-compatible releases. If any lag, fork-and-maintain-inline path documented.
   - Commit `Cargo.lock`.
   - Borrow infrastructure (stripped) from NiklasEi `bevy_game_template`: `.github/workflows/ci.yml` (Windows+Linux+macOS matrix — strip iOS/Android/Web), `.gitignore`, `rustfmt.toml`, `clippy.toml`, `rust-toolchain.toml`.
-- M0 completion criterion: `cargo run` opens a window showing "asteriods3D" splash on all three platforms, with CI passing.
+- M0 completion criterion: `cargo run` opens a window showing "asteroids3D" splash on all three platforms, with CI passing.
 
 **Version-Pinning Governance:**
 - Bevy + Avian + all plugins pinned at M0. Upgrades batched at M4, M6, M9 milestone gates only, with 4–6 h migration budget. No ad-hoc mid-milestone upgrades.
@@ -158,7 +158,7 @@ This document provides the complete epic and story breakdown for asteriods3D, de
 - Atomic write: `<savepath>.tmp` → fsync → `rename()` (Unix) / `MoveFileEx` (Windows).
 - JSON + Serde format.
 - Versioned schema (`version: u32` in save frontmatter); migration path from older versions.
-- Save location via `directories` crate (Windows `%APPDATA%`, Linux `$XDG_DATA_HOME`, macOS `~/Library/Application Support/asteriods3D/`).
+- Save location via `directories` crate (Windows `%APPDATA%`, Linux `$XDG_DATA_HOME`, macOS `~/Library/Application Support/asteroids3D/`).
 
 **String-Table & Tuning (NFR-L3 + hot-reload requirement):**
 - `assets/strings/en.ron` canonical string table, loaded via `bevy_asset`, hot-reloadable during dev. Dot-separated scoped keys (e.g., `ui.hud.shields`).
@@ -279,7 +279,7 @@ Confirmed with Till on 2026-04-22: no separate UX-DR extraction required.
 
 ### Epic 1: Foundation & Plugin Compatibility Gate
 
-**User outcome (dev-foundational):** Project compiles and runs on Windows, Linux, and macOS. `cargo run` opens a window showing "asteriods3D" splash on all three platforms. Plugin compatibility matrix (Bevy 0.18, Avian 0.6, bevy_mod_outline, bevy_kira_audio, leafwing-input-manager, bevy_egui) verified and version-pinned. CI matrix green. No gameplay — this is the compatibility gate per Architecture Starter decision.
+**User outcome (dev-foundational):** Project compiles and runs on Windows, Linux, and macOS. `cargo run` opens a window showing "asteroids3D" splash on all three platforms. Plugin compatibility matrix (Bevy 0.18, Avian 0.6, bevy_mod_outline, bevy_kira_audio, leafwing-input-manager, bevy_egui) verified and version-pinned. CI matrix green. No gameplay — this is the compatibility gate per Architecture Starter decision.
 
 **FRs covered:** FR47 (cross-platform binary baseline)
 
@@ -287,7 +287,7 @@ Confirmed with Till on 2026-04-22: no separate UX-DR extraction required.
 
 **M-alignment:** M0
 
-**Completion gate:** `cargo run` opens window with "asteriods3D" splash on Win/Linux/macOS; CI green.
+**Completion gate:** `cargo run` opens window with "asteroids3D" splash on Win/Linux/macOS; CI green.
 
 ---
 
@@ -429,7 +429,7 @@ Confirmed with Till on 2026-04-22: no separate UX-DR extraction required.
 
 ## Epic 1: Foundation & Plugin Compatibility Gate
 
-Project compiles and runs on Windows, Linux, and macOS. `cargo run` opens a window showing "asteriods3D" splash. Plugin compatibility matrix verified and version-pinned. CI matrix green. No gameplay code — this is the compatibility gate per Architecture Starter decision. M-alignment: M0.
+Project compiles and runs on Windows, Linux, and macOS. `cargo run` opens a window showing "asteroids3D" splash. Plugin compatibility matrix verified and version-pinned. CI matrix green. No gameplay code — this is the compatibility gate per Architecture Starter decision. M-alignment: M0.
 
 ### Story 1.1: Bootstrap Cargo Project with Hand-Authored Cargo.toml
 
@@ -439,8 +439,8 @@ So that every dependency is committed and reproducible from day one, and I inter
 
 **Acceptance Criteria:**
 
-**Given** an empty working directory at `~/Projekte/rust/asteriods3D`
-**When** `cargo new --bin asteriods3d` is executed
+**Given** an empty working directory at `~/Projekte/rust/asteroids3D`
+**When** `cargo new --bin asteroids3d` is executed
 **Then** `src/main.rs` and `Cargo.toml` are created by cargo
 
 **Given** the default `Cargo.toml` is replaced by hand
@@ -531,7 +531,7 @@ So that the cross-platform parity commitment (FR47) is verified on every push in
 
 As a first-time observer of the project,
 I want `cargo run` to open a window on Windows, Linux, and macOS,
-So that the "asteriods3D project exists and runs" signal is demonstrable from day one — the motivation-preservation baseline.
+So that the "asteroids3D project exists and runs" signal is demonstrable from day one — the motivation-preservation baseline.
 
 **Acceptance Criteria:**
 
@@ -571,17 +571,17 @@ So that future plugins can hook `OnEnter`/`OnExit`/`in_state()` scheduling from 
 **Then** the log contains the expected "entered Loading" line
 **And** no further state transitions happen automatically in this story (the transition to `MainMenu` is Story 1.7)
 
-### Story 1.7: Splash Screen Shows "asteriods3D" and Transitions to MainMenu
+### Story 1.7: Splash Screen Shows "asteroids3D" and Transitions to MainMenu
 
 As a player launching the game,
-I want to see "asteriods3D" displayed when the app opens,
+I want to see "asteroids3D" displayed when the app opens,
 So that I immediately know the app launched and I'm in the right program.
 
 **Acceptance Criteria:**
 
 **Given** the app is in `GameState::Loading`
 **When** `OnEnter(GameState::Loading)` runs
-**Then** a `bevy_ui` text Node is spawned with content `"asteriods3D"`
+**Then** a `bevy_ui` text Node is spawned with content `"asteroids3D"`
 **And** the Node uses centered flexbox layout that scales to window size
 **And** the text entity carries a `LoadingStateEntity` marker component
 
@@ -611,7 +611,7 @@ So that crashes during CI runs or future playtesting can be forensically reviewe
 **Then** `info!` / `warn!` / `error!` events from Bevy and app code are output to stderr
 **And** `RUST_LOG=debug cargo run` increases verbosity to `debug!` level
 
-**Given** the `directories` crate resolves the per-OS user-log-dir (Windows `%APPDATA%\asteriods3D\logs\`, Linux `$XDG_STATE_HOME/asteriods3d/logs/` or fallback, macOS `~/Library/Logs/asteriods3D/`)
+**Given** the `directories` crate resolves the per-OS user-log-dir (Windows `%APPDATA%\asteroids3D\logs\`, Linux `$XDG_STATE_HOME/asteroids3d/logs/` or fallback, macOS `~/Library/Logs/asteroids3D/`)
 **When** a log file is opened at startup
 **Then** logs are written to both stderr and the file simultaneously
 
@@ -833,7 +833,7 @@ So that I reach gameplay from the first Epic-3 commit without dev hacks like def
 
 **Given** the app is in `GameState::MainMenu` after Epic 1 Story 1.7 transition
 **When** `OnEnter(GameState::MainMenu)` runs
-**Then** a `bevy_ui` text Node is spawned with title "asteriods3D" plus subtitle "Press Enter to start"
+**Then** a `bevy_ui` text Node is spawned with title "asteroids3D" plus subtitle "Press Enter to start"
 **And** all spawned entities carry a `MainMenuEntity` marker component
 
 **Given** the title screen is visible
@@ -1342,9 +1342,9 @@ So that settings, meta-currency, and future unlocks share one durable, crash-saf
 **Given** the `directories` crate resolves the per-OS data dir
 **When** `save_path()` is called
 **Then** it returns:
-- Windows `%APPDATA%\asteriods3D\save.json`
-- Linux `$XDG_DATA_HOME/asteriods3D/save.json` (or `~/.local/share/asteriods3D/save.json` fallback)
-- macOS `~/Library/Application Support/asteriods3D/save.json`
+- Windows `%APPDATA%\asteroids3D\save.json`
+- Linux `$XDG_DATA_HOME/asteroids3D/save.json` (or `~/.local/share/asteroids3D/save.json` fallback)
+- macOS `~/Library/Application Support/asteroids3D/save.json`
 
 **And** the directory is created if absent
 
@@ -1488,8 +1488,8 @@ So that M3 Itch.io shipping has reproducible artifacts per FR47 with minimal man
 **When** it runs
 **Then** it:
 - Runs `cargo build --release`
-- Stages the binary + full `assets/` directory into `asteriods3D-<os>-<version>/`
-- ZIPs to `asteriods3D-{windows-x64|linux-x64|macos-arm64}-<version>.zip`
+- Stages the binary + full `assets/` directory into `asteroids3D-<os>-<version>/`
+- ZIPs to `asteroids3D-{windows-x64|linux-x64|macos-arm64}-<version>.zip`
 - Uploads the ZIP as a GitHub Actions artifact
 
 **And** the macOS build is **unsigned** per Till's decision on 2026-04-22 (signing deferred to Epic 7 / M6)
@@ -2376,13 +2376,13 @@ So that FR47's Apple Silicon + Intel x86_64 commitment is fulfilled without emul
 
 **Given** both architectures are built
 **When** the universal-binary step runs
-**Then** `lipo -create -output asteriods3D target/release/asteriods3D target/x86_64-apple-darwin/release/asteriods3D` produces a combined Mach-O
-**And** `lipo -info asteriods3D` reports both architectures in the CI log
+**Then** `lipo -create -output asteroids3D target/release/asteroids3D target/x86_64-apple-darwin/release/asteroids3D` produces a combined Mach-O
+**And** `lipo -info asteroids3D` reports both architectures in the CI log
 **And** a CI check asserts both slices are present
 
 **Given** the universal binary is staged
 **When** packaging runs
-**Then** the ZIP is renamed to `asteriods3D-macos-universal-<version>.zip` (replaces prior `macos-arm64` ZIP)
+**Then** the ZIP is renamed to `asteroids3D-macos-universal-<version>.zip` (replaces prior `macos-arm64` ZIP)
 
 **Given** both Intel and arm64 Mac users download the ZIP
 **When** they launch
@@ -2667,7 +2667,7 @@ So that FR26 sets audio expectations before I enter the game.
 **When** the splash UI builds
 **Then** a centered bevy_ui Node shows:
 - Title: "🎧 Recommended: headphones" (emoji or plain text)
-- Subtitle: "asteriods3D uses spatial audio cues for hidden threats"
+- Subtitle: "asteroids3D uses spatial audio cues for hidden threats"
 - "OK / Continue" button
 
 **And** entities carry `HeadphoneSplashEntity` marker
@@ -2892,10 +2892,10 @@ So that FR42 is functional.
 **Given** export file location per Till 2026-04-22
 **When** the PNG is written
 **Then** the file goes to:
-- Unix/macOS: `~/Pictures/asteriods3D/screenshots/`
-- Windows: `%USERPROFILE%\Pictures\asteriods3D\screenshots\`
+- Unix/macOS: `~/Pictures/asteroids3D/screenshots/`
+- Windows: `%USERPROFILE%\Pictures\asteroids3D\screenshots\`
 
-**And** the filename is `asteriods3D-<YYYYMMDD>-<HHMMSS>-<ratio>.png` (e.g., `asteriods3D-20260815-143022-16x9.png`)
+**And** the filename is `asteroids3D-<YYYYMMDD>-<HHMMSS>-<ratio>.png` (e.g., `asteroids3D-20260815-143022-16x9.png`)
 **And** the directory is created if absent
 **And** `directories` crate (already a dependency from Story 4.6) resolves the Pictures dir per-OS
 
@@ -2918,7 +2918,7 @@ So that FR42 is functional.
 ### Story 9.6: Toggleable Watermark
 
 As a player,
-I want an optional "asteriods3D" watermark I can toggle on for credited screenshots,
+I want an optional "asteroids3D" watermark I can toggle on for credited screenshots,
 So that exported PNGs can be identified as from this game.
 
 **Acceptance Criteria:**
@@ -2937,7 +2937,7 @@ So that exported PNGs can be identified as from this game.
 **Given** Story 9.5's export system
 **When** rendering the final PNG
 **Then** if `watermark_enabled == true`:
-- Small "asteriods3D" text overlay in the bottom-right corner
+- Small "asteroids3D" text overlay in the bottom-right corner
 - Text is semi-transparent (~70% opacity) with a subtle drop-shadow for readability on any background
 - Neutral color (light gray / off-white), not palette-colored
 
@@ -3319,7 +3319,7 @@ So that the M9 completion gate is met.
 
 **Given** the playtest completes successfully on accessible platforms
 **When** the M9 gate is evaluated
-**Then** asteriods3D is declared MVP-ready
+**Then** asteroids3D is declared MVP-ready
 **And** release.yml produces final ZIPs per Story 4.10 / 7.6
 **And** Itch.io publication follows the runbook (updated unsigned-or-signed depending on Story 10.10 decision)
 

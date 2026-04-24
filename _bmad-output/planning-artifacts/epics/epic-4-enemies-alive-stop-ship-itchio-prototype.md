@@ -189,9 +189,9 @@ So that settings, meta-currency, and future unlocks share one durable, crash-saf
 **Given** the `directories` crate resolves the per-OS data dir
 **When** `save_path()` is called
 **Then** it returns:
-- Windows `%APPDATA%\asteriods3D\save.json`
-- Linux `$XDG_DATA_HOME/asteriods3D/save.json` (or `~/.local/share/asteriods3D/save.json` fallback)
-- macOS `~/Library/Application Support/asteriods3D/save.json`
+- Windows `%APPDATA%\asteroids3D\save.json`
+- Linux `$XDG_DATA_HOME/asteroids3D/save.json` (or `~/.local/share/asteroids3D/save.json` fallback)
+- macOS `~/Library/Application Support/asteroids3D/save.json`
 
 **And** the directory is created if absent
 
@@ -335,8 +335,8 @@ So that M3 Itch.io shipping has reproducible artifacts per FR47 with minimal man
 **When** it runs
 **Then** it:
 - Runs `cargo build --release`
-- Stages the binary + full `assets/` directory into `asteriods3D-<os>-<version>/`
-- ZIPs to `asteriods3D-{windows-x64|linux-x64|macos-arm64}-<version>.zip`
+- Stages the binary + full `assets/` directory into `asteroids3D-<os>-<version>/`
+- ZIPs to `asteroids3D-{windows-x64|linux-x64|macos-arm64}-<version>.zip`
 - Uploads the ZIP as a GitHub Actions artifact
 
 **And** the macOS build is **unsigned** per Till's decision on 2026-04-22 (signing deferred to Epic 7 / M6)

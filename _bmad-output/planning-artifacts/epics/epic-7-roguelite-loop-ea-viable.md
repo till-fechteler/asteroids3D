@@ -187,13 +187,13 @@ So that FR47's Apple Silicon + Intel x86_64 commitment is fulfilled without emul
 
 **Given** both architectures are built
 **When** the universal-binary step runs
-**Then** `lipo -create -output asteriods3D target/release/asteriods3D target/x86_64-apple-darwin/release/asteriods3D` produces a combined Mach-O
-**And** `lipo -info asteriods3D` reports both architectures in the CI log
+**Then** `lipo -create -output asteroids3D target/release/asteroids3D target/x86_64-apple-darwin/release/asteroids3D` produces a combined Mach-O
+**And** `lipo -info asteroids3D` reports both architectures in the CI log
 **And** a CI check asserts both slices are present
 
 **Given** the universal binary is staged
 **When** packaging runs
-**Then** the ZIP is renamed to `asteriods3D-macos-universal-<version>.zip` (replaces prior `macos-arm64` ZIP)
+**Then** the ZIP is renamed to `asteroids3D-macos-universal-<version>.zip` (replaces prior `macos-arm64` ZIP)
 
 **Given** both Intel and arm64 Mac users download the ZIP
 **When** they launch

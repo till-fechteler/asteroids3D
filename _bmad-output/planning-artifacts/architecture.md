@@ -5,7 +5,7 @@ inputDocuments:
   - _bmad-output/planning-artifacts/prd-validation-report.md
   - _bmad-output/brainstorming/brainstorming-session-2026-04-21-1114.md
 workflowType: 'architecture'
-project_name: 'asteriods3D'
+project_name: 'asteroids3D'
 user_name: 'Till'
 date: '2026-04-22'
 lastStep: 8
@@ -111,8 +111,8 @@ Till's explicit learning goal is "fluent in ECS-idiomatic Bevy by M3." Every lin
 
 ```bash
 # Bootstrap
-cargo new --bin asteriods3d
-cd asteriods3d
+cargo new --bin asteroids3d
+cd asteroids3d
 
 # Cargo.toml and src/main.rs: author by hand (Till)
 # See "Core Dependencies" decision below for exact pinned versions
@@ -532,7 +532,7 @@ impl Plugin for CombatPlugin {
 ### Complete Project Directory Structure
 
 ```
-asteriods3d/
+asteroids3d/
 ├── Cargo.toml                         # pinned Bevy 0.18 + Avian 0.6 + plugins
 ├── Cargo.lock                         # committed (binary project convention)
 ├── rust-toolchain.toml                # pins stable toolchain for CI reproducibility
@@ -964,8 +964,8 @@ The first story of M0 ("Hello Bevy") is NOT writing gameplay code. It is verifyi
 
 ```bash
 # Story M0.1 — Plugin compatibility verification
-cargo new --bin asteriods3d
-cd asteriods3d
+cargo new --bin asteroids3d
+cd asteroids3d
 
 # Author Cargo.toml by hand:
 #   bevy = { version = "0.18", default-features = false, features = ["3d", "png", "x11"] }
@@ -991,4 +991,4 @@ Only after the compatibility gate passes does actual M0 scaffolding begin:
 - `.github/workflows/ci.yml` (borrowed from NiklasEi's template, stripped).
 - `rustfmt.toml`, `clippy.toml`, `.gitignore`.
 
-M0 completion criterion: `cargo run` opens a window showing "asteriods3D" on all three platforms, with CI passing.
+M0 completion criterion: `cargo run` opens a window showing "asteroids3D" on all three platforms, with CI passing.

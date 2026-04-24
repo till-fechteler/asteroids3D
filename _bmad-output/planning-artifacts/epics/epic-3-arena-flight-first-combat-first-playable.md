@@ -12,7 +12,7 @@ So that I reach gameplay from the first Epic-3 commit without dev hacks like def
 
 **Given** the app is in `GameState::MainMenu` after Epic 1 Story 1.7 transition
 **When** `OnEnter(GameState::MainMenu)` runs
-**Then** a `bevy_ui` text Node is spawned with title "asteriods3D" plus subtitle "Press Enter to start"
+**Then** a `bevy_ui` text Node is spawned with title "asteroids3D" plus subtitle "Press Enter to start"
 **And** all spawned entities carry a `MainMenuEntity` marker component
 
 **Given** the title screen is visible

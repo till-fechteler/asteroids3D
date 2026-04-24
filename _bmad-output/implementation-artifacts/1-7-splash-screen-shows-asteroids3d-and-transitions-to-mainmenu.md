@@ -1,4 +1,4 @@
-# Story 1.7: Splash Screen Shows "asteriods3D" and Transitions to MainMenu
+# Story 1.7: Splash Screen Shows "asteroids3D" and Transitions to MainMenu
 
 Status: done
 
@@ -7,14 +7,14 @@ Status: done
 ## Story
 
 As a player launching the game,
-I want to see "asteriods3D" displayed when the app opens,
+I want to see "asteroids3D" displayed when the app opens,
 So that I immediately know the app launched and I'm in the right program.
 
 ## Acceptance Criteria
 
 1. **Given** the app is in `GameState::Loading`
    **When** `OnEnter(GameState::Loading)` runs
-   **Then** a `bevy_ui` text Node is spawned with content `"asteriods3D"`
+   **Then** a `bevy_ui` text Node is spawned with content `"asteroids3D"`
    **And** the Node uses centered flexbox layout that scales to window size
    **And** the text entity (or its parent Node) carries a `LoadingStateEntity` marker component
 
@@ -42,7 +42,7 @@ So that I immediately know the app launched and I'm in the right program.
 - [x] **Task 2: Create `src/splash.rs`** (AC: #1, #2, #3)
   - [x] New file `src/splash.rs`, 88 lines (69 code + tests + doc).
   - [x] `use bevy::prelude::*;` + `use crate::state::GameState;`.
-  - [x] Constants `SPLASH_TEXT = "asteriods3D"` (typo preserved per spec), `SPLASH_DURATION_SECS = 2.0`.
+  - [x] Constants `SPLASH_TEXT = "asteroids3D"` (typo preserved per spec), `SPLASH_DURATION_SECS = 2.0`.
   - [x] `#[derive(Resource)] pub struct SplashConfig { pub timer: Timer }` + `Default` impl returning `Timer::from_seconds(SPLASH_DURATION_SECS, TimerMode::Once)`.
   - [x] `#[derive(Component)] pub struct LoadingStateEntity;`.
   - [x] `spawn_splash` spawns `(Camera2d, LoadingStateEntity)` and the centered flex Node with `(Text::new, TextFont { font_size: 64.0 }, TextColor::WHITE)` child.
@@ -104,7 +104,7 @@ So that I immediately know the app launched and I'm in the right program.
 
 ### Why this story exists
 
-Story 1.7 completes Epic 1's M0 completion criterion: **`cargo run` opens a window showing "asteriods3D" on all three platforms, with CI passing**. [Source: architecture.md:994] Stories 1.1–1.6 compile the project, pin plugins, configure toolchain, run 3-OS CI, open a window, and install the `States` skeleton — but the window is still blank default-Bevy. Story 1.7 puts the project's name on screen and exercises the first `Loading → MainMenu` state transition, proving the `States` backbone from 1.6 works end-to-end.
+Story 1.7 completes Epic 1's M0 completion criterion: **`cargo run` opens a window showing "asteroids3D" on all three platforms, with CI passing**. [Source: architecture.md:994] Stories 1.1–1.6 compile the project, pin plugins, configure toolchain, run 3-OS CI, open a window, and install the `States` skeleton — but the window is still blank default-Bevy. Story 1.7 puts the project's name on screen and exercises the first `Loading → MainMenu` state transition, proving the `States` backbone from 1.6 works end-to-end.
 
 It also installs the **first bevy_ui surface in the project**. Every subsequent UI story (FR36 title screen, FR11 HUD, FR38 post-run summary, FR41 photo mode) builds on the same pipeline. Getting Cargo features + Camera2d + Node/Text layout + state-scoped cleanup right once here removes the same ambiguity from every later UI story. [Source: architecture.md:226-230 hybrid HUD strategy; architecture.md:254 menu system]
 
@@ -172,7 +172,7 @@ use bevy::prelude::*;
 
 use crate::state::GameState;
 
-const SPLASH_TEXT: &str = "asteriods3D";
+const SPLASH_TEXT: &str = "asteroids3D";
 const SPLASH_DURATION_SECS: f32 = 2.0;
 
 #[derive(Resource)]
@@ -302,18 +302,18 @@ fn main() -> AppExit {
 
 Rustfmt is allowed to re-order the `use` items inside each `use` block (it sorts alphabetically within `{…}`). Accept its order.
 
-### Typo preservation: "asteriods3D" vs "asteroids3D"
+### Typo preservation: "asteroids3D" vs "asteroids3D"
 
-The Epic 1 spec (`epic-1-*.md:156`) literally reads `"asteriods3D"` — a transposed `ei` → `ie`. The *correct* brand (and Cargo package name after commit `113eebe`) is `asteroids3D`. The planning artifacts still carry the typo across `sprint-status.yaml`, `epics.md`, `architecture.md`, and others — tracked as a deferred-work chore ("fix project-name typo across planning + bookkeeping artifacts") from the Story 1.3 code review.
+The Epic 1 spec (`epic-1-*.md:156`) literally reads `"asteroids3D"` — a transposed `ei` → `ie`. The *correct* brand (and Cargo package name after commit `113eebe`) is `asteroids3D`. The planning artifacts still carry the typo across `sprint-status.yaml`, `epics.md`, `architecture.md`, and others — tracked as a deferred-work chore ("fix project-name typo across planning + bookkeeping artifacts") from the Story 1.3 code review.
 
 **This story preserves the literal typo.** Rationale:
-1. The Story 1.7 AC #1 explicitly specifies `"asteriods3D"`. Dev agent follows spec literally.
+1. The Story 1.7 AC #1 explicitly specifies `"asteroids3D"`. Dev agent follows spec literally.
 2. A single-character fix here, without also fixing the rest of the typo cluster, creates inconsistency between splash text and planning artifacts.
 3. The dedicated typo-rename chore will sweep `SPLASH_TEXT` together with the other occurrences in one coherent commit. That's the right place for the fix.
 
 If Till decides to ship the correction in this story, he can change `SPLASH_TEXT` to `"asteroids3D"` in a one-line patch — but the default and spec-aligned behavior is to keep the typo.
 
-[Source: `_bmad-output/implementation-artifacts/deferred-work.md` → "Deferred from: code review of 1-3" → `project: asteriods3D typo`]
+[Source: `_bmad-output/implementation-artifacts/deferred-work.md` → "Deferred from: code review of 1-3" → `project: asteroids3D typo`]
 
 ### NFR-L3 deferral: hard-coded string, not RON
 
@@ -334,7 +334,7 @@ No code comment is needed on `SPLASH_TEXT` noting this — the dev notes suffice
 | Camera lifecycle across all states (3D for Arena/Caravan, 2D for menus) | **Epic 3+** — each state spawns its own camera on `OnEnter`. |
 | Refactor splash to `src/ui/splash.rs` + `UiPlugin` | **Epic 3 Story 3.1** — first mover on `src/ui/` subtree moves splash in. |
 | `StateScoped<S>` migration instead of marker + cleanup | **Architectural amendment** — out of story scope. |
-| Fix `asteriods3D` typo in splash + planning artifacts | **Dedicated typo-rename chore** — not Story 1.7 scope. |
+| Fix `asteroids3D` typo in splash + planning artifacts | **Dedicated typo-rename chore** — not Story 1.7 scope. |
 
 ### Architecture Compliance
 
@@ -442,9 +442,9 @@ No conflicts with the rest of the unified project structure. Future `src/core/`,
 - [Source: `_bmad-output/planning-artifacts/architecture.md:432-434`] — `OnEnter(GameState::Loading)` startup sequencing.
 - [Source: `_bmad-output/planning-artifacts/architecture.md:548-549`] — `src/main.rs` + `src/state.rs` placement + purpose.
 - [Source: `_bmad-output/planning-artifacts/architecture.md:589-597`] — Target placement for `src/ui/` subtree (Epic 3+).
-- [Source: `_bmad-output/planning-artifacts/architecture.md:994`] — M0 completion criterion: `"cargo run" opens a window showing "asteriods3D"`.
+- [Source: `_bmad-output/planning-artifacts/architecture.md:994`] — M0 completion criterion: `"cargo run" opens a window showing "asteroids3D"`.
 - [Source: `_bmad-output/planning-artifacts/prd.md:612`] — NFR-L3: external string table. Deferred to Epic 3+.
-- [Source: `_bmad-output/implementation-artifacts/deferred-work.md`] — `asteriods3D` typo sweep (from 1.3 review); `bevy_winit` close-WARN (from 1.6 review).
+- [Source: `_bmad-output/implementation-artifacts/deferred-work.md`] — `asteroids3D` typo sweep (from 1.3 review); `bevy_winit` close-WARN (from 1.6 review).
 - [Source: `_bmad-output/implementation-artifacts/1-6-gamestate-enum-with-bevy-states-skeleton.md`] — Prior-story conventions: commit pattern, verification discipline, scope guardrails, `#[expect(dead_code)]` continuity.
 - [Source: `Cargo.toml:8,23-26`] — current Bevy feature pins (to be extended).
 - [Source: `MEMORY.md → feedback_full_build_output.md`] — verification discipline: exit-0 + tail is NOT proof; grep explicitly.
@@ -487,13 +487,13 @@ All local verification logs captured at `/tmp/story-1-7-*.log` on macOS 26.4.1 /
 
 ### Completion Notes List
 
-- **AC #1 — splash text Node spawned on `OnEnter(Loading)`:** `spawn_splash` creates `(Camera2d, LoadingStateEntity)` + `(Node { Percent 100% + JustifyContent::Center + AlignItems::Center }, LoadingStateEntity)` with child `(Text::new("asteriods3D"), TextFont { font_size 64 }, TextColor::WHITE)`. Centered flexbox fills the viewport; marker scopes Node + Camera to Loading.
+- **AC #1 — splash text Node spawned on `OnEnter(Loading)`:** `spawn_splash` creates `(Camera2d, LoadingStateEntity)` + `(Node { Percent 100% + JustifyContent::Center + AlignItems::Center }, LoadingStateEntity)` with child `(Text::new("asteroids3D"), TextFont { font_size 64 }, TextColor::WHITE)`. Centered flexbox fills the viewport; marker scopes Node + Camera to Loading.
 - **AC #2 — `SplashConfig` timer → `NextState(MainMenu)` after 2.0 s:** `SplashConfig { timer: Timer::from_seconds(2.0, Once) }` initialized via `init_resource`. `tick_splash_timer` runs `in_state(Loading)`; `just_finished()` → `info!("splash timer elapsed, ...")` + `NextState::set(MainMenu)`. Runtime log confirms 2.009 s splash duration (within one 60 Hz frame tolerance).
 - **AC #3 — `OnExit(Loading)` despawns `LoadingStateEntity`:** `cleanup_loading_entities` iterates `Query<Entity, With<LoadingStateEntity>>` and `despawn()`s each. Both the Node parent and Camera2d carry the marker; despawn cascades to the Text child via Bevy 0.16+ Relationship-based recursion.
 - **AC #4 — MainMenu visually empty after transition:** runtime log shows `entered MainMenu` followed by no further UI system output. Window stays open (user closed manually ≈ 8 s after transition); no orphan splash text. MainMenu UI is Epic 3+.
 - **Cargo.lock non-regeneration (Task 1 deviation):** Story predicted `Cargo.lock` would gain transitive entries when `bevy_ui` + `default_font` features were enabled. Empirically: both features were already transitively pulled by `"3d"`'s feature graph (verified `grep -c 'bevy_ui\|bevy_text' Cargo.lock` = 20 pre-edit). Adding them to our crate's feature list activated the bevy crate's compilation paths without expanding the resolved dep set. Consequence: no `Cargo.lock` commit, no CI cache invalidation. Side-effect: CI wall-time matched the 1.6 warm-cache run.
 - **Rustfmt import re-ordering (pre-commit):** Initial `cargo fmt --all -- --check` flagged the `use` ordering — rustfmt canonical ordering is alphabetical-uppercase-first (`SplashConfig, cleanup_loading_entities, spawn_splash, tick_splash_timer`, and `GameState, log_loading_entered, log_mainmenu_entered`). Applied via `cargo fmt --all` once; accepted as-is. Matches the Story 1.6 rustfmt pattern.
-- **Typo preservation:** `SPLASH_TEXT = "asteriods3D"` (transposed `ei` → `ie`) preserved per Epic 1 AC literal. The corrected brand `asteroids3D` exists in `Cargo.toml:2` (post-commit `113eebe`). Dedicated typo-rename chore (deferred-work.md → 1.3 review) will sweep all occurrences, including `SPLASH_TEXT`, in one coherent commit.
+- **Typo preservation:** `SPLASH_TEXT = "asteroids3D"` (transposed `ei` → `ie`) preserved per Epic 1 AC literal. The corrected brand `asteroids3D` exists in `Cargo.toml:2` (post-commit `113eebe`). Dedicated typo-rename chore (deferred-work.md → 1.3 review) will sweep all occurrences, including `SPLASH_TEXT`, in one coherent commit.
 - **No new tests fail-first needed beyond existing test:** Story's unit test (`splash_config_default_is_two_seconds`) is pure-function and deterministic; no "RED → GREEN" cycle needed for a Default-value assertion. Integration tests (App construction with states) remain deferred per architecture.md:144-146 and Story 1.6's Dev Notes precedent (`App::new()` boots wgpu, breaks headless CI).
 - **Windows/Linux runtime verification deferred to Till's physical hardware** per the Story 1.5/1.6 model. CI 3-OS compile parity is the gating evidence for this hobby-project cadence.
 - **`.claude/scheduled_tasks.lock` gitignore defer + `bevy_winit` close-WARN defer remain open** — not this story's resolution window.
@@ -507,7 +507,7 @@ All local verification logs captured at `/tmp/story-1-7-*.log` on macOS 26.4.1 /
 - `Cargo.toml` — extended `bevy` features on both `[dependencies]` and `[target.'cfg(target_os = "linux")'.dependencies.bevy]` blocks with `"bevy_ui"` + `"default_font"`. 2 lines changed.
 - `src/main.rs` — added `mod splash;`; splash imports; `log_mainmenu_entered` import; `.init_resource::<SplashConfig>()`; `OnEnter(Loading)` → tuple `(log_loading_entered, spawn_splash)`; new `OnEnter(MainMenu)`, `Update + run_if in_state(Loading)`, `OnExit(Loading)` registrations; updated `//!` doc. Net +13 lines (16 → 29).
 - `src/state.rs` — appended `pub fn log_mainmenu_entered() { info!("entered MainMenu"); }` after `log_loading_entered`. Net +4 lines. `GameState` enum + `#[expect(dead_code, reason = "...")]` untouched.
-- `_bmad-output/implementation-artifacts/1-7-splash-screen-shows-asteriods3d-and-transitions-to-mainmenu.md` — this file: Tasks checked, Dev Agent Record / Completion Notes / File List populated, Status → review.
+- `_bmad-output/implementation-artifacts/1-7-splash-screen-shows-asteroids3d-and-transitions-to-mainmenu.md` — this file: Tasks checked, Dev Agent Record / Completion Notes / File List populated, Status → review.
 - `_bmad-output/implementation-artifacts/sprint-status.yaml` — status flip `ready-for-dev → in-progress → review` + `last_updated` bump (staged for bookkeeping commit).
 
 **Untouched (guardrail):** `Cargo.lock`, `.gitignore`, `.github/workflows/ci.yml`, `rust-toolchain.toml`, `rustfmt.toml`, `clippy.toml`, `docs/plugin-compatibility.md`, `_bmad-output/implementation-artifacts/deferred-work.md`.
@@ -516,7 +516,7 @@ All local verification logs captured at `/tmp/story-1-7-*.log` on macOS 26.4.1 /
 
 | Date | Author | Change |
 |---|---|---|
-| 2026-04-24 | claude-opus-4-7 (create-story) | Story 1.7 drafted. Scope: `src/splash.rs` new file (SplashConfig + LoadingStateEntity + 3 systems + 1 unit test); `src/state.rs` appends `log_mainmenu_entered`; `src/main.rs` wires `init_resource`, `OnEnter(MainMenu)`, `Update` (timer run_if in_state Loading), `OnExit(Loading)` cleanup; `Cargo.toml` extends bevy features to include `"bevy_ui"` + `"default_font"` on both dep blocks; `Cargo.lock` regenerates. M0 completion criterion (`cargo run` shows "asteriods3D" → transitions to blank MainMenu) satisfied. `asteriods3D` typo preserved per epic spec — swept by dedicated chore story. Status: ready-for-dev. |
+| 2026-04-24 | claude-opus-4-7 (create-story) | Story 1.7 drafted. Scope: `src/splash.rs` new file (SplashConfig + LoadingStateEntity + 3 systems + 1 unit test); `src/state.rs` appends `log_mainmenu_entered`; `src/main.rs` wires `init_resource`, `OnEnter(MainMenu)`, `Update` (timer run_if in_state Loading), `OnExit(Loading)` cleanup; `Cargo.toml` extends bevy features to include `"bevy_ui"` + `"default_font"` on both dep blocks; `Cargo.lock` regenerates. M0 completion criterion (`cargo run` shows "asteroids3D" → transitions to blank MainMenu) satisfied. `asteroids3D` typo preserved per epic spec — swept by dedicated chore story. Status: ready-for-dev. |
 | 2026-04-24 | claude-opus-4-7 (dev-story) | Story 1.7 implemented. Source commit `8914284` — `src/splash.rs` added (88 lines), `src/main.rs` modified (+13 lines), `src/state.rs` modified (+4 lines), `Cargo.toml` features extended. One notable deviation: `Cargo.lock` did NOT regenerate — `bevy_ui` + `default_font` were already transitively pulled by `"3d"`'s feature graph, so the features activated compilation paths without expanding the resolved dep set. Side-effect: CI cache stayed warm, total wall ≈ 10m47s (vs. Story Dev Notes prediction of 30–60m cold-cache). Rustfmt auto-reordered `use` import lists alphabetically (anticipated, accepted). All 4 CI jobs green (run `24882136265`, 0 warning/error across full log). Second project unit test added (total: 2 passing). Runtime verification on macOS: 2.009 s splash duration, backend: Metal confirmed. Known `bevy_winit` close-WARN reappeared (1.6 defer; not a regression). Status: review. |
 | 2026-04-24 | claude-opus-4-7 (code-review light) | Story 1.7 reviewed. Scope: 165 diff lines across 4 files — light single-reviewer pass (same model as 1.6 precedent). Zero blocking, zero HIGH/MED findings. 2× LOW patches applied (`chore:` commit `fb7e411`): (MED→applied) `LoadingStateEntity` marker added to child Text entity for defensive explicit cleanup matching architecture.md:420; (LOW→applied) `const SPLASH_FONT_SIZE: f32 = 64.0;` hoisted for stylistic consistency with other splash consts. 1× LOW logged to `deferred-work.md`: SplashConfig timer re-entry latch (no M0/M1 re-entry path; future-story land-mine). 3× noise findings dismissed (Cargo.toml features defensively explicit, pub timer field premature to encapsulate, OnEnter tuple parallelism safe). Status: done. |
 
@@ -547,7 +547,7 @@ Full 3-agent adversarial review (Blind Hunter / Edge Case Hunter / Acceptance Au
 
 | AC | Evidence | Status |
 |---|---|---|
-| #1 — bevy_ui text Node "asteriods3D" centered flexbox, LoadingStateEntity marker | `splash.rs:26-52`, post-patch: marker on **both** Camera2d + Node parent + Text child. Runtime visually verified (M5 Pro, Metal backend). | ✅ |
+| #1 — bevy_ui text Node "asteroids3D" centered flexbox, LoadingStateEntity marker | `splash.rs:26-52`, post-patch: marker on **both** Camera2d + Node parent + Text child. Runtime visually verified (M5 Pro, Metal backend). | ✅ |
 | #2 — Splash-duration elapses → NextState(MainMenu) | `splash.rs:54-63`, SplashConfig default 2.0s TimerMode::Once; `/tmp/story-1-7-run.log` shows 2.009s measured elapsed. | ✅ |
 | #3 — OnExit(Loading) despawns LoadingStateEntity | `splash.rs:65-72`, post-patch all three entity types (Camera2d, Node, Text child) carry the marker and despawn explicitly. | ✅ |
 | #4 — MainMenu splash gone, no residual UI | Runtime log shows `entered MainMenu` followed by silence; visually blank window confirmed. | ✅ |

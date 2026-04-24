@@ -27,14 +27,14 @@ So that every dependency is committed and reproducible from day one, and I inter
 ## Tasks / Subtasks
 
 - [x] **Task 1 — Verify bootstrap preconditions (AC: #1)**
-  - [x] Confirm `Cargo.toml` and `src/main.rs` exist at `/Users/tillfechteler/Projekte/rust/asteriods3D/`.
-  - [x] Current state check: `cargo new --bin` was already run (package name `asteriods3D`, edition `2024`, empty `[dependencies]`). No additional bootstrap step needed. See **Project Structure Notes → Package name casing** below.
+  - [x] Confirm `Cargo.toml` and `src/main.rs` exist at `/Users/tillfechteler/Projekte/rust/asteroids3D/`.
+  - [x] Current state check: `cargo new --bin` was already run (package name `asteroids3D`, edition `2024`, empty `[dependencies]`). No additional bootstrap step needed. See **Project Structure Notes → Package name casing** below.
 - [x] **Task 2 — Resolve plugin versions against Bevy 0.18 (AC: #2)**
   - [x] Query crates.io (or `cargo search`) for the latest `bevy_mod_outline`, `bevy_kira_audio`, `leafwing-input-manager`, `bevy_egui` releases and confirm each declares a Bevy `0.18` dependency.
   - [x] If any plugin lags (no 0.18-compatible release), do **not** fork yet — record the gap as a finding for Story 1.2 (Plugin Compatibility Verification Gate). Pin the closest release and let 1.2 own the fork-or-substitute decision. [Source: architecture.md:56-70,401-403]
   - [x] Capture the exact resolved versions in the story's **File List** for Story 1.2 to reference.
 - [x] **Task 3 — Author `Cargo.toml` (AC: #2, #3, #4)**
-  - [x] Replace `/Users/tillfechteler/Projekte/rust/asteriods3D/Cargo.toml` contents with the hand-authored manifest (template in **Dev Notes → Cargo.toml Skeleton**).
+  - [x] Replace `/Users/tillfechteler/Projekte/rust/asteroids3D/Cargo.toml` contents with the hand-authored manifest (template in **Dev Notes → Cargo.toml Skeleton**).
   - [x] Include `[dependencies]`, `[target.'cfg(debug_assertions)'.dependencies]`, `[profile.release]`, and `[profile.dev.package."*"]` sections.
   - [x] Keep Linux windowing features behind `[target.'cfg(target_os = "linux")'.dependencies]` so Windows/macOS builds do not pull unnecessary windowing crates. [Source: architecture.md:132-133]
 - [x] **Task 4 — Resolve and commit lockfile (AC: #5, #6)**
@@ -73,7 +73,7 @@ Use this as the shape of the manifest. Versions marked `<latest-0.18-compatible>
 
 ```toml
 [package]
-name = "asteriods3D"          # see Project Structure Notes for casing rationale
+name = "asteroids3D"          # see Project Structure Notes for casing rationale
 version = "0.1.0"
 edition = "2024"
 
@@ -146,11 +146,11 @@ Bevy + Avian + plugins are hard-pinned at M0. Upgrade budget is planned only at 
 
 ### Project Structure Notes
 
-**Package name casing.** The existing `Cargo.toml` declares `name = "asteriods3D"` (capital D). Cargo tolerates this but conventional Rust package names are snake_case lowercase. The architecture's bootstrap snippet uses `asteriods3d` (lowercase) in the `cargo new` example. [Source: architecture.md:114,967]
+**Package name casing.** The existing `Cargo.toml` declares `name = "asteroids3D"` (capital D). Cargo tolerates this but conventional Rust package names are snake_case lowercase. The architecture's bootstrap snippet uses `asteroids3d` (lowercase) in the `cargo new` example. [Source: architecture.md:114,967]
 
-**Decision:** Keep the existing `name = "asteriods3D"` casing. Rationale: (a) the project already exists under that name, (b) the user-facing concept docs consistently use `asteriods3D`, (c) changing it now would churn any future artifact path already referencing the package name. Note any cargo-warning output and move on. If cargo emits a hard error (not just a warning) on the casing, fall back to `asteriods3d` and flag in **Completion Notes**.
+**Decision:** Keep the existing `name = "asteroids3D"` casing. Rationale: (a) the project already exists under that name, (b) the user-facing concept docs consistently use `asteroids3D`, (c) changing it now would churn any future artifact path already referencing the package name. Note any cargo-warning output and move on. If cargo emits a hard error (not just a warning) on the casing, fall back to `asteroids3d` and flag in **Completion Notes**.
 
-**Binary name.** Cargo will produce `asteriods3D` (or `asteriods3D.exe` on Windows) as the binary. Release-workflow packaging (Story 4.10 / 10.x) will rename as needed for ZIP artifacts — not this story's concern.
+**Binary name.** Cargo will produce `asteroids3D` (or `asteroids3D.exe` on Windows) as the binary. Release-workflow packaging (Story 4.10 / 10.x) will rename as needed for ZIP artifacts — not this story's concern.
 
 **Module layout.** This story does NOT create `src/core/`, `src/flight/`, or any other module directories. The full target layout (see architecture.md:534-639) is built incrementally by the plugins that need it starting in Epic 2. Keep `src/` containing only the default `main.rs`.
 
@@ -198,7 +198,7 @@ claude-opus-4-7 (Claude Code)
 
 No plugin version gaps detected — all four plugins have a current release targeting Bevy 0.18. **Story 1.2 can proceed without fork-or-substitute work.**
 
-**Package casing.** Kept `name = "asteriods3D"` (capital D) per Project Structure Notes. `cargo check` produced no casing warning or error. Proceeding.
+**Package casing.** Kept `name = "asteroids3D"` (capital D) per Project Structure Notes. `cargo check` produced no casing warning or error. Proceeding.
 
 **Lockfile status.** `Cargo.lock` was generated by `cargo check`. No `.gitignore` file exists yet that would exclude it (confirmed via `git check-ignore Cargo.lock` → exit 1 / not ignored). `.gitignore` authorship is deferred to Story 1.3 per scope guardrails. Per AC #6, `Cargo.lock` should be committed alongside `Cargo.toml` at the next user-initiated commit — this workflow does not auto-commit.
 
@@ -230,4 +230,4 @@ All entries below are **new files in the initial commit** `4ca3869` — the repo
 |---|---|---|
 | 2026-04-22 | claude-opus-4-7 (Dev) | Story 1.1 implemented. Cargo.toml authored with pinned Bevy 0.18 + 5 plugins + utility crates. `cargo check` passes. Status: ready-for-dev → review. |
 | 2026-04-22 | claude-opus-4-7 (Review) | 3-layer adversarial code review (Blind + Edge + Auditor). 19 raw findings → 1 decision + 1 patch + 4 defer + 13 dismissed. Decision: initial commit `4ca3869` created (AC #6 satisfied). Patch: File List rewritten. Deferred items logged to `deferred-work.md`. Status: review → done. |
-| 2026-04-22 | claude-opus-4-7 (Post-rename) | Project renamed `asteriods3D` → `asteroids3D` by user (typo fix); package name updated in Cargo.toml + Cargo.lock (commit `113eebe`). GitHub remote pushed: 3 commits live at github.com/till-fechteler/asteroids3D. **Review correction:** re-running `cargo check` surfaced a previously-suppressed warning that `cfg(debug_assertions)` does not work as a dependency selector — bevy_egui leaks into release builds. Both adversarial reviewers had flagged this; I had wrongly dismissed both. Real finding now logged in `deferred-work.md` under "Review correction" with three candidate fixes. Story 1.1 Status remains `done` (all 6 ACs literally met) but the design intent for dev-only egui is broken until follow-up lands. |
+| 2026-04-22 | claude-opus-4-7 (Post-rename) | Project renamed `asteroids3D` → `asteroids3D` by user (typo fix); package name updated in Cargo.toml + Cargo.lock (commit `113eebe`). GitHub remote pushed: 3 commits live at github.com/till-fechteler/asteroids3D. **Review correction:** re-running `cargo check` surfaced a previously-suppressed warning that `cfg(debug_assertions)` does not work as a dependency selector — bevy_egui leaks into release builds. Both adversarial reviewers had flagged this; I had wrongly dismissed both. Real finding now logged in `deferred-work.md` under "Review correction" with three candidate fixes. Story 1.1 Status remains `done` (all 6 ACs literally met) but the design intent for dev-only egui is broken until follow-up lands. |

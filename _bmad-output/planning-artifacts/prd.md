@@ -9,7 +9,7 @@ documentCounts:
   brainstorming: 1
   projectDocs: 0
 workflowType: 'prd'
-project_name: 'asteriods3D'
+project_name: 'asteroids3D'
 user_name: 'Till'
 date: '2026-04-21'
 classification:
@@ -40,14 +40,14 @@ fixedInputs:
     - 'M9: Full MVP polished'
 ---
 
-# Product Requirements Document - asteriods3D
+# Product Requirements Document - asteroids3D
 
 **Author:** Till
 **Date:** 2026-04-21
 
 ## Executive Summary
 
-asteriods3D is a cockpit-only 3D asteroids-style shooter with roguelite progression, built in Rust + Bevy as a solo hobby project with dual learning and portfolio goals. The core experience is immersive space flight through a single first-person cockpit window — no external camera, no narrative cutscenes, no lore overlay. Players pilot through procedurally-decorated handcrafted "Caravan" runs (A→B traversal with opt-in arena combat pockets), managing a salvage economy where shooting costs currency and intact asteroids yield higher rewards. Progression is driven by meta-currency unlocks and (post-MVP) a modular weapon-crafting system. The 10-month milestone roadmap has stop-and-ship waypoints at M3 (shippable Itch.io prototype), M6 (Early Access viable), and M9 (full MVP).
+asteroids3D is a cockpit-only 3D asteroids-style shooter with roguelite progression, built in Rust + Bevy as a solo hobby project with dual learning and portfolio goals. The core experience is immersive space flight through a single first-person cockpit window — no external camera, no narrative cutscenes, no lore overlay. Players pilot through procedurally-decorated handcrafted "Caravan" runs (A→B traversal with opt-in arena combat pockets), managing a salvage economy where shooting costs currency and intact asteroids yield higher rewards. Progression is driven by meta-currency unlocks and (post-MVP) a modular weapon-crafting system. The 10-month milestone roadmap has stop-and-ship waypoints at M3 (shippable Itch.io prototype), M6 (Early Access viable), and M9 (full MVP).
 
 Target audience: players who value atmospheric sim-lite flight over pure arcade reflex, who appreciate roguelite retention loops (Hades / Returnal / FTL sensibilities), and who are drawn to distinctive visual signatures. Secondary audience: Rust/Bevy developers following a public learning-artifact game project.
 
@@ -57,7 +57,7 @@ Problem framing: existing "Asteroids" inheritors are overwhelmingly arcade-pure 
 
 Four differentiators compound into a coherent identity:
 
-1. **Cockpit-only as identity anchor.** Unlike genre peers that toggle between cockpit and third-person, asteriods3D commits. This elevates otherwise-optional features (cockpit-pet companion, blind-flight hardcore mode, sensor-driven perception) into core mechanics, and preserves a natural VR pathway by default.
+1. **Cockpit-only as identity anchor.** Unlike genre peers that toggle between cockpit and third-person, asteroids3D commits. This elevates otherwise-optional features (cockpit-pet companion, blind-flight hardcore mode, sensor-driven perception) into core mechanics, and preserves a natural VR pathway by default.
 
 2. **Pacifism as viable economy, not gimmick.** Pay-to-shoot currency cost, intact-salvage yield premium, and audio-first enemy perception form a single mechanical system where non-lethal play is a real strategy — not an achievement niche. No written philosophy; just profitability math.
 
@@ -65,7 +65,7 @@ Four differentiators compound into a coherent identity:
 
 4. **Forgiveness without softening.** Bullet-time, short-rewind, death-precognition, and partial-death mechanics enable error recovery while preserving skill expression. Skill still matters; frustration deaths don't.
 
-Core insight: the Asteroids lineage is conventionally treated as an arcade reflex genre. asteriods3D treats it as an **immersive physics and economy puzzle inside a cockpit** — asteroids are resources in motion, the player is a pilot-in-space with limited FOV and extended senses, and the game rewards reading the space as much as shooting it.
+Core insight: the Asteroids lineage is conventionally treated as an arcade reflex genre. asteroids3D treats it as an **immersive physics and economy puzzle inside a cockpit** — asteroids are resources in motion, the player is a pilot-in-space with limited FOV and extended senses, and the game rewards reading the space as much as shooting it.
 
 Value proposition: *"3D Asteroids as it must feel from the cockpit — with vector aesthetics, audible space, and an economy where not shooting is a valid strategy."*
 
@@ -350,7 +350,7 @@ Two genuine innovation claims, beyond what "What Makes This Special" already sta
 
 ### Project-Type Overview
 
-asteriods3D is a desktop game application built in Rust + Bevy, distributed as a standalone binary for Windows, Linux, and macOS. The primary distribution target for MVP is Itch.io; Steam is the secondary target post-M6. The application is fully offline — no server, no account system, no telemetry (E#5 resolved). Save data lives on-device per OS convention. Input is primarily keyboard + mouse, with controller support as a stretch MVP goal.
+asteroids3D is a desktop game application built in Rust + Bevy, distributed as a standalone binary for Windows, Linux, and macOS. The primary distribution target for MVP is Itch.io; Steam is the secondary target post-M6. The application is fully offline — no server, no account system, no telemetry (E#5 resolved). Save data lives on-device per OS convention. Input is primarily keyboard + mouse, with controller support as a stretch MVP goal.
 
 ### Platform Support
 
@@ -366,7 +366,7 @@ asteriods3D is a desktop game application built in Rust + Bevy, distributed as a
 - **Input:** Keyboard + mouse via Bevy's built-in input. Gamepad support (Xbox / DualSense / generic XInput) evaluated at M2; shipped if integration cost is < 4 h. Controller support is MVP-stretch, not MVP-required.
 - **Graphics API:** wgpu abstraction (managed by Bevy). No direct Vulkan / Metal / DX12 calls. Custom WGSL shader for toon + outline. Shader validated on all three Metal / Vulkan / DX12 backends at M1 tech-spike.
 - **Audio:** `bevy_kira_audio` as the audio backend. Stereo output in MVP. Headphones recommended; detection not attempted (show recommendation on splash screen per R#6 resolution).
-- **Save-file location:** per-OS convention via the `directories` crate (Windows: `%APPDATA%/asteriods3D/`; Linux: `$XDG_DATA_HOME/asteriods3d/` or `~/.local/share/asteriods3d/`; macOS: `~/Library/Application Support/asteriods3D/`). JSON save format with Serde.
+- **Save-file location:** per-OS convention via the `directories` crate (Windows: `%APPDATA%/asteroids3D/`; Linux: `$XDG_DATA_HOME/asteroids3d/` or `~/.local/share/asteroids3d/`; macOS: `~/Library/Application Support/asteroids3D/`). JSON save format with Serde.
 - **macOS signing / notarization:** code-signing and notarization required for macOS distribution outside the App Store. Budget 2–4 h at M3 milestone to establish signing flow with an Apple Developer account. Without notarization, Gatekeeper will block the app on first launch — non-negotiable for first-class macOS support.
 - **No shell integration.** No file associations, no URL handlers, no system tray, no background processes.
 

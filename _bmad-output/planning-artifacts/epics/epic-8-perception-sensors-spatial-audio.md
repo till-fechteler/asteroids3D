@@ -269,7 +269,7 @@ So that FR26 sets audio expectations before I enter the game.
 **When** the splash UI builds
 **Then** a centered bevy_ui Node shows:
 - Title: "🎧 Recommended: headphones" (emoji or plain text)
-- Subtitle: "asteriods3D uses spatial audio cues for hidden threats"
+- Subtitle: "asteroids3D uses spatial audio cues for hidden threats"
 - "OK / Continue" button
 
 **And** entities carry `HeadphoneSplashEntity` marker

@@ -374,7 +374,7 @@ Recent commits (newest first, 12 total on `master`):
 | `48cedcd` | `bmad: story 1.2 complete — plugin compatibility gate passed` | Irrelevant. |
 | `23ab9ec` | `docs: add plugin compatibility verification gate (Story 1.2)` | Creates `docs/plugin-compatibility.md` — Task 3 edits this file. |
 | `0cbe8a3` | `docs: log review correction for cfg(debug_assertions) finding` | **Critical context** — logged the retraction of the original "dismiss" verdict and explicitly scheduled the fix for Story 1.5. Task 2 fulfills this commitment. |
-| `113eebe` | `fix: correct package name typo asteriods3D -> asteroids3D` | Package name is `asteroids3D`. Do not re-rename. |
+| `113eebe` | `fix: correct package name typo asteroids3D -> asteroids3D` | Package name is `asteroids3D`. Do not re-rename. |
 | `abe7742` | `planning: import BMad artifacts` | Irrelevant. |
 | `4ca3869` | `chore: bootstrap Cargo project (Story 1.1)` | Original `src/main.rs` = `println!("Hello, world!");`. This story replaces that body. |
 
@@ -394,7 +394,7 @@ Enumerated here so the review step does not flag them as "missed":
 8. **No macOS code-signing / notarization** — waived stretch per `project_fr48_deferred.md`.
 9. **No 60 FPS performance gate** — architecture.md:889 says not CI-enforceable; playtest-only.
 10. **No re-introduction of `[target.'cfg(debug_assertions)'.dependencies]` under any plugin** — when a dev-only tool is eventually needed, it goes in via the feature-flag pattern (`[features] dev-tools = ["dep:<crate>"]`, `optional = true`) at the story that first uses it.
-11. **The `asteriods3D` typo in BMad artifacts** — Story 1.3 Review Findings deferred this to a dedicated chore story. Not touched here.
+11. **The `asteroids3D` typo in BMad artifacts** — Story 1.3 Review Findings deferred this to a dedicated chore story. Not touched here.
 12. **`[profile.dev.build-override] opt-level = 0`** — re-deferred in Story 1.3 review to an M4 upgrade window. Not touched here.
 
 ### Project Structure Notes

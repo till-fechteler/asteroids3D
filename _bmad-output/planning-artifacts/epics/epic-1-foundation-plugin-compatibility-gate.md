@@ -1,6 +1,6 @@
 # Epic 1: Foundation & Plugin Compatibility Gate
 
-Project compiles and runs on Windows, Linux, and macOS. `cargo run` opens a window showing "asteriods3D" splash. Plugin compatibility matrix verified and version-pinned. CI matrix green. No gameplay code — this is the compatibility gate per Architecture Starter decision. M-alignment: M0.
+Project compiles and runs on Windows, Linux, and macOS. `cargo run` opens a window showing "asteroids3D" splash. Plugin compatibility matrix verified and version-pinned. CI matrix green. No gameplay code — this is the compatibility gate per Architecture Starter decision. M-alignment: M0.
 
 ## Story 1.1: Bootstrap Cargo Project with Hand-Authored Cargo.toml
 
@@ -10,8 +10,8 @@ So that every dependency is committed and reproducible from day one, and I inter
 
 **Acceptance Criteria:**
 
-**Given** an empty working directory at `~/Projekte/rust/asteriods3D`
-**When** `cargo new --bin asteriods3d` is executed
+**Given** an empty working directory at `~/Projekte/rust/asteroids3D`
+**When** `cargo new --bin asteroids3d` is executed
 **Then** `src/main.rs` and `Cargo.toml` are created by cargo
 
 **Given** the default `Cargo.toml` is replaced by hand
@@ -102,7 +102,7 @@ So that the cross-platform parity commitment (FR47) is verified on every push in
 
 As a first-time observer of the project,
 I want `cargo run` to open a window on Windows, Linux, and macOS,
-So that the "asteriods3D project exists and runs" signal is demonstrable from day one — the motivation-preservation baseline.
+So that the "asteroids3D project exists and runs" signal is demonstrable from day one — the motivation-preservation baseline.
 
 **Acceptance Criteria:**
 
@@ -142,17 +142,17 @@ So that future plugins can hook `OnEnter`/`OnExit`/`in_state()` scheduling from 
 **Then** the log contains the expected "entered Loading" line
 **And** no further state transitions happen automatically in this story (the transition to `MainMenu` is Story 1.7)
 
-## Story 1.7: Splash Screen Shows "asteriods3D" and Transitions to MainMenu
+## Story 1.7: Splash Screen Shows "asteroids3D" and Transitions to MainMenu
 
 As a player launching the game,
-I want to see "asteriods3D" displayed when the app opens,
+I want to see "asteroids3D" displayed when the app opens,
 So that I immediately know the app launched and I'm in the right program.
 
 **Acceptance Criteria:**
 
 **Given** the app is in `GameState::Loading`
 **When** `OnEnter(GameState::Loading)` runs
-**Then** a `bevy_ui` text Node is spawned with content `"asteriods3D"`
+**Then** a `bevy_ui` text Node is spawned with content `"asteroids3D"`
 **And** the Node uses centered flexbox layout that scales to window size
 **And** the text entity carries a `LoadingStateEntity` marker component
 
@@ -182,7 +182,7 @@ So that crashes during CI runs or future playtesting can be forensically reviewe
 **Then** `info!` / `warn!` / `error!` events from Bevy and app code are output to stderr
 **And** `RUST_LOG=debug cargo run` increases verbosity to `debug!` level
 
-**Given** the `directories` crate resolves the per-OS user-log-dir (Windows `%APPDATA%\asteriods3D\logs\`, Linux `$XDG_STATE_HOME/asteriods3d/logs/` or fallback, macOS `~/Library/Logs/asteriods3D/`)
+**Given** the `directories` crate resolves the per-OS user-log-dir (Windows `%APPDATA%\asteroids3D\logs\`, Linux `$XDG_STATE_HOME/asteroids3d/logs/` or fallback, macOS `~/Library/Logs/asteroids3D/`)
 **When** a log file is opened at startup
 **Then** logs are written to both stderr and the file simultaneously
 

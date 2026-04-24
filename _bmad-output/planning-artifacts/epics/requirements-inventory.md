@@ -104,12 +104,12 @@
 
 **Starter Template & M0 Gate (Architecture Starter Template decision):**
 - The Architecture specifies a **Hybrid Manual** starter (not greenfield blank, not community template). Epic 1 Story 1 MUST be plugin-compatibility verification, not gameplay code. Concretely:
-  - `cargo new --bin asteriods3d`
+  - `cargo new --bin asteroids3d`
   - Author `Cargo.toml` by hand with pinned versions: Bevy 0.18 (`default-features = false`, features `["3d", "png", "x11"]`), Avian 0.6 (via `avian3d`), `bevy_mod_outline`, `bevy_kira_audio`, `leafwing-input-manager`, `bevy_egui` (dev-only), plus `serde`, `serde_json`, `ron`, `thiserror`, `tracing`, `tracing-subscriber`, `directories`.
   - Verify all plugins have Bevy-0.18-compatible releases. If any lag, fork-and-maintain-inline path documented.
   - Commit `Cargo.lock`.
   - Borrow infrastructure (stripped) from NiklasEi `bevy_game_template`: `.github/workflows/ci.yml` (Windows+Linux+macOS matrix — strip iOS/Android/Web), `.gitignore`, `rustfmt.toml`, `clippy.toml`, `rust-toolchain.toml`.
-- M0 completion criterion: `cargo run` opens a window showing "asteriods3D" splash on all three platforms, with CI passing.
+- M0 completion criterion: `cargo run` opens a window showing "asteroids3D" splash on all three platforms, with CI passing.
 
 **Version-Pinning Governance:**
 - Bevy + Avian + all plugins pinned at M0. Upgrades batched at M4, M6, M9 milestone gates only, with 4–6 h migration budget. No ad-hoc mid-milestone upgrades.
@@ -138,7 +138,7 @@
 - Atomic write: `<savepath>.tmp` → fsync → `rename()` (Unix) / `MoveFileEx` (Windows).
 - JSON + Serde format.
 - Versioned schema (`version: u32` in save frontmatter); migration path from older versions.
-- Save location via `directories` crate (Windows `%APPDATA%`, Linux `$XDG_DATA_HOME`, macOS `~/Library/Application Support/asteriods3D/`).
+- Save location via `directories` crate (Windows `%APPDATA%`, Linux `$XDG_DATA_HOME`, macOS `~/Library/Application Support/asteroids3D/`).
 
 **String-Table & Tuning (NFR-L3 + hot-reload requirement):**
 - `assets/strings/en.ron` canonical string table, loaded via `bevy_asset`, hot-reloadable during dev. Dot-separated scoped keys (e.g., `ui.hud.shields`).

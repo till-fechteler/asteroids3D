@@ -76,7 +76,7 @@ so that the cross-platform parity commitment (FR47) is verified on every push in
   - [x] No macOS code-signing / notarization workflow. FR48 stays waived/stretch per `project_fr48_deferred.md`.
   - [x] No Steamworks SDK, no telemetry step, no cache upload to non-GitHub storage.
   - [x] No performance / 60 FPS assertion step in `ci.yml`. [Source: architecture.md:889]
-  - [x] `asteriods3D` typo NOT touched in any file this story modifies. Still lives in `sprint-status.yaml` comments/data — deferred to a dedicated chore story.
+  - [x] `asteroids3D` typo NOT touched in any file this story modifies. Still lives in `sprint-status.yaml` comments/data — deferred to a dedicated chore story.
   - [x] The `cfg(debug_assertions)` manifest warning will surface in CI `cargo build` / `cargo check` logs. Expected; does NOT fail CI because it's a cargo-manifest warning, not a rustc warning. Fix remains Story 1.5's scope.
 
 ### Review Findings
@@ -127,7 +127,7 @@ Stories 1.1–1.3 proved the project compiles and is lint-clean **on Till's loca
 | Declared MSRV | `1.89` | `Cargo.toml:5` |
 | Bevy | `0.18` (resolved `0.18.1`) | `Cargo.toml:8`; `docs/plugin-compatibility.md` |
 | Project root absolute path | `/Users/tillfechteler/Projekte/rust/asteroids3D/` | `.gitignore:1` (ignore of `/target`), local env |
-| Package name (corrected) | **`asteroids3D`** (NOT `asteriods3D` as in planning docs) | `Cargo.toml:2`; commit `113eebe` |
+| Package name (corrected) | **`asteroids3D`** (NOT `asteroids3D` as in planning docs) | `Cargo.toml:2`; commit `113eebe` |
 | `.github/` directory | Does NOT yet exist | `ls .github/` returns `No such file or directory` |
 | `docs/` directory | Exists, contains `plugin-compatibility.md` | Story 1.2 output |
 | Existing `.gitignore` entries | `/target`, `.claude/settings.local.json`, `/imported_assets`, IDE + OS blocks | `.gitignore` |
@@ -389,7 +389,7 @@ Files explicitly **not** touched by this story:
 **From Story 1.3's Review Findings (inherited here):**
 - `[Defer] MSRV 1.89 not CI-exercised` → AC #6 / Task 2 resolves this. [Source: deferred-work.md:14; 1-3-…md:86]
 - `[Defer] rust-toolchain.toml lacks targets field` → AC #8 / Task 4 resolves via scope confirmation (no amendment needed; native runners only). [Source: deferred-work.md:16; 1-3-…md:88]
-- `[Defer] asteriods3D typo in BMad artifacts` → NOT this story's scope; flagged for own chore story. [Source: deferred-work.md:15; 1-3-…md:87]
+- `[Defer] asteroids3D typo in BMad artifacts` → NOT this story's scope; flagged for own chore story. [Source: deferred-work.md:15; 1-3-…md:87]
 
 **From Story 1.1's Known Issues (still live):**
 - `cfg(debug_assertions)` manifest warning — remains Story 1.5's fix. CI surfaces it in logs but does not fail on it. [Source: deferred-work.md:18-28]
@@ -411,7 +411,7 @@ Recent commits (newest first, 8 total on `master`):
 | `48cedcd` | `bmad: story 1.2 complete — plugin compatibility gate passed` | BMad bookkeeping precedent. |
 | `23ab9ec` | `docs: add plugin compatibility verification gate (Story 1.2)` | `docs/plugin-compatibility.md` lives at the path this story references in Dev Notes. |
 | `0cbe8a3` | `docs: log review correction for cfg(debug_assertions) finding` | Context for the `cfg(debug_assertions)` warning CI will surface. |
-| `113eebe` | `fix: correct package name typo asteriods3D -> asteroids3D` | **Critical context:** package is `asteroids3D`, NOT the `asteriods3D` in planning docs. Do not re-rename. |
+| `113eebe` | `fix: correct package name typo asteroids3D -> asteroids3D` | **Critical context:** package is `asteroids3D`, NOT the `asteroids3D` in planning docs. Do not re-rename. |
 | `abe7742` | `planning: import BMad artifacts` | Irrelevant to 1.4. |
 | `4ca3869` | `chore: bootstrap Cargo project (Story 1.1)` | Baseline Cargo.toml + src/main.rs. |
 
@@ -426,7 +426,7 @@ Enumerated here so the review step does not flag them as "missed":
 3. `release.yml` / per-OS ZIP packaging / Itch.io butler upload — **Story 4.10** (Epic 4) owns it.
 4. macOS code-signing / notarization — waived stretch per `project_fr48_deferred.md`.
 5. Performance (60 FPS) CI assertion — explicitly not CI-enforceable per architecture.md:889.
-6. `asteriods3D` typo in planning docs / `sprint-status.yaml` — dedicated chore story. [Source: deferred-work.md:15]
+6. `asteroids3D` typo in planning docs / `sprint-status.yaml` — dedicated chore story. [Source: deferred-work.md:15]
 7. `[profile.dev.build-override]` — re-deferred to M4 upgrade window. [Source: deferred-work.md:8]
 8. Bevy-integration tests — deferred post-M3.
 
@@ -435,7 +435,7 @@ Enumerated here so the review step does not flag them as "missed":
 - **`.github/` is a new top-level directory.** First file created at `.github/workflows/ci.yml`. The `workflows/` subdirectory is mandatory for GitHub Actions; `.github/ci.yml` is ignored by the Actions scheduler.
 - **`.gitattributes` lives at project root**, not under `.github/`. It applies to the whole working tree.
 - **The existing `.gitignore` does NOT need an `.github/` entry** — we want `.github/` tracked. This is correct as-is.
-- **Package name is `asteroids3D`** (from `Cargo.toml:2`). Any future CI step that references the binary name uses `asteroids3D`, not `asteriods3D`. No such reference in this story's skeleton.
+- **Package name is `asteroids3D`** (from `Cargo.toml:2`). Any future CI step that references the binary name uses `asteroids3D`, not `asteroids3D`. No such reference in this story's skeleton.
 - **Remote URL** is `https://github.com/till-fechteler/asteroids3D.git`. Actions UI URL is `https://github.com/till-fechteler/asteroids3D/actions`.
 
 ### References
@@ -512,7 +512,7 @@ Per-leg outcomes (all ✅ green):
 **Inherited defers from Story 1.3 resolved in ci.yml:**
 - `deferred-work.md:14` (MSRV not CI-exercised) → resolved by the `msrv-check` job running `cargo check` on Rust 1.89 with `RUSTUP_TOOLCHAIN=1.89` env override.
 - `deferred-work.md:16` (rust-toolchain.toml `targets` field) → resolved by header comment in `ci.yml` documenting the native-targets-only invariant; no amendment to `rust-toolchain.toml`.
-- `deferred-work.md:15` (asteriods3D typo) → explicitly OUT of scope; still deferred to a dedicated chore story.
+- `deferred-work.md:15` (asteroids3D typo) → explicitly OUT of scope; still deferred to a dedicated chore story.
 
 **Local validation gates passed:**
 - `ci.yml` parses as valid YAML (ruby/psych).
@@ -559,7 +559,7 @@ All paths relative to project root.
 
 | Date | Author | Change |
 |---|---|---|
-| 2026-04-23 | claude-opus-4-7 (create-story) | Story 1.4 drafted. Scope: `.github/workflows/ci.yml` (3-OS matrix + MSRV-check job) + `.gitattributes` for CRLF prevention. Inherits three defers from Story 1.3 review: MSRV-check job added (AC #6), native-targets-only invariant documented in workflow header (AC #8), asteriods3D typo NOT in scope. Zero source-code changes; CI consumes 1.1–1.3 artifacts as-is. Status: ready-for-dev. |
+| 2026-04-23 | claude-opus-4-7 (create-story) | Story 1.4 drafted. Scope: `.github/workflows/ci.yml` (3-OS matrix + MSRV-check job) + `.gitattributes` for CRLF prevention. Inherits three defers from Story 1.3 review: MSRV-check job added (AC #6), native-targets-only invariant documented in workflow header (AC #8), asteroids3D typo NOT in scope. Zero source-code changes; CI consumes 1.1–1.3 artifacts as-is. Status: ready-for-dev. |
 | 2026-04-23 | claude-opus-4-7 (dev-story, checkpoint) | Tasks T1-T5, T7 complete locally. Authored `.github/workflows/ci.yml` (96 lines, YAML-validated) + `.gitattributes` (2 lines, renormalize no-op on macOS). All scope guardrails verified clean via `git diff`. Paused for Till's manual source-artifact commit per 1.1/1.2/1.3 precedent. T6 (push + observe CI + record run URL) pending. Status: ready-for-dev → in-progress. |
 | 2026-04-23 | claude-opus-4-7 (dev-story, T6 + finalize) | Commit `73dc4e6` pushed to `origin/master` on Till's authorization. CI run `24824401702` observed via `gh run watch`: all 4 jobs ✅ green — build (ubuntu 35m56s, windows 71m31s, macos 19m37s) + msrv-check (6m4s). FR47 baseline verified for `73dc4e6`. Zero rustc errors; 3 occurrences of the known `cfg(debug_assertions)` cargo-manifest warning (deferred-work.md:18-28, owned by Story 1.5). Node.js 20 deprecation annotation on `actions/checkout@v4` captured as follow-up. Deviation noted: sprint-status.yaml bundled into source-artifact commit (should have been in bookkeeping commit). Status: in-progress → review. |
 | 2026-04-23 | claude-opus-4-7 (code-review) | 3-layer adversarial review (Blind Hunter 14 + Edge Case Hunter 10 + Acceptance Auditor verdict). Acceptance Auditor: **Approve** (10/10 ACs PASS). Triage: 0 Decision-Needed, 3 Patch, 10 Defer, 10 Dismissed. Patches applied via commit `3f3d5f2` (`ci: add timeout + DEBIAN_FRONTEND + --locked`): `timeout-minutes` on both jobs (120/60), `DEBIAN_FRONTEND=noninteractive` on apt-steps, `--locked` on all dep-resolving cargo invocations. CI run `24829706852` green on all 4 legs in under 4 min (warm cache — Windows 3m25s, down from 71m cold). 10 defers appended to `deferred-work.md` under "Deferred from: code review of 1-4-… (2026-04-23)". Status: review → done. |

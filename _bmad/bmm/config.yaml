@@ -3,7 +3,7 @@
 # Version: 6.3.0
 # Date: 2026-04-21T08:56:08.428Z
 
-project_name: asteriods3D
+project_name: asteroids3D
 user_skill_level: intermediate
 planning_artifacts: "{project-root}/_bmad-output/planning-artifacts"
 implementation_artifacts: "{project-root}/_bmad-output/implementation-artifacts"

@@ -1,8 +1,8 @@
-# asteriods3D - Epic Breakdown
+# asteroids3D - Epic Breakdown
 
 ## Table of Contents
 
-- [asteriods3D - Epic Breakdown](#table-of-contents)
+- [asteroids3D - Epic Breakdown](#table-of-contents)
   - [Overview](./overview.md)
   - [Requirements Inventory](./requirements-inventory.md)
     - [Functional Requirements](./requirements-inventory.md#functional-requirements)
@@ -28,7 +28,7 @@
     - [Story 1.4: Three-Platform CI Matrix](./epic-1-foundation-plugin-compatibility-gate.md#story-14-three-platform-ci-matrix)
     - [Story 1.5: Minimal Bevy App Opens a Window on All Three Platforms](./epic-1-foundation-plugin-compatibility-gate.md#story-15-minimal-bevy-app-opens-a-window-on-all-three-platforms)
     - [Story 1.6: GameState Enum with Bevy States Skeleton](./epic-1-foundation-plugin-compatibility-gate.md#story-16-gamestate-enum-with-bevy-states-skeleton)
-    - [Story 1.7: Splash Screen Shows "asteriods3D" and Transitions to MainMenu](./epic-1-foundation-plugin-compatibility-gate.md#story-17-splash-screen-shows-asteriods3d-and-transitions-to-mainmenu)
+    - [Story 1.7: Splash Screen Shows "asteroids3D" and Transitions to MainMenu](./epic-1-foundation-plugin-compatibility-gate.md#story-17-splash-screen-shows-asteroids3d-and-transitions-to-mainmenu)
     - [Story 1.8: Tracing-Based Logging with Panic Hook to Log File](./epic-1-foundation-plugin-compatibility-gate.md#story-18-tracing-based-logging-with-panic-hook-to-log-file)
   - [Epic 2: Vector Aesthetic Tech Spike](./epic-2-vector-aesthetic-tech-spike.md)
     - [Story 2.1: VisualPlugin Skeleton + Reference Scene](./epic-2-vector-aesthetic-tech-spike.md#story-21-visualplugin-skeleton-reference-scene)
