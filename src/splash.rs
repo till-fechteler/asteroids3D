@@ -7,6 +7,7 @@ use crate::state::GameState;
 
 const SPLASH_TEXT: &str = "asteriods3D";
 const SPLASH_DURATION_SECS: f32 = 2.0;
+const SPLASH_FONT_SIZE: f32 = 64.0;
 
 #[derive(Resource)]
 pub struct SplashConfig {
@@ -41,10 +42,11 @@ pub fn spawn_splash(mut commands: Commands) {
             parent.spawn((
                 Text::new(SPLASH_TEXT),
                 TextFont {
-                    font_size: 64.0,
+                    font_size: SPLASH_FONT_SIZE,
                     ..default()
                 },
                 TextColor(Color::WHITE),
+                LoadingStateEntity,
             ));
         });
 }
