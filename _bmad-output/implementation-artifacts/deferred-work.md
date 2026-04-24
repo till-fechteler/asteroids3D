@@ -2,6 +2,8 @@
 
 Cross-story backlog of review findings intentionally deferred. Each entry lists the source review, original severity, and the reason for deferral so future sessions can re-evaluate.
 
+**CI cadence convention (2026-04-24):** `.github/workflows/ci.yml` declares `paths-ignore: ['_bmad/**', '_bmad-output/**']` on both `push` and `pull_request` triggers. Commits touching ONLY those paths do not trigger CI — meant for BMad bookkeeping (status flips, review notes, deferred-work entries). Any commit touching code, manifests, workflow files, or other artifacts falls through paths-ignore and triggers the full 4-job matrix.
+
 ## Deferred from: code review of 1-1-bootstrap-cargo-project-with-hand-authored-cargo-toml (2026-04-22)
 
 - **`[package].rust-version` MSRV field not set** — Bevy 0.18 / `bevy_egui` 0.39 require rustc 1.89. Deferred to Story 1.3 (rust-toolchain.toml authoring) where MSRV metadata naturally lives.
