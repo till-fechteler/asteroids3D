@@ -4,7 +4,10 @@
 use bevy::prelude::*;
 
 #[derive(States, Default, Debug, Clone, Eq, PartialEq, Hash)]
-#[allow(dead_code)] // non-default variants become live as state transitions land in later stories
+#[expect(
+    dead_code,
+    reason = "non-default variants become live as state transitions land in later stories"
+)]
 pub enum GameState {
     #[default]
     Loading,
