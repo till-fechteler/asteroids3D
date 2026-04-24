@@ -23,6 +23,10 @@ pub fn log_loading_entered() {
     info!("entered Loading");
 }
 
+pub fn log_mainmenu_entered() {
+    info!("entered MainMenu");
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
