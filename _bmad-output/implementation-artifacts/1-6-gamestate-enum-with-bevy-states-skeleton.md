@@ -1,6 +1,6 @@
 # Story 1.6: GameState Enum with Bevy States Skeleton
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -369,3 +369,49 @@ All local verification logs captured at `/tmp/story-1-6-*.log` on macOS 26.4.1 /
 |---|---|---|
 | 2026-04-24 | claude-opus-4-7 (create-story) | Story 1.6 drafted. Scope: `src/state.rs` with 7-variant `GameState` enum + 1 unit test + debug `log_loading_entered` system; `src/main.rs` wiring (`mod state;` + `init_state::<GameState>()` + `add_systems(OnEnter(Loading), log_loading_entered)`) + bundled fix `fn main() -> AppExit` (inherited from Story 1.5's `deferred-work.md:50`). No `Cargo.toml` / `Cargo.lock` changes. Zero new deps. First project unit test lands here. Windows/Linux runtime verification parallels Story 1.5's model (Till's physical hardware). Status: ready-for-dev. |
 | 2026-04-24 | claude-opus-4-7 (dev-story) | Story 1.6 implemented. Source commit `19ed03c` — `src/state.rs` added (32 lines), `src/main.rs` modified (+12 lines). Bundled `deferred-work.md:50` (`App::run() -> AppExit`) resolved. One unavoidable spec deviation: `#[allow(dead_code)]` added to enum (6 non-default variants would otherwise fail `-D warnings` clippy). Rustfmt auto-reordered import list once. All 4 CI jobs green (run `24880100462`, 0 warning/error across 2059 log lines). First project unit test passes. Status: review. |
+| 2026-04-24 | claude-opus-4-7 (code-review light) | Story 1.6 reviewed. Scope: 62 diff lines over 2 files — light single-reviewer pass. Zero blocking, zero HIGH findings. 1× MED patched (`#[allow(dead_code)]` → `#[expect(dead_code, reason = "...")]` for self-cleaning lint; stable since Rust 1.81, MSRV 1.89 OK). 1× LOW logged to `deferred-work.md` (`bevy_winit` WindowClose WARN, known Bevy 0.18 race). Status: done. |
+
+## Senior Developer Review (AI) — 2026-04-24
+
+**Reviewer:** claude-opus-4-7 (light single-reviewer pass, no parallel adversarial agents)
+**Review Date:** 2026-04-24
+**Diff:** `git diff 8096ff0..19ed03c` — 2 files, +43/-4 lines
+**Outcome:** ✅ Approve (with 1 patch applied + 1 LOW defer)
+
+### Review Rationale for Light Mode
+
+Full 3-agent adversarial review (Blind Hunter / Edge Case Hunter / Acceptance Auditor) was deemed disproportionate for a 62-line diff where ~90% of the code follows the Story 1.6 skeleton verbatim. Light review focused on the three deviations from the verbatim spec: (1) `#[allow(dead_code)]` added to enum, (2) runtime `WARN` observed on window close, (3) CI Node.js 20 deprecation annotation.
+
+### Findings
+
+| ID | Severity | Area | Resolution |
+|---|---|---|---|
+| MED-1 | MED | `src/state.rs:7` — `#[allow(dead_code)]` attribute | **✅ Applied** — swapped to `#[expect(dead_code, reason = "non-default variants become live as state transitions land in later stories")]`. Self-cleaning: fires a rustc "lint expectation not fulfilled" warning once all variants become live, forcing removal. Stable since Rust 1.81, MSRV 1.89 OK. |
+| LOW-1 | LOW | `bevy_winit` runtime WARN on window close | **✅ Deferred** — logged to `deferred-work.md` as "Deferred from: code review of 1-6" section. Known Bevy 0.18 winit-event race (`WindowCloseRequested` vs `Destroyed`); not Story-1.6-introduced, not reproducible in CI. Re-evaluate at M4 Bevy version bump. |
+| LOW-2 | LOW | CI Node.js 20 deprecation on `actions/checkout@v4` | **No-op** — already tracked in `deferred-work.md:20` (Story 1.4 review finding "Third-party action pinning"). |
+
+### Acceptance Criteria Verification
+
+| AC | Evidence | Status |
+|---|---|---|
+| #1 — `GameState` enum + derives | `state.rs:6-16`, derive list exactly `(States, Default, Debug, Clone, Eq, PartialEq, Hash)`, `#[default]` on `Loading`, 7 variants in prescribed order | ✅ |
+| #2 — `init_state::<GameState>()` → first-frame `Loading` | `main.rs:13` + `/tmp/story-1-6-run.log` → `INFO asteroids3D::state: entered Loading` | ✅ |
+| #3 — Debug system logs, no further transitions | `grep 'entered Loading'` = 1 hit; `grep -nE 'NextState\|MainMenu' src/` → only enum variant declaration | ✅ |
+| #4 — `fn main() -> AppExit` propagates | `main.rs:10-16`, no trailing `;` on `.run()`, `deferred-work.md:50` marked RESOLVED | ✅ |
+
+### Scope + Guardrail Audit
+
+- `Cargo.toml`, `Cargo.lock`, `.gitignore`, `.github/workflows/ci.yml`, `rust-toolchain.toml`, `rustfmt.toml`, `clippy.toml` — all untouched ✅
+- `grep SplashConfig|LoadingStateEntity src/` → 0 hits (Story 1.7 markers not pre-declared) ✅
+- Module docs ≤2 lines, no story-id references (honors 1.5 review-patch BH8) ✅
+- Two-commit pattern (source + bookkeeping) preserved ✅
+
+### Test Quality
+
+- Single unit test `default_state_is_loading` — precise Default contract, no `App` construction, CI-safe on headless. Integration tests consciously deferred per Dev Notes §"Why a single unit test" and architecture.md:144-146. Acceptable scope.
+
+### Action Items
+
+- [x] Apply MED-1 patch: `#[allow]` → `#[expect]` with reason
+- [x] Log LOW-1 defer to `deferred-work.md`
+- [x] Re-verify `cargo check/clippy/test/fmt` post-patch — all clean
