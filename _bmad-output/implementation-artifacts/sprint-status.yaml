@@ -1,5 +1,5 @@
 # generated: 2026-04-22
-# last_updated: 2026-04-24 (story 1.7 review — CI green run 24882136265, 0 warn/err)
+# last_updated: 2026-04-24 (story 1.7 done — light review: 2 patches applied, 1 defer logged)
 # project: asteriods3D
 # project_key: NOKEY
 # tracking_system: file-system
@@ -50,7 +50,7 @@ development_status:
   1-4-three-platform-ci-matrix: done
   1-5-minimal-bevy-app-opens-a-window-on-all-three-platforms: done
   1-6-gamestate-enum-with-bevy-states-skeleton: done
-  1-7-splash-screen-shows-asteriods3d-and-transitions-to-mainmenu: review
+  1-7-splash-screen-shows-asteriods3d-and-transitions-to-mainmenu: done
   1-8-tracing-based-logging-with-panic-hook-to-log-file: backlog
   epic-1-retrospective: optional
 

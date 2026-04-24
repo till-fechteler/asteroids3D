@@ -1,6 +1,6 @@
 # Story 1.7: Splash Screen Shows "asteriods3D" and Transitions to MainMenu
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -93,6 +93,12 @@ So that I immediately know the app launched and I'm in the right program.
   - [x] CI run `24882136265` — all 4 jobs ✅: msrv-check (1m11s), macos (2m08s), ubuntu (3m46s), windows (10m43s). Total wall ≈ 10m47s. Cache warm because Cargo.lock unchanged.
   - [x] `gh run view 24882136265 --log | grep -cE 'warning:|error:'` → **0**.
   - [x] BMad bookkeeping commit will follow on Step 9 (story → review + sprint-status flip).
+
+### Review Findings
+
+- [x] [Review][Patch] Child `Text` entity missing `LoadingStateEntity` marker — applied: `LoadingStateEntity` added to the child spawn tuple in `spawn_splash`'s `.with_children` block. Now defensive against any future Bevy despawn-semantics change. [src/splash.rs:39-45]
+- [x] [Review][Patch] `64.0` font-size literal → `const SPLASH_FONT_SIZE: f32 = 64.0;` hoisted alongside `SPLASH_TEXT` / `SPLASH_DURATION_SECS`. [src/splash.rs:42]
+- [x] [Review][Defer] `SplashConfig.timer` latches after first fire; no re-entry reset path [src/splash.rs:12-21] — deferred, no Loading re-entry path exists in M0/M1; first future story adding restart-to-loading flow needs a reset system or recreate-on-entry pattern. Logged to `deferred-work.md`.
 
 ## Dev Notes
 
@@ -512,3 +518,60 @@ All local verification logs captured at `/tmp/story-1-7-*.log` on macOS 26.4.1 /
 |---|---|---|
 | 2026-04-24 | claude-opus-4-7 (create-story) | Story 1.7 drafted. Scope: `src/splash.rs` new file (SplashConfig + LoadingStateEntity + 3 systems + 1 unit test); `src/state.rs` appends `log_mainmenu_entered`; `src/main.rs` wires `init_resource`, `OnEnter(MainMenu)`, `Update` (timer run_if in_state Loading), `OnExit(Loading)` cleanup; `Cargo.toml` extends bevy features to include `"bevy_ui"` + `"default_font"` on both dep blocks; `Cargo.lock` regenerates. M0 completion criterion (`cargo run` shows "asteriods3D" → transitions to blank MainMenu) satisfied. `asteriods3D` typo preserved per epic spec — swept by dedicated chore story. Status: ready-for-dev. |
 | 2026-04-24 | claude-opus-4-7 (dev-story) | Story 1.7 implemented. Source commit `8914284` — `src/splash.rs` added (88 lines), `src/main.rs` modified (+13 lines), `src/state.rs` modified (+4 lines), `Cargo.toml` features extended. One notable deviation: `Cargo.lock` did NOT regenerate — `bevy_ui` + `default_font` were already transitively pulled by `"3d"`'s feature graph, so the features activated compilation paths without expanding the resolved dep set. Side-effect: CI cache stayed warm, total wall ≈ 10m47s (vs. Story Dev Notes prediction of 30–60m cold-cache). Rustfmt auto-reordered `use` import lists alphabetically (anticipated, accepted). All 4 CI jobs green (run `24882136265`, 0 warning/error across full log). Second project unit test added (total: 2 passing). Runtime verification on macOS: 2.009 s splash duration, backend: Metal confirmed. Known `bevy_winit` close-WARN reappeared (1.6 defer; not a regression). Status: review. |
+| 2026-04-24 | claude-opus-4-7 (code-review light) | Story 1.7 reviewed. Scope: 165 diff lines across 4 files — light single-reviewer pass (same model as 1.6 precedent). Zero blocking, zero HIGH/MED findings. 2× LOW patches applied (`chore:` commit `fb7e411`): (MED→applied) `LoadingStateEntity` marker added to child Text entity for defensive explicit cleanup matching architecture.md:420; (LOW→applied) `const SPLASH_FONT_SIZE: f32 = 64.0;` hoisted for stylistic consistency with other splash consts. 1× LOW logged to `deferred-work.md`: SplashConfig timer re-entry latch (no M0/M1 re-entry path; future-story land-mine). 3× noise findings dismissed (Cargo.toml features defensively explicit, pub timer field premature to encapsulate, OnEnter tuple parallelism safe). Status: done. |
+
+
+## Senior Developer Review (AI) — 2026-04-24
+
+**Reviewer:** claude-opus-4-7 (light single-reviewer pass, no parallel adversarial agents)
+**Review Date:** 2026-04-24
+**Diff:** `git diff 8e45679..8914284` — 4 files, +107/-5 lines, 165 diff lines
+**Outcome:** ✅ Approve (with 2 patches applied + 1 LOW defer)
+
+### Review Rationale for Light Mode
+
+Full 3-agent adversarial review (Blind Hunter / Edge Case Hunter / Acceptance Auditor) was deemed disproportionate for a 165-line diff where all four ACs were demonstrably satisfied at runtime. Light review focused on: (1) spec fidelity of the marker + cleanup pattern vs. architecture.md:420, (2) Bevy 0.18 API correctness, (3) subtle state-machine / timer edge cases, (4) scope drift vs. Story 1.8 and Epic 3+.
+
+### Findings
+
+| ID | Severity | Area | Resolution |
+|---|---|---|---|
+| LOW-1 (F2) | LOW | `src/splash.rs:39-45` — Child Text missing `LoadingStateEntity` marker | **✅ Applied** — added marker to child spawn tuple. Cleanup now explicit (no reliance on Bevy's recursive despawn). Architecture.md:420-consistent. Stable across Bevy despawn-semantics changes. |
+| LOW-2 (F3) | LOW | `src/splash.rs:42` — `64.0` font-size literal inline | **✅ Applied** — extracted `const SPLASH_FONT_SIZE: f32 = 64.0;` alongside other splash consts. Stylistic consistency. |
+| LOW-3 (F1) | LOW | `src/splash.rs:12-21` — SplashConfig timer latch on Loading re-entry | **✅ Deferred** — logged to `deferred-work.md` as "Deferred from: code review of 1-7". No re-entry path in M0/M1 (unidirectional Loading → MainMenu). First future story introducing restart-to-loading flow must reset timer or recreate SplashConfig on `OnEnter(Loading)`. |
+| DISMISS-1 | — | `Cargo.toml` features defensively explicit | **Noise** — `bevy_ui` + `default_font` were already transitively pulled (Cargo.lock unchanged), but declaring them explicitly protects against upstream transitive-enabler removal. Good practice. |
+| DISMISS-2 | — | `SplashConfig.timer` `pub` field | **Noise** — loose encapsulation, but M0 has no external consumer; getter/setter is premature abstraction. |
+| DISMISS-3 | — | `log_loading_entered` + `spawn_splash` parallel in OnEnter tuple | **Noise** — no shared state, no race; Bevy's default parallelism is safe. |
+
+### Acceptance Criteria Verification
+
+| AC | Evidence | Status |
+|---|---|---|
+| #1 — bevy_ui text Node "asteriods3D" centered flexbox, LoadingStateEntity marker | `splash.rs:26-52`, post-patch: marker on **both** Camera2d + Node parent + Text child. Runtime visually verified (M5 Pro, Metal backend). | ✅ |
+| #2 — Splash-duration elapses → NextState(MainMenu) | `splash.rs:54-63`, SplashConfig default 2.0s TimerMode::Once; `/tmp/story-1-7-run.log` shows 2.009s measured elapsed. | ✅ |
+| #3 — OnExit(Loading) despawns LoadingStateEntity | `splash.rs:65-72`, post-patch all three entity types (Camera2d, Node, Text child) carry the marker and despawn explicitly. | ✅ |
+| #4 — MainMenu splash gone, no residual UI | Runtime log shows `entered MainMenu` followed by silence; visually blank window confirmed. | ✅ |
+
+### Scope + Guardrail Audit
+
+- `Cargo.toml` ✅ (features only), `Cargo.lock` untouched (deviation from story prediction, documented)
+- `src/main.rs`, `src/state.rs`, `src/splash.rs` — only declared files
+- `.gitignore`, `.github/workflows/ci.yml`, `rust-toolchain.toml`, `rustfmt.toml`, `clippy.toml` untouched
+- `grep SplashConfig|LoadingStateEntity src/` hits confined to splash.rs + main.rs
+- Module docs ≤2 lines, no story-id references (honors 1.5 review-patch BH8) ✅
+- Two-commit pattern (source + bookkeeping) + separate patches commit (matches 1.5/1.6 three-commit pattern for review-patched stories) ✅
+
+### Test Quality
+
+- 2 unit tests passing (1.6's `default_state_is_loading` + 1.7's `splash_config_default_is_two_seconds`). Both pure-function, no `App` construction, CI-safe.
+- Integration tests consciously deferred per architecture.md:144-146 and Story 1.6 precedent.
+- Runtime behavior verified via log grep on `cargo run` — 4 expected signals, all 1 hit each.
+
+### Action Items
+
+- [x] Apply F2 patch: `LoadingStateEntity` on child Text
+- [x] Apply F3 patch: `SPLASH_FONT_SIZE` const
+- [x] Log F1 defer to `deferred-work.md`
+- [x] Re-verify `cargo check/build/test/clippy/fmt` post-patch — all clean
+- [x] Runtime re-verify on macOS — 2.008s splash, `backend: Metal`, all 4 log signals present
+
