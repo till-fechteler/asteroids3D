@@ -1,6 +1,6 @@
 # Story 1.8: Tracing-Based Logging with Panic Hook to Log File
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -17,7 +17,7 @@ So that crashes during CI runs or future playtesting can be forensically reviewe
    **Then** `info!` / `warn!` / `error!` events from Bevy and app code are output to stderr
    **And** `RUST_LOG=debug cargo run` increases verbosity to `debug!` level
 
-2. **Given** the `directories` crate resolves the per-OS user-log-dir (Windows `%APPDATA%\asteroids3D\logs\`, Linux `$XDG_STATE_HOME/asteroids3d/logs/` or fallback, macOS `~/Library/Logs/asteroids3D/`)
+2. **Given** the `directories` crate resolves the per-OS user-log-dir (Windows `%LOCALAPPDATA%\asteroids3D\logs\` _(amended 2026-04-27 from `%APPDATA%` per code-review decision: logs should not roam)_, Linux `$XDG_STATE_HOME/asteroids3d/logs/` or fallback, macOS `~/Library/Logs/asteroids3D/`)
    **When** a log file is opened at startup
    **Then** logs are written to both stderr and the file simultaneously
 
@@ -179,7 +179,7 @@ AC #2 specifies exact target paths:
 
 | OS | Target path | `directories` 5 primitive | Notes |
 |---|---|---|---|
-| Windows | `%APPDATA%\asteroids3D\logs\` | `BaseDirs::data_dir()` = `{FOLDERID_RoamingAppData}` = `%APPDATA%` | Append `\asteroids3D\logs` |
+| Windows | `%LOCALAPPDATA%\asteroids3D\logs\` | `BaseDirs::data_local_dir()` = `{FOLDERID_LocalAppData}` = `%LOCALAPPDATA%` | Append `\asteroids3D\logs`. _Amended 2026-04-27 from `data_dir()` (Roaming) per code-review decision — logs should not sync between machines via the roaming profile._ |
 | Linux | `$XDG_STATE_HOME/asteroids3d/logs/` (fallback `$HOME/.local/state/asteroids3d/logs/`) | `BaseDirs::state_dir()` → `Option<&Path>`; `Some` on Linux, `None` on macOS/Windows | Fallback: `home_dir().join(".local/state")`. Project slug is **lowercase** `asteroids3d` per AC |
 | macOS | `~/Library/Logs/asteroids3D/` | `BaseDirs::home_dir()` — macOS has no XDG concept; logs go under `~/Library/Logs/` by OS convention | `home_dir().join("Library/Logs/asteroids3D")` |
 
@@ -211,7 +211,8 @@ fn resolve_log_dir() -> Option<PathBuf> {
 
     #[cfg(target_os = "windows")]
     {
-        Some(base.data_dir().join("asteroids3D").join("logs"))
+        // Amended 2026-04-27: data_local_dir() (LocalAppData) replaces data_dir() (Roaming) per code-review decision.
+        Some(base.data_local_dir().join("asteroids3D").join("logs"))
     }
 }
 ```
@@ -795,3 +796,52 @@ Only annotation across all 4 jobs: a `Node.js 20 actions are deprecated` notice 
 | Date | Author | Change |
 |---|---|---|
 | 2026-04-27 | dev-story (Opus 4.7) | Story 1.8 implemented: tracing subscriber + panic-hook-to-file + per-OS log dir. `feat:` commit `97d53b4` lands `src/logging.rs` (new) + `src/main.rs` (mod-load + LogPlugin disable). Local verification on macOS arm64: 0 warnings/errors in check/build/test/clippy/fmt; 3 tests pass; default + RUST_LOG=debug runs verified; panic-hook injection verified with PANIC + backtrace + preserved default stderr; panic-test line reverted. Status: `ready-for-dev` → `in-progress` → `review`. CI run `24983925700` triggered. |
+| 2026-04-27 | code-review (Opus 4.7) | Adversarial 3-layer review (Blind Hunter / Edge Case Hunter / Acceptance Auditor) of `97d53b4`. Total: 1 decision-needed (Windows Roaming vs LocalAppData), 6 patches, 7 defers, 15 dismissed. AC#1/#2/#3 all confirmed satisfied by Acceptance Auditor (`PASS`). Findings written to "Review Findings" section below; defers appended to `deferred-work.md`. |
+| 2026-04-27 | code-review patches (Opus 4.7) | All 7 patches applied (decision-needed item folded as Patch #7 — Windows `data_local_dir()`). `chore:` commit `8632902` lands the source patches. Local re-verification: 0 warnings/errors in check/build/test/clippy/fmt; 3 tests pass; force_capture verified with unset RUST_BACKTRACE (14 stack frames, 0 `disabled backtrace`); IsTerminal verified (0 ANSI in piped stderr); RUST_LOG fallback eprintln verified; `info!` log path appears in both senks. CI run `24985200581`: 5m12s wall, all 4 jobs ✅, 0 `warning:\|error:` in full log. Status: `review` → `done`. |
+
+### Review Findings (Code Review 2026-04-27)
+
+**Adversarial review summary:** 3-layer parallel review (Blind Hunter / Edge Case Hunter / Acceptance Auditor). Acceptance Auditor verdict: **PASS** — all three ACs confirmed with documented evidence; no HIGH/MED spec violations. Below: 1 decision-needed, 6 patches, 7 defers (also logged to `deferred-work.md`), 15 dismissed as noise / spec-authorized.
+
+#### Decision-needed (resolved)
+
+- [x] [Review][Decision] ~~Windows logs in Roaming AppData (`%APPDATA%`) vs LocalAppData (`%LOCALAPPDATA%`)~~ — **Resolved 2026-04-27 by Till: option (1) — switch to `%LOCALAPPDATA%`.** Spec amendment required: AC #2 line 20 path table changes from `%APPDATA%\asteroids3D\logs\` to `%LOCALAPPDATA%\asteroids3D\logs\`; Dev Notes "Per-OS log-directory resolution" table line 182 + reference implementation line 213-216 swap `data_dir()` → `data_local_dir()`. Folded into the patch list as **Patch #7** below.
+
+#### Patches (applied 2026-04-27)
+
+- [x] [Review][Patch] Use `Backtrace::force_capture()` instead of `Backtrace::capture()` in panic hook [src/logging.rs:108] — verified locally with unset `RUST_BACKTRACE`/`RUST_LIB_BACKTRACE`: 14 stack frames captured, 0 occurrences of `disabled backtrace` in log file (vs. prior code which would produce only `disabled backtrace`).
+- [x] [Review][Patch] `OpenOptions::new().create(true).append(true)` in panic hook [src/logging.rs:103] — `.create(true)` added; aligned with `init_logging`'s open-pattern.
+- [x] [Review][Patch] `eprintln!` panic-hook file-open / write / flush failures [src/logging.rs:103-119] — replaced `if let Ok(...)` + `let _ =` with `match` + explicit Err arms emitting `eprintln!`. All three failure paths (open / writeln / flush) now diagnose to stderr.
+- [x] [Review][Patch] `eprintln!` on `RUST_LOG` parse failure [src/logging.rs:50-58] — verified via `RUST_LOG='@@@bogus,,,,filter@@@' cargo run`: `logging: invalid RUST_LOG, falling back to 'info': invalid filter directive` printed once; lifecycle still emitted at info level. eprintln gated on `var_os("RUST_LOG").is_some()` to avoid noise when var simply isn't set.
+- [x] [Review][Patch] Detect tty for stderr ANSI via `std::io::IsTerminal` [src/logging.rs:62] — verified via piped run (`cargo run > /tmp/file 2>&1`): 0 ANSI escape sequences in captured stderr (vs. prior runs which had ESC[34mDEBUG ESC[0m etc.). Interactive runs retain colours (when stderr is a tty).
+- [x] [Review][Patch] `info!("file logging active at {}", path.display())` after subscriber init [src/main.rs:16-19] — verified: `INFO asteroids3D: file logging active at /Users/tillfechteler/Library/Logs/asteroids3D/asteroids3D.log` appears in both stderr and the log file as the first lifecycle line (before `entered Loading`).
+- [x] [Review][Patch] Windows log dir `%LOCALAPPDATA%\asteroids3D\logs\` (was `%APPDATA%`) [src/logging.rs:42, AC #2 path table, Dev Notes Per-OS Resolution table + Reference impl block] — `BaseDirs::data_dir()` → `BaseDirs::data_local_dir()`. Spec amended in AC #2 line + Dev Notes table + reference implementation code block (with 2026-04-27 amendment notes inline). Unit test suffix `asteroids3D\logs` unchanged (only parent base directory shifts from Roaming to Local). Will be CI-verified on `windows-latest` job.
+
+#### Deferred (logged to `deferred-work.md`)
+
+- [x] [Review][Defer] Shared `Arc<Mutex<File>>` between fmt-layer and panic hook [src/logging.rs:67,96] — architectural refactor; theoretical interleaving today (single-thread panic source), becomes real once Bevy task-pool runs panicking systems
+- [x] [Review][Defer] `catch_unwind` around `prev(info)` in panic hook [src/logging.rs:101] — paranoia tier; standard panic-hook patterns don't guard double-panic
+- [x] [Review][Defer] Install panic hook before subscriber init [src/logging.rs:78-79] — microsecond window between `.init()` and `install_panic_hook` is negligible
+- [x] [Review][Defer] Cap backtrace size for `RUST_BACKTRACE=full` [src/logging.rs:97] — multi-MB log file possible from a single panic; opt-in env var means user explicitly wants verbose
+- [x] [Review][Defer] Per-layer `EnvFilter` so stderr/file can diverge [src/logging.rs:69-77] — single filter today; not yet required by any AC
+- [x] [Review][Defer] `eprintln!` invisible in launchd / packaged macOS bundle [src/logging.rs:54-77] — relevant for M9 packaging, not M0
+- [x] [Review][Defer] Validate `state_dir()` is absolute on Linux [src/logging.rs:34-37] — `XDG_STATE_HOME=relative` edge case is rare misconfiguration
+
+#### Dismissed (15)
+
+Spec-authorized or otherwise non-actionable:
+- `init_logging` not idempotent (panics on second `.init()`) — explicitly authorized by spec lines 530-533 (no unit test)
+- macOS `asteroids3D` vs Linux `asteroids3d` casing — explicit spec mandate (AC #2 + Dev Notes lines 186-188 design rationale)
+- Log rotation / size cap missing — explicitly deferred by spec ("Automatic rotation is post-MVP")
+- Test depends on `BaseDirs::new()` succeeding — actual CI runners (ubuntu/macos/windows-latest) all set HOME/USERPROFILE; verified by passing CI run
+- `LogPlugin` disable couples to Bevy plugin path — required by spec (AC #1 mandates we own subscriber); plugin path is stable Bevy public API
+- No flush on normal exit — `Drop` semantics of `Mutex<File>` handle this; we don't call `std::process::exit`
+- Linux state_dir bypass-with-fallback — spec-prescribed pattern (Dev Notes lines 31-39)
+- Module doc references `architecture.md:278-281` — strict reading: arch-line refs ≠ story-id refs (auditor self-resolved)
+- `use` block uses `prelude::*` — equivalent to spec skeleton (line 296); auditor self-resolved
+- `use` block omits `File` import — explicitly authorized by spec line 428
+- macOS no XDG override — XDG isn't standard on macOS; not applicable
+- Non-UTF-8 path components — `Path`/`PathBuf` already handle safely
+- No run-separator across runs — spec decision (Dev Notes line 174: "first `info!` after init serves as session-start marker")
+- Windows test backslash literal — empirically validated by passing windows-latest CI
+- `create_dir_all` / `OpenOptions` failure handling — already handled by graceful-degradation pattern (architecture.md:368)

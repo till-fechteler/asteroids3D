@@ -1,5 +1,5 @@
 # generated: 2026-04-22
-# last_updated: 2026-04-27 (story 1.8 dev-story complete — review, CI green)
+# last_updated: 2026-04-27 (Epic 1 done — story 1.8 review patches landed, all 8 Epic-1 stories done, M0 reached)
 # project: asteroids3D
 # project_key: NOKEY
 # tracking_system: file-system
@@ -43,7 +43,7 @@ story_location: "{project-root}/_bmad-output/implementation-artifacts"
 
 development_status:
   # Epic 1: Foundation & Plugin Compatibility Gate
-  epic-1: in-progress
+  epic-1: done
   1-1-bootstrap-cargo-project-with-hand-authored-cargo-toml: done
   1-2-plugin-compatibility-verification-gate: done
   1-3-toolchain-lint-and-format-configuration: done
@@ -51,7 +51,7 @@ development_status:
   1-5-minimal-bevy-app-opens-a-window-on-all-three-platforms: done
   1-6-gamestate-enum-with-bevy-states-skeleton: done
   1-7-splash-screen-shows-asteroids3d-and-transitions-to-mainmenu: done
-  1-8-tracing-based-logging-with-panic-hook-to-log-file: review
+  1-8-tracing-based-logging-with-panic-hook-to-log-file: done
   epic-1-retrospective: optional
 
   # Epic 2: Vector Aesthetic Tech Spike
