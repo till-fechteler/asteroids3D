@@ -13,7 +13,10 @@ use splash::{SplashConfig, cleanup_loading_entities, spawn_splash, tick_splash_t
 use state::{GameState, log_loading_entered, log_mainmenu_entered};
 
 fn main() -> AppExit {
-    let _log_path = init_logging();
+    let log_path = init_logging();
+    if let Some(path) = &log_path {
+        info!("file logging active at {}", path.display());
+    }
 
     App::new()
         .add_plugins(DefaultPlugins.build().disable::<bevy::log::LogPlugin>())

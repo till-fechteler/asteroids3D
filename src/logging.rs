@@ -1,7 +1,14 @@
 //! Application-wide tracing subscriber + panic-hook-to-file wiring.
 //! Installed from main.rs before App::new() per architecture.md:278-281.
 
-use std::{backtrace::Backtrace, fs::OpenOptions, io::Write, panic, path::PathBuf, sync::Mutex};
+use std::{
+    backtrace::Backtrace,
+    fs::OpenOptions,
+    io::{IsTerminal, Write},
+    panic,
+    path::PathBuf,
+    sync::Mutex,
+};
 
 use directories::BaseDirs;
 use tracing_subscriber::{EnvFilter, fmt, prelude::*};
@@ -11,7 +18,7 @@ const DEFAULT_FILTER: &str = "info";
 
 /// Resolve the per-OS user-log-directory.
 ///
-/// Windows: `%APPDATA%\asteroids3D\logs\`
+/// Windows: `%LOCALAPPDATA%\asteroids3D\logs\`
 /// Linux:   `$XDG_STATE_HOME/asteroids3d/logs/` (fallback `~/.local/state/asteroids3d/logs/`)
 /// macOS:   `~/Library/Logs/asteroids3D/`
 fn resolve_log_dir() -> Option<PathBuf> {
@@ -33,17 +40,26 @@ fn resolve_log_dir() -> Option<PathBuf> {
 
     #[cfg(target_os = "windows")]
     {
-        Some(base.data_dir().join("asteroids3D").join("logs"))
+        Some(base.data_local_dir().join("asteroids3D").join("logs"))
     }
 }
 
 /// Initialize the tracing subscriber (stderr + optional file) and panic hook.
 /// Returns the log-file path when file logging is active, else `None` (stderr only).
 pub fn init_logging() -> Option<PathBuf> {
-    let filter =
-        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(DEFAULT_FILTER));
+    let filter = match EnvFilter::try_from_default_env() {
+        Ok(f) => f,
+        Err(e) => {
+            if std::env::var_os("RUST_LOG").is_some() {
+                eprintln!("logging: invalid RUST_LOG, falling back to '{DEFAULT_FILTER}': {e}");
+            }
+            EnvFilter::new(DEFAULT_FILTER)
+        }
+    };
 
-    let stderr_layer = fmt::layer().with_writer(std::io::stderr).with_ansi(true);
+    let stderr_layer = fmt::layer()
+        .with_writer(std::io::stderr)
+        .with_ansi(std::io::stderr().is_terminal());
 
     let file_open = resolve_log_dir().and_then(|dir| match std::fs::create_dir_all(&dir) {
         Ok(()) => {
@@ -87,10 +103,22 @@ pub fn init_logging() -> Option<PathBuf> {
 fn install_panic_hook(log_path: PathBuf) {
     let prev = panic::take_hook();
     panic::set_hook(Box::new(move |info| {
-        if let Ok(mut file) = OpenOptions::new().append(true).open(&log_path) {
-            let backtrace = Backtrace::capture();
-            let _ = writeln!(file, "PANIC: {info}\nBacktrace:\n{backtrace}");
-            let _ = file.flush();
+        match OpenOptions::new().create(true).append(true).open(&log_path) {
+            Ok(mut file) => {
+                let backtrace = Backtrace::force_capture();
+                if let Err(e) = writeln!(file, "PANIC: {info}\nBacktrace:\n{backtrace}") {
+                    eprintln!("logging: panic-hook writeln failed: {e}");
+                }
+                if let Err(e) = file.flush() {
+                    eprintln!("logging: panic-hook flush failed: {e}");
+                }
+            }
+            Err(e) => {
+                eprintln!(
+                    "logging: panic-hook failed to open {}: {e}",
+                    log_path.display()
+                );
+            }
         }
         prev(info);
     }));
