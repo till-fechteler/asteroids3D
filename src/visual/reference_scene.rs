@@ -26,6 +26,8 @@ fn spawn_reference_scene(
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     // Camera3d at order: -1 so the splash Camera2d (order: 0) overlays its text on top.
+    // NOTE for future MainMenu UI authors: this Camera3d persists past OnExit(Loading); any
+    // new UI Camera2d (or other foreground camera) must use order >= 0 to overlay correctly.
     commands.spawn((
         Camera3d::default(),
         Camera {
@@ -36,7 +38,7 @@ fn spawn_reference_scene(
         ReferenceSceneEntity,
     ));
 
-    // Asteroid placeholder (icosphere). unwrap: subdivisions=2 cannot exceed the 80-cap.
+    // Asteroid placeholder (icosphere). unwrap: subdivisions=2 is well below Bevy's MAX_SUBDIVISIONS=80 cap.
     let asteroid_mesh = meshes.add(Sphere::new(1.0).mesh().ico(2).unwrap());
     let asteroid_mat = materials.add(StandardMaterial {
         base_color: Color::srgb(0.55, 0.50, 0.45),

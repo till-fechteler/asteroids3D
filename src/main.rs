@@ -23,8 +23,8 @@ fn main() -> AppExit {
 
     App::new()
         .add_plugins(DefaultPlugins.build().disable::<bevy::log::LogPlugin>())
-        .add_plugins(VisualPlugin)
         .init_state::<GameState>()
+        .add_plugins(VisualPlugin)
         .init_resource::<SplashConfig>()
         .add_systems(
             OnEnter(GameState::Loading),
