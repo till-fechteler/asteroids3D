@@ -1,17 +1,22 @@
 //! asteroids3D — app entry point.
-//! Registers DefaultPlugins, GameState, and the Loading → MainMenu splash flow.
+//! Initializes tracing subscriber + panic-hook-to-file before Bevy startup.
+//! Registers DefaultPlugins (minus LogPlugin), GameState, and the Loading → MainMenu splash flow.
 
 use bevy::prelude::*;
 
+mod logging;
 mod splash;
 mod state;
 
+use logging::init_logging;
 use splash::{SplashConfig, cleanup_loading_entities, spawn_splash, tick_splash_timer};
 use state::{GameState, log_loading_entered, log_mainmenu_entered};
 
 fn main() -> AppExit {
+    let _log_path = init_logging();
+
     App::new()
-        .add_plugins(DefaultPlugins)
+        .add_plugins(DefaultPlugins.build().disable::<bevy::log::LogPlugin>())
         .init_state::<GameState>()
         .init_resource::<SplashConfig>()
         .add_systems(
