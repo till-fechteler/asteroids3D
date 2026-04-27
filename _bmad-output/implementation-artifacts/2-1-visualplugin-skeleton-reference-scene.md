@@ -1,6 +1,6 @@
 # Story 2.1: VisualPlugin Skeleton + Reference Scene
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -143,6 +143,13 @@ So that Stories 2.2–2.5 have a stable, reproducible stage to validate shaders 
   - [ ] Stage this story file + `sprint-status.yaml`, commit with `bmad: story 2.1 ready-for-dev → review (VisualPlugin + ref scene shipped, CI green)` or similar `bmad:` prefix. This is a `_bmad-output/**` only commit → CI `paths-ignore` suppresses the matrix (per `.github/workflows/ci.yml:9-15`); expected zero-CI-run.
   - [ ] Push.
   - [ ] Story awaits code review; review can be light (single-reviewer precedent from 1.6/1.7/1.8) given ~120-line diff with no physics / save-I/O / cross-platform-API surfaces, OR a full 3-agent adversarial review if the dev agent suspects edge cases in the cfg-gating, camera/Camera2d coexistence, or persistence-across-state-transitions design choices.
+
+### Review Findings
+
+- [x] [Review][Patch] Add doc-comment to `spawn_reference_scene` warning Story 2.2 MainMenu UI author that Camera3d persists past `OnExit(Loading)` and any new UI Camera2d must use `order >= 0` to overlay correctly — applied in commit `cc60ab8`. [src/visual/reference_scene.rs:21-23]
+- [x] [Review][Patch] Tighten `unwrap()` justification comment to "subdivisions=2 is well below Bevy's MAX_SUBDIVISIONS=80 cap" — applied in commit `cc60ab8`. [src/visual/reference_scene.rs:33]
+- [x] [Review][Patch] Move `.add_plugins(VisualPlugin)` to after `.init_state::<GameState>()` in `main.rs` for defensive Bevy-version robustness — applied in commit `cc60ab8`. [src/main.rs:24-26]
+- [x] [Review][Defer] `spawn_reference_scene` is not idempotent on `OnEnter(Loading)` re-entry [src/visual/reference_scene.rs:12-16] — deferred, no Loading re-entry path exists in M0/M1; first future story adding restart-to-loading flow needs a despawn-before-spawn guard or `Local<bool>` once-flag. Logged to `deferred-work.md` per code-review convention.
 
 ## Dev Notes
 
@@ -579,3 +586,4 @@ Untouched-guardrail (verified via `git status --short`):
 |---|---|---|
 | 2026-04-27 | Story 2.1 implementation: VisualPlugin skeleton + dev-only reference scene. 7 entities (3 meshes, 3 lights, 1 Camera3d) tagged `ReferenceSceneEntity`, gated by `cfg(debug_assertions)` at submodule level. Release binary verified to contain 0 hits for the marker. | commit `596bc44` |
 | 2026-04-27 | Observed pre-existing splash.rs cleanup race (WARN bevy_ecs::error::handler on `OnExit(Loading)`), exposed but not introduced by 2.1's added entity set. Logged to `deferred-work.md` for fix at next splash.rs-touching story. | this story Dev Agent Record |
+| 2026-04-27 | Code review (light-mode, Edge Case Hunter + self-Auditor): 8 findings → 3 patch / 1 defer / 4 dismissed. All 3 patches applied (Camera3d-order doc-comment, unwrap-cap comment precision, `init_state` ordering before plugin registration). Deferred: Loading-re-entry idempotency. | commit `cc60ab8` |
