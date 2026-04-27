@@ -1,5 +1,5 @@
 # generated: 2026-04-22
-# last_updated: 2026-04-27 (Epic 1 done — story 1.8 review patches landed, all 8 Epic-1 stories done, M0 reached)
+# last_updated: 2026-04-27 (Story 2.1 review — VisualPlugin skeleton + dev-only reference scene shipped, CI 24986748452 4/4 green)
 # project: asteroids3D
 # project_key: NOKEY
 # tracking_system: file-system
@@ -55,8 +55,8 @@ development_status:
   epic-1-retrospective: optional
 
   # Epic 2: Vector Aesthetic Tech Spike
-  epic-2: backlog
-  2-1-visualplugin-skeleton-reference-scene: backlog
+  epic-2: in-progress
+  2-1-visualplugin-skeleton-reference-scene: review
   2-2-semanticaccent-palette-primitives: backlog
   2-3-wgsl-toon-material-implementation: backlog
   2-4-bevy-mod-outline-integration-wiring: backlog
