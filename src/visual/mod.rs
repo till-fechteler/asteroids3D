@@ -1,7 +1,10 @@
 //! Visual presentation plugin: toon shader, outlines, palette.
 //! Story 2.1 establishes the skeleton + a dev-only reference scene gated by debug_assertions.
+//! Story 2.2 adds the SemanticAccent palette primitives (FR50 / NFR-A1 foundation).
 
 use bevy::prelude::*;
+
+pub mod palette;
 
 pub struct VisualPlugin;
 

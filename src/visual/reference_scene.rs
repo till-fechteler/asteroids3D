@@ -4,6 +4,7 @@
 use bevy::prelude::*;
 
 use super::VisualSystems;
+use super::palette::{SemanticAccent, color_for};
 use crate::state::GameState;
 
 pub(super) struct ReferenceScenePlugin;
@@ -13,7 +14,8 @@ impl Plugin for ReferenceScenePlugin {
         app.add_systems(
             OnEnter(GameState::Loading),
             spawn_reference_scene.in_set(VisualSystems::Setup),
-        );
+        )
+        .add_systems(OnEnter(GameState::MainMenu), spawn_palette_swatches);
     }
 }
 
@@ -111,4 +113,89 @@ fn spawn_reference_scene(
         Transform::from_xyz(0.0, 4.0, -3.0),
         ReferenceSceneEntity,
     ));
+}
+
+fn spawn_palette_swatches(mut commands: Commands) {
+    // Swatch UI camera — order: 1 puts it above the splash Camera2d (order 0, despawned by now)
+    // and above the reference-scene Camera3d (order -1).
+    commands.spawn((
+        Camera2d,
+        Camera {
+            order: 1,
+            ..default()
+        },
+        ReferenceSceneEntity,
+    ));
+
+    let accents = [
+        SemanticAccent::Enemy,
+        SemanticAccent::Salvage,
+        SemanticAccent::Hazard,
+        SemanticAccent::PlayerOwned,
+        SemanticAccent::Neutral,
+    ];
+
+    commands
+        .spawn((
+            Node {
+                width: Val::Percent(100.0),
+                height: Val::Percent(12.0),
+                position_type: PositionType::Absolute,
+                top: Val::Px(0.0),
+                left: Val::Px(0.0),
+                display: Display::Flex,
+                flex_direction: FlexDirection::Row,
+                justify_content: JustifyContent::SpaceEvenly,
+                align_items: AlignItems::Center,
+                padding: UiRect::all(Val::Px(8.0)),
+                ..default()
+            },
+            BackgroundColor(Color::srgb(0.05, 0.05, 0.05)),
+            ReferenceSceneEntity,
+        ))
+        .with_children(|parent| {
+            for accent in accents {
+                parent
+                    .spawn((
+                        Node {
+                            display: Display::Flex,
+                            flex_direction: FlexDirection::Column,
+                            align_items: AlignItems::Center,
+                            row_gap: Val::Px(4.0),
+                            ..default()
+                        },
+                        ReferenceSceneEntity,
+                    ))
+                    .with_children(|column| {
+                        column.spawn((
+                            Node {
+                                width: Val::Px(80.0),
+                                height: Val::Px(40.0),
+                                ..default()
+                            },
+                            BackgroundColor(color_for(accent)),
+                            ReferenceSceneEntity,
+                        ));
+                        column.spawn((
+                            Text::new(label_for(accent)),
+                            TextFont {
+                                font_size: 16.0,
+                                ..default()
+                            },
+                            TextColor(Color::WHITE),
+                            ReferenceSceneEntity,
+                        ));
+                    });
+            }
+        });
+}
+
+fn label_for(accent: SemanticAccent) -> &'static str {
+    match accent {
+        SemanticAccent::Enemy => "ENEMY",
+        SemanticAccent::Salvage => "SALVAGE",
+        SemanticAccent::Hazard => "HAZARD",
+        SemanticAccent::PlayerOwned => "PLAYER",
+        SemanticAccent::Neutral => "NEUTRAL",
+    }
 }
