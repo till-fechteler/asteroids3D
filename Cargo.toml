@@ -31,5 +31,9 @@ codegen-units = 1
 opt-level = 3
 
 # Bevy dev-speed convention: dependencies compiled with -O1 in dev builds; workspace code stays -O0.
+# `debug = "line-tables-only"` strips full DWARF from dep crates, keeping line-number backtraces but
+# cutting the test-binary link-step memory by enough that GitHub Actions ubuntu-latest's rust-lld no
+# longer SIGBUS-es while linking. Workspace `src/` keeps full debuginfo via the parent `[profile.dev]`.
 [profile.dev.package."*"]
 opt-level = 1
+debug = "line-tables-only"
