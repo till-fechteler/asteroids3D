@@ -51,6 +51,30 @@ mod tests {
     }
 
     #[test]
+    fn color_for_salvage_is_bluish_green() {
+        assert_eq!(
+            color_for(SemanticAccent::Salvage),
+            Color::srgb_u8(0x00, 0x9E, 0x73)
+        );
+    }
+
+    #[test]
+    fn color_for_hazard_is_yellow() {
+        assert_eq!(
+            color_for(SemanticAccent::Hazard),
+            Color::srgb_u8(0xF0, 0xE4, 0x42)
+        );
+    }
+
+    #[test]
+    fn color_for_player_owned_is_sky_blue() {
+        assert_eq!(
+            color_for(SemanticAccent::PlayerOwned),
+            Color::srgb_u8(0x56, 0xB4, 0xE9)
+        );
+    }
+
+    #[test]
     fn color_for_neutral_matches_default() {
         assert_eq!(
             color_for(SemanticAccent::default()),
