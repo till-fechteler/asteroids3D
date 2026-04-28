@@ -8,7 +8,7 @@ use bevy::prelude::*;
     not(debug_assertions),
     allow(
         dead_code,
-        reason = "debug-only swatch consumer is cfg-elided; release consumers arrive in Stories 2.3/4.5"
+        reason = "reference_scene (debug-only consumer) is cfg-gated; release consumer arrives in Story 4.5"
     )
 )]
 pub enum SemanticAccent {
@@ -24,7 +24,7 @@ pub enum SemanticAccent {
     not(debug_assertions),
     allow(
         dead_code,
-        reason = "debug-only swatch consumer is cfg-elided; release consumers arrive in Stories 2.3/4.5"
+        reason = "reference_scene (debug-only consumer) is cfg-gated; release consumer arrives in Story 4.5"
     )
 )]
 pub fn color_for(accent: SemanticAccent) -> Color {

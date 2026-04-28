@@ -5,6 +5,7 @@ use bevy::prelude::*;
 
 use super::VisualSystems;
 use super::palette::{SemanticAccent, color_for};
+use super::toon_material::ToonMaterial;
 use crate::state::GameState;
 
 pub(super) struct ReferenceScenePlugin;
@@ -25,7 +26,7 @@ struct ReferenceSceneEntity;
 fn spawn_reference_scene(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut materials: ResMut<Assets<ToonMaterial>>,
 ) {
     // Camera3d at order: -1 so the splash Camera2d (order: 0) overlays its text on top.
     // NOTE for future MainMenu UI authors: this Camera3d persists past OnExit(Loading); any
@@ -42,40 +43,43 @@ fn spawn_reference_scene(
 
     // Asteroid placeholder (icosphere). unwrap: subdivisions=2 is well below Bevy's MAX_SUBDIVISIONS=80 cap.
     let asteroid_mesh = meshes.add(Sphere::new(1.0).mesh().ico(2).unwrap());
-    let asteroid_mat = materials.add(StandardMaterial {
-        base_color: Color::srgb(0.55, 0.50, 0.45),
+    let asteroid_mat = materials.add(ToonMaterial {
+        tint: color_for(SemanticAccent::Hazard).into(),
         ..default()
     });
     commands.spawn((
         Mesh3d(asteroid_mesh),
         MeshMaterial3d(asteroid_mat),
         Transform::from_xyz(-2.0, 0.0, 0.0),
+        SemanticAccent::Hazard,
         ReferenceSceneEntity,
     ));
 
     // Ship-cockpit placeholder (cuboid).
     let ship_mesh = meshes.add(Cuboid::new(1.0, 0.5, 1.5));
-    let ship_mat = materials.add(StandardMaterial {
-        base_color: Color::srgb(0.20, 0.30, 0.55),
+    let ship_mat = materials.add(ToonMaterial {
+        tint: color_for(SemanticAccent::PlayerOwned).into(),
         ..default()
     });
     commands.spawn((
         Mesh3d(ship_mesh),
         MeshMaterial3d(ship_mat),
         Transform::from_xyz(0.0, 0.0, 0.0),
+        SemanticAccent::PlayerOwned,
         ReferenceSceneEntity,
     ));
 
     // Projectile placeholder (small UV-sphere).
     let projectile_mesh = meshes.add(Sphere::new(0.15));
-    let projectile_mat = materials.add(StandardMaterial {
-        base_color: Color::srgb(0.95, 0.85, 0.20),
+    let projectile_mat = materials.add(ToonMaterial {
+        tint: color_for(SemanticAccent::Salvage).into(),
         ..default()
     });
     commands.spawn((
         Mesh3d(projectile_mesh),
         MeshMaterial3d(projectile_mat),
         Transform::from_xyz(2.0, 0.0, 0.0),
+        SemanticAccent::Salvage,
         ReferenceSceneEntity,
     ));
 

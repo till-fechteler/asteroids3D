@@ -1,0 +1,5 @@
+TuningConfig(
+    toon_steps: 4,
+    toon_rim_power: 2.0,
+    toon_rim_intensity: 0.3,
+)
