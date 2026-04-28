@@ -1,5 +1,5 @@
 # generated: 2026-04-22
-# last_updated: 2026-04-27 (Story 2.1 done — review patches landed, CI 24988188050 green)
+# last_updated: 2026-04-28 (Story 2.2 ready-for-dev → review; CI 25056862489 green; awaiting code review)
 # project: asteroids3D
 # project_key: NOKEY
 # tracking_system: file-system
@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-22
-last_updated: 2026-04-27
+last_updated: 2026-04-28
 project: asteroids3D
 project_key: NOKEY
 tracking_system: file-system
@@ -57,7 +57,7 @@ development_status:
   # Epic 2: Vector Aesthetic Tech Spike
   epic-2: in-progress
   2-1-visualplugin-skeleton-reference-scene: done
-  2-2-semanticaccent-palette-primitives: backlog
+  2-2-semanticaccent-palette-primitives: review
   2-3-wgsl-toon-material-implementation: backlog
   2-4-bevy-mod-outline-integration-wiring: backlog
   2-5-three-backend-parity-validation-gate: backlog
