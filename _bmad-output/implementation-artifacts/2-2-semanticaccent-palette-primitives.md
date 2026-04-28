@@ -1,6 +1,6 @@
 # Story 2.2: SemanticAccent Palette Primitives
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -225,6 +225,34 @@ So that FR50 semantic accent colors rest on a tested NFR-A1 foundation before an
   - [x] Stage this story file + `sprint-status.yaml` (+ `deferred-work.md` if Task 6/7 surfaced deferable findings), commit with `bmad: story 2.2 ready-for-dev → review (palette + colorblind evidence committed, CI green)` or similar `bmad:` prefix. `_bmad-output/**` is in `paths-ignore` → zero CI cost.
   - [x] Push.
   - [x] Story awaits code review. Light-mode review (single-reviewer precedent from 1.6/1.7/1.8/2.1) is appropriate — diff is small (~80 lines source + 5 doc artifacts), no physics/save-I/O/cross-platform-API surfaces, no unsafe, no new crate dependency. Adversarial 3-agent review would be overkill unless the dev agent suspects edge cases in the colorblind palette choice or the bevy_ui overlay layout.
+
+### Review Findings
+
+Code review (2026-04-28) — 3 layers (Blind Hunter / Edge Case Hunter / Acceptance Auditor); 24 raw findings → 2 patch, 6 defer, 16 dismissed.
+
+**Patches (action items):**
+
+- [x] [Review][Patch] Add cfg_attr-removal entry to deferred-work.md (Completion Note 1 promised "deferred follow-up below" but no entry was written) [_bmad-output/implementation-artifacts/deferred-work.md] — landed in deferred-work.md "Removal-on-graduation" entry (2026-04-28 review write).
+- [x] [Review][Patch] Pin exact-RGB tests for Salvage / Hazard / PlayerOwned variants (typo in any of those hex values would silently pass `all_five_colors_are_unique`) [src/visual/palette.rs:30] — added `color_for_salvage_is_bluish_green`, `color_for_hazard_is_yellow`, `color_for_player_owned_is_sky_blue`; test count 6 → 9.
+
+**Defers (logged in deferred-work.md):**
+
+- [x] [Review][Defer] No despawn-on-state-exit; swatch Camera2d + UI tree will leak when state leaves MainMenu [src/visual/reference_scene.rs:118] — deferred to Story 3.1 (Arena entry) per spec line 532
+- [x] [Review][Defer] Over-tagging swatch children with `ReferenceSceneEntity` — Bevy 0.18 despawn is recursive, so future cleanup query iterating all tagged entities will warn on already-despawned children [src/visual/reference_scene.rs:154,167,177,186] — Story 3.1 cleanup-query design will resolve (e.g. `Without<ChildOf>` filter)
+- [x] [Review][Defer] `review-notes.md` Notes column populated with placeholder ellipses across all 30 rows [docs/tech-spike/m1-palette/review-notes.md] — global GO judgement covers all 30 pairs without failing; thickening retroactively not actionable
+- [x] [Review][Defer] UI overflows on viewports under ~416px width or ~525px height [src/visual/reference_scene.rs:130] — dev tool, acceptable to break on extreme viewports; revisit if dev workflow surfaces a real pain point
+- [x] [Review][Defer] Spec line 122 (`nm color_for >= 1` in release) was unsatisfiable as written — assumed Story 2.3 wiring already present [_bmad-output/implementation-artifacts/2-2-semanticaccent-palette-primitives.md:122] — spec amendment opportunity at Story 2.3 prep
+- [x] [Review][Defer] No runtime integration test for swatch spawn (e.g. `App::new() → init_state → set MainMenu → assert swatch entities exist`) [src/visual/reference_scene.rs:118] — pre-existing pattern; integration tests deferred per architecture.md:354 (post-M3)
+
+**Dismissed (not surfaced here):** 16 findings — false positives (e.g. "swatch system not cfg-gated" — parent module IS gated outside the diff), spec-prescribed choices (Component derive, `Color::srgb(0.05)` backdrop, Default=Neutral), speculative concerns without concrete failure modes (premature `const fn`, unused `Hash` derive, future camera-ambiguity).
+
+**Bias caveat:** Acceptance Auditor was Opus 4.7, same model class as the implementer. Re-running this review on a different LLM (e.g. Sonnet 4.6) would catch any implementer-rationalised reasoning that the auditor missed.
+
+**Patch round (2026-04-28):** Both patches landed.
+- Patch 1 (cfg_attr-removal entry in `deferred-work.md`): self-resolved during the review's defer-write — the new "## Deferred from: code review of 2-2-..." section in `deferred-work.md` includes a "Removal-on-graduation" trailing paragraph that records the cfg_attr cleanup follow-up for Story 2.3 dev.
+- Patch 2 (3 RGB-pin tests): added `color_for_salvage_is_bluish_green`, `color_for_hazard_is_yellow`, `color_for_player_owned_is_sky_blue` to `src/visual/palette.rs`. Test count 6 → **9**, all passing locally and on CI.
+- Verification gates after patch: `cargo test` 9/9, `cargo clippy --all-targets -D warnings` 0, `cargo fmt --check` exit 0.
+- Commit `ed14080` (`chore: apply code-review patches (Story 2.2: 3 RGB pin tests for Salvage/Hazard/PlayerOwned)`) → CI run **`25058835437`** all 4 jobs `success` (build ubuntu-latest 174s, build macos-latest 83s, build windows-latest 398s, msrv-check 53s; total wall ~6.6 min).
 
 ## Dev Notes
 
