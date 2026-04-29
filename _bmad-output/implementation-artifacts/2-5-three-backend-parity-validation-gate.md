@@ -1,6 +1,6 @@
 # Story 2.5: Three-Backend Parity Validation Gate
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -1031,3 +1031,11 @@ colors, outline continuity, outline width proportion, swatch palette colors). Re
 | 2026-04-29 | Splash bypass via direct `NextState<GameState>::MainMenu` push, gated on `in_state(Loading)` | Spec's Startup-timer-tick approach does not transition state — `Timer` in `TimerMode::Once` early-returns from `tick()` once finished, leaving `just_finished()` permanently false in subsequent ticks. |
 | 2026-04-29 | `parity-capture.yml`: removed hardcoded `VK_ICD_FILENAMES` env var; rely on Vulkan loader auto-discovery | First dispatch failed `linux-vulkan` with "Failed to open JSON file" at the exact env-var path despite `vulkaninfo --summary` reporting drivers; auto-discovery is more robust against Mesa-package-layout drift on `ubuntu-latest`. |
 | 2026-04-29 | Story 2.5 ready-for-dev → review | All 5 ACs satisfied; full local + CI verification clean; parity report recommends `GO toon`. |
+
+### Review Findings
+
+Code review completed 2026-04-29. 0 decision-needed, 0 patch, 3 deferred, 7 dismissed.
+
+- [x] [Review][Defer] `force_skip_splash_in_capture` sets `NextState` every Update frame while in Loading [src/visual/capture.rs:46] — deferred: temp module, Bevy deduplicates same-state queues, no re-entry path in M0/M1; deleted at Story 3.1
+- [x] [Review][Defer] No timeout/hang guard if `ScreenshotCaptured` never fires [src/visual/capture.rs:57–89] — deferred: CI `timeout-minutes: 60` covers worst case; acceptable for one-off tech-spike workflow
+- [x] [Review][Defer] `output_path` not validated before use — `save_to_disk` fail is silent, but CI artifact upload (`if-no-files-found: error`) + dimension-verify step both catch missing PNG [src/visual/capture.rs:84] — deferred: CI gates are sufficient for this tech-spike

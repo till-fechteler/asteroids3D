@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-22
-last_updated: 2026-04-29 (Story 2.5 in-progress → review)
+last_updated: 2026-04-29 (Story 2.5 review → done — code review passed, 0 patches)
 project: asteroids3D
 project_key: NOKEY
 tracking_system: file-system
@@ -60,7 +60,7 @@ development_status:
   2-2-semanticaccent-palette-primitives: done
   2-3-wgsl-toon-material-implementation: done
   2-4-bevy-mod-outline-integration-wiring: done
-  2-5-three-backend-parity-validation-gate: review
+  2-5-three-backend-parity-validation-gate: done
   2-6-go-fallback-decision-document: backlog
   2-7-fallback-material-scaffold-conditional-on-story-2-6: backlog
   epic-2-retrospective: optional
