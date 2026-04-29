@@ -1,0 +1,126 @@
+name: M1 Parity Capture
+
+# Manual trigger only — capture jobs are expensive and not needed on every push.
+# Run when Story 2.5 needs fresh PNGs (or when a future shader change warrants
+# re-validation of cross-backend parity).
+
+on:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  linux-vulkan:
+    name: linux-vulkan (Mesa lavapipe)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Free disk space
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: true
+          swap-storage: false
+
+      - name: Install Linux system dependencies
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y \
+            pkg-config \
+            libx11-dev \
+            libasound2-dev \
+            libudev-dev \
+            libxkbcommon-x11-0 \
+            libwayland-dev \
+            libxkbcommon-dev \
+            xvfb \
+            mesa-vulkan-drivers \
+            vulkan-tools
+
+      - name: Verify Vulkan adapter is reachable
+        run: |
+          # vulkaninfo --summary lists adapters; lavapipe should appear as
+          # "llvmpipe (LLVM…)" — proves the software ICD is installed before
+          # we waste 10+ minutes compiling Bevy against a missing Vulkan stack.
+          vulkaninfo --summary || (echo "Vulkan stack missing; aborting" && exit 1)
+
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+
+      - name: Run capture (Vulkan via lavapipe under xvfb)
+        env:
+          WGPU_BACKEND: vulkan
+          # lavapipe is the LLVM software-rasterized Vulkan ICD. Force it as
+          # the only adapter so wgpu doesn't pick a hypothetical hardware
+          # adapter that may flake on virtualized GitHub Actions hosts.
+          VK_ICD_FILENAMES: /usr/share/vulkan/icd.d/lvp_icd.x86_64.json
+          ASTEROIDS3D_CAPTURE_PNG: vulkan.png
+        run: xvfb-run -a -s "-screen 0 1920x1080x24" cargo run --locked
+
+      - name: Verify dimensions
+        run: |
+          file vulkan.png | grep -q "1920 x 1080" || (echo "wrong dimensions" && exit 1)
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vulkan
+          path: vulkan.png
+          if-no-files-found: error
+
+  windows-dx12:
+    name: windows-dx12 (WARP fallback)
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+
+      - name: Run capture (DX12 — WARP if no GPU)
+        env:
+          WGPU_BACKEND: dx12
+          # On GitHub Actions windows-latest, no real GPU is exposed; wgpu falls
+          # back to the WARP software DX12 adapter. No env override needed —
+          # wgpu's default adapter selection picks WARP when it's the only DX12
+          # adapter available. Setting WGPU_ADAPTER_NAME explicitly would over-
+          # constrain on hosts where a real GPU exists.
+          ASTEROIDS3D_CAPTURE_PNG: dx12.png
+        run: cargo run --locked
+
+      - name: Verify dimensions
+        shell: pwsh
+        run: |
+          Add-Type -AssemblyName System.Drawing
+          $img = [System.Drawing.Image]::FromFile("$PWD\dx12.png")
+          if ($img.Width -ne 1920 -or $img.Height -ne 1080) {
+            Write-Error "wrong dimensions: $($img.Width)x$($img.Height)"
+            exit 1
+          }
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dx12
+          path: dx12.png
+          if-no-files-found: error
