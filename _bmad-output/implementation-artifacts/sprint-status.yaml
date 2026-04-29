@@ -1,5 +1,5 @@
 # generated: 2026-04-22
-# last_updated: 2026-04-29 (Story 2.3 done; toon material + hot-reload + accent tinting shipped)
+# last_updated: 2026-04-29 (Story 2.4 review; bevy_mod_outline + outline hot-reload shipped, CI 25102919639 green)
 # project: asteroids3D
 # project_key: NOKEY
 # tracking_system: file-system
@@ -59,7 +59,7 @@ development_status:
   2-1-visualplugin-skeleton-reference-scene: done
   2-2-semanticaccent-palette-primitives: done
   2-3-wgsl-toon-material-implementation: done
-  2-4-bevy-mod-outline-integration-wiring: backlog
+  2-4-bevy-mod-outline-integration-wiring: review
   2-5-three-backend-parity-validation-gate: backlog
   2-6-go-fallback-decision-document: backlog
   2-7-fallback-material-scaffold-conditional-on-story-2-6: backlog
