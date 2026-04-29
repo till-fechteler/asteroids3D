@@ -2,11 +2,14 @@
 //! Spawned on OnEnter(Loading); persists across state transitions for Stories 2.3+.
 
 use bevy::prelude::*;
+use bevy_mod_outline::{GenerateOutlineNormalsSettings, OutlineMeshExt, OutlineVolume};
 
 use super::VisualSystems;
 use super::palette::{SemanticAccent, color_for};
 use super::toon_material::ToonMaterial;
 use crate::state::GameState;
+use crate::tuning::TuningHandle;
+use crate::tuning::config::TuningConfig;
 
 pub(super) struct ReferenceScenePlugin;
 
@@ -27,7 +30,25 @@ fn spawn_reference_scene(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ToonMaterial>>,
+    tuning_assets: Res<Assets<TuningConfig>>,
+    tuning_handle: Res<TuningHandle>,
 ) {
+    // Cold-start: tuning.ron is still loading on a background thread when OnEnter(Loading)
+    // fires. Use Default values at spawn-time; apply_tuning_to_outlines (TuningSystems::Reload)
+    // overwrites once AssetEvent::Added fires.
+    let tuning = tuning_assets
+        .get(tuning_handle.0.id())
+        .cloned()
+        .unwrap_or_default();
+    let outline_volume = || {
+        let [r, g, b, a] = tuning.outline_color;
+        OutlineVolume {
+            visible: true,
+            width: tuning.outline_width,
+            colour: Color::srgba(r, g, b, a),
+        }
+    };
+
     // Camera3d at order: -1 so the splash Camera2d (order: 0) overlays its text on top.
     // NOTE for future MainMenu UI authors: this Camera3d persists past OnExit(Loading); any
     // new UI Camera2d (or other foreground camera) must use order >= 0 to overlay correctly.
@@ -42,6 +63,7 @@ fn spawn_reference_scene(
     ));
 
     // Asteroid placeholder (icosphere). unwrap: subdivisions=2 is well below Bevy's MAX_SUBDIVISIONS=80 cap.
+    // Smooth interpolated normals → no generate_outline_normals call needed.
     let asteroid_mesh = meshes.add(Sphere::new(1.0).mesh().ico(2).unwrap());
     let asteroid_mat = materials.add(ToonMaterial {
         tint: color_for(SemanticAccent::Hazard).into(),
@@ -52,11 +74,18 @@ fn spawn_reference_scene(
         MeshMaterial3d(asteroid_mat),
         Transform::from_xyz(-2.0, 0.0, 0.0),
         SemanticAccent::Hazard,
+        outline_volume(),
         ReferenceSceneEntity,
     ));
 
-    // Ship-cockpit placeholder (cuboid).
-    let ship_mesh = meshes.add(Cuboid::new(1.0, 0.5, 1.5));
+    // Ship-cockpit placeholder (cuboid). Hard-edged faces require outline-normal smoothing
+    // BEFORE asset insertion; otherwise vertex extrusion produces visible spikes at corners.
+    let ship_mesh = {
+        let mut mesh = Cuboid::new(1.0, 0.5, 1.5).mesh().build();
+        mesh.generate_outline_normals(&GenerateOutlineNormalsSettings::default())
+            .expect("cuboid has TriangleList topology and Float32x3 positions");
+        meshes.add(mesh)
+    };
     let ship_mat = materials.add(ToonMaterial {
         tint: color_for(SemanticAccent::PlayerOwned).into(),
         ..default()
@@ -66,10 +95,11 @@ fn spawn_reference_scene(
         MeshMaterial3d(ship_mat),
         Transform::from_xyz(0.0, 0.0, 0.0),
         SemanticAccent::PlayerOwned,
+        outline_volume(),
         ReferenceSceneEntity,
     ));
 
-    // Projectile placeholder (small UV-sphere).
+    // Projectile placeholder (small UV-sphere). Smooth normals → no generate_outline_normals.
     let projectile_mesh = meshes.add(Sphere::new(0.15));
     let projectile_mat = materials.add(ToonMaterial {
         tint: color_for(SemanticAccent::Salvage).into(),
@@ -80,6 +110,7 @@ fn spawn_reference_scene(
         MeshMaterial3d(projectile_mat),
         Transform::from_xyz(2.0, 0.0, 0.0),
         SemanticAccent::Salvage,
+        outline_volume(),
         ReferenceSceneEntity,
     ));
 

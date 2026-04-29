@@ -2,9 +2,11 @@
 //! Story 2.1 establishes the skeleton + a dev-only reference scene gated by debug_assertions.
 //! Story 2.2 adds the SemanticAccent palette primitives (FR50 / NFR-A1 foundation).
 //! Story 2.3 adds the WGSL `ToonMaterial` (FR49) wired through `MaterialPlugin`.
+//! Story 2.4 adds `bevy_mod_outline::OutlinePlugin` wiring + outline hot-reload propagation (FR49).
 
 use bevy::prelude::*;
 
+pub mod outline;
 pub mod palette;
 pub mod toon_material;
 
@@ -18,6 +20,7 @@ pub enum VisualSystems {
 impl Plugin for VisualPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(MaterialPlugin::<toon_material::ToonMaterial>::default());
+        app.add_plugins(bevy_mod_outline::OutlinePlugin);
 
         app.configure_sets(
             OnEnter(crate::state::GameState::Loading),
@@ -26,7 +29,11 @@ impl Plugin for VisualPlugin {
 
         app.add_systems(
             Update,
-            apply_tuning_to_toon_materials.in_set(crate::tuning::TuningSystems::Reload),
+            (
+                apply_tuning_to_toon_materials,
+                outline::apply_tuning_to_outlines,
+            )
+                .in_set(crate::tuning::TuningSystems::Reload),
         );
 
         #[cfg(debug_assertions)]
