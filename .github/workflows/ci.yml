@@ -34,6 +34,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Free ~30 GB on Linux runners (android SDK, .NET, Haskell, Docker images).
+      # Mitigates the os-error-28 disk-space failure observed on run 25066598887
+      # before this patch landed. tool-cache excluded (Rust toolchain installs
+      # there); large-packages excluded (~5 min cost, not needed at our scale).
+      - name: Free disk space (Linux only)
+        if: runner.os == 'Linux'
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: true
+          swap-storage: false
+
       - name: Install Linux system dependencies
         if: runner.os == 'Linux'
         env:
@@ -57,17 +73,21 @@ jobs:
 
       - name: Cache cargo registry + target
         uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
 
-      - name: cargo build
-        run: cargo build --locked
-
+      # cargo test builds + runs tests on all 3 OSes (platform parity for tests).
+      # The standalone `cargo build` step was removed — it produced a duplicate
+      # link of the app binary that `cargo test` does not need.
       - name: cargo test
         run: cargo test --locked
 
-      - name: cargo clippy
+      - name: cargo clippy (Linux only)
+        if: runner.os == 'Linux'
         run: cargo clippy --locked --all-targets -- -D warnings
 
-      - name: cargo fmt --check
+      - name: cargo fmt --check (Linux only)
+        if: runner.os == 'Linux'
         run: cargo fmt --all -- --check
 
   msrv-check:
