@@ -52,6 +52,8 @@ jobs:
           # "llvmpipe (LLVM…)" — proves the software ICD is installed before
           # we waste 10+ minutes compiling Bevy against a missing Vulkan stack.
           vulkaninfo --summary || (echo "Vulkan stack missing; aborting" && exit 1)
+          echo "--- ICD directory listing ---"
+          ls -la /usr/share/vulkan/icd.d/ /etc/vulkan/icd.d/ 2>/dev/null || true
 
       - uses: dtolnay/rust-toolchain@master
         with:
@@ -64,10 +66,15 @@ jobs:
       - name: Run capture (Vulkan via lavapipe under xvfb)
         env:
           WGPU_BACKEND: vulkan
-          # lavapipe is the LLVM software-rasterized Vulkan ICD. Force it as
-          # the only adapter so wgpu doesn't pick a hypothetical hardware
-          # adapter that may flake on virtualized GitHub Actions hosts.
-          VK_ICD_FILENAMES: /usr/share/vulkan/icd.d/lvp_icd.x86_64.json
+          # We do NOT set VK_ICD_FILENAMES — earlier dispatch (run 25111626273)
+          # showed the Vulkan loader failed to open the explicit
+          # /usr/share/vulkan/icd.d/lvp_icd.x86_64.json path even though
+          # vulkaninfo --summary itself worked, which strongly implies
+          # mesa-package-layout drift across ubuntu-latest images. Auto-
+          # discovery (the loader's default search path covers /usr/share +
+          # /etc + XDG dirs) is more robust. ubuntu-latest virtualized hosts
+          # have no hardware GPU, so lavapipe is the only adapter wgpu can
+          # pick anyway.
           ASTEROIDS3D_CAPTURE_PNG: vulkan.png
         run: xvfb-run -a -s "-screen 0 1920x1080x24" cargo run --locked
 
