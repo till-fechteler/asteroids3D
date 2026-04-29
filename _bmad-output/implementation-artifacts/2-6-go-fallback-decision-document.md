@@ -1,6 +1,6 @@
 # Story 2.6: Go/Fallback Decision Document
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -229,6 +229,18 @@ So that M1 closes with explicit, auditable scope resolution for M2 — `ToonMate
     - **Why two commits, not one:** the docs commit changes user-facing-evidence (the M1 decision is a public document committed alongside the parity report). Splitting it from the BMad bookkeeping commit (a) keeps the docs commit's diff focused on the decision content only — a clean reviewable artifact, (b) lets the docs commit trigger CI to confirm no accidental cross-contamination with source, (c) the bookkeeping commit's CI-skip via paths-ignore is the explicit policy from `deferred-work.md:5` (CI cadence convention).
   - [x] **Push-fold optimization:** if Till opts to fold both commits into one push (single git push event but two commits), one CI run is captured (the push event triggers one CI run because at least one commit touches non-paths-ignore files). Document the fold reasoning in Dev Agent Record. The fold is acceptable; do NOT collapse the two commits into one (commit-message clarity is preserved by keeping them separate).
   - [x] Story awaits code review. **Code review recommended via `bmad-code-review` skill, ideally with a different LLM than the implementer.** This story's review surface is small (one new markdown file + three small bookkeeping diffs), so a light-pass review is appropriate; however, the decision document IS the M1 milestone-gate artifact and thus warrants careful eyes on (a) the verbatim `Decision` line format, (b) the Rationale's correct citation of parity-report numbers, (c) the Risks Accepted / Fallback Trigger Criteria coverage being complete.
+
+### Review Findings
+
+- [x] [Review][Patch] `7×` multiplier inaccurate — parity-report.md says `7.1×` for M↔DX12 and V↔DX12 pairs [docs/tech-spike/m1-decision.md — Rationale, paragraph 1] — fixed: changed `7×` → `7.1×` (code review, 2026-04-29)
+- [x] [Review][Defer] Dual `last_updated` location in sprint-status.yaml (comment + YAML key) — pre-existing pattern, no enforcement that both stay in sync [_bmad-output/implementation-artifacts/sprint-status.yaml] — deferred, pre-existing
+- [x] [Review][Defer] Line-number citations in deferred-work.md and M2 Impact section will drift as documents evolve — pre-existing fragility [_bmad-output/implementation-artifacts/deferred-work.md:113, docs/tech-spike/m1-decision.md:M2 Impact] — deferred, pre-existing
+- [x] [Review][Defer] `_fallback`-suffix wording in M2 Impact section doesn't exactly match epic paths (epic uses `-fallback` directory, not `_fallback`-suffixed files) — cosmetic, meaning clear [docs/tech-spike/m1-decision.md:M2 Impact] — deferred, pre-existing
+- [x] [Review][Defer] "MITIGATED" → "RESOLVED" status-label instruction in deferred-work.md is non-actionable — PRD has no such status labels [_bmad-output/implementation-artifacts/deferred-work.md] — deferred, pre-existing
+- [x] [Review][Defer] `generated:` field in sprint-status.yaml never updated — pre-existing pattern [_bmad-output/implementation-artifacts/sprint-status.yaml] — deferred, pre-existing
+- [x] [Review][Defer] Fallback Trigger Criterion #4 specifies ~30-day window with no tracking mechanism or responsible party [docs/tech-spike/m1-decision.md:Fallback Trigger Criteria #4] — deferred, accepted design choice
+- [x] [Review][Defer] Story 2.7 "not-needed" entry filed in deferred-work.md despite being a definitive disposition, not a deferral — semantic mismatch [_bmad-output/implementation-artifacts/deferred-work.md] — deferred, accepted design choice
+- [x] [Review][Defer] `not-needed` status example in sprint-status.yaml schema comment is story-specific (references Story 2.6/2.7) — future `not-needed` stories find a story-specific definition [_bmad-output/implementation-artifacts/sprint-status.yaml] — deferred, pre-existing
 
 ## Dev Notes
 
