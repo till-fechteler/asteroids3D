@@ -1,5 +1,5 @@
 # generated: 2026-04-22
-# last_updated: 2026-04-29 (Story 2.5 in-progress → review — three-backend parity, GO toon recommendation, both CI green)
+# last_updated: 2026-04-29 (Story 2.6 ready-for-dev → review — M1 GO toon ratified; Story 2.7 → not-needed; epic-2 → done)
 # project: asteroids3D
 # project_key: NOKEY
 # tracking_system: file-system
@@ -22,6 +22,7 @@
 #   - in-progress: Developer actively working on implementation
 #   - review: Ready for code review (via Dev's code-review workflow)
 #   - done: Story completed
+#   - not-needed: Story is conditionally specified in epics and the trigger condition was not met; no implementation work required (e.g., 2.7 fallback skipped after 2.6's GO toon decision)
 #
 # Retrospective Status:
 #   - optional: Can be completed but not required
@@ -35,7 +36,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-22
-last_updated: 2026-04-29 (Story 2.5 review → done — code review passed, 0 patches)
+last_updated: 2026-04-29 (Story 2.6 ready-for-dev → review — M1 GO toon ratified; Story 2.7 → not-needed; epic-2 → done)
 project: asteroids3D
 project_key: NOKEY
 tracking_system: file-system
@@ -55,14 +56,14 @@ development_status:
   epic-1-retrospective: optional
 
   # Epic 2: Vector Aesthetic Tech Spike
-  epic-2: in-progress
+  epic-2: done
   2-1-visualplugin-skeleton-reference-scene: done
   2-2-semanticaccent-palette-primitives: done
   2-3-wgsl-toon-material-implementation: done
   2-4-bevy-mod-outline-integration-wiring: done
   2-5-three-backend-parity-validation-gate: done
-  2-6-go-fallback-decision-document: backlog
-  2-7-fallback-material-scaffold-conditional-on-story-2-6: backlog
+  2-6-go-fallback-decision-document: review
+  2-7-fallback-material-scaffold-conditional-on-story-2-6: not-needed
   epic-2-retrospective: optional
 
   # Epic 3: Arena Flight & First Combat (First Playable)
