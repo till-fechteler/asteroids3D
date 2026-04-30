@@ -1,5 +1,5 @@
 //! ArenaPlugin — owns GameState::Arena entity lifecycle (spawn / cleanup).
-//! Story 3.3 attaches asteroid spawning; later stories add player ship, projectiles, HUD.
+//! Later stories attach asteroid spawning; following stories add player ship, projectiles, and HUD.
 
 use bevy::prelude::*;
 
