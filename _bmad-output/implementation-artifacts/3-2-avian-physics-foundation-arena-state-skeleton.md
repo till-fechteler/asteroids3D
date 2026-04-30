@@ -1,6 +1,6 @@
 # Story 3.2: Avian Physics Foundation + Arena State Skeleton
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -211,7 +211,12 @@ So that subsequent flight and combat stories (3.3–3.11) attach to a determinis
     - Push to `origin/master`. **Does NOT trigger CI** — `_bmad-output/**` is in `ci.yml`'s `paths-ignore`.
   - [ ] **Why two commits, not one:** matches Stories 3.1 / 2.6 / 2.5 / 2.4 precedent — clean diff focus (Commit 1 is reviewable code; Commit 2 is YAML/docs); CI cost focus (Commit 1 triggers CI, Commit 2 doesn't); roll-back granularity (a code-review patch can amend Commit 1 without disturbing the bookkeeping).
   - [ ] **Push-fold optimization:** if the dev opts to fold both commits into a single `git push` event, that's acceptable — one CI run captures everything; document the fold in Dev Agent Record. Do NOT collapse the two commits into one.
-  - [ ] Story awaits code review. **Code review recommended via `bmad-code-review` skill, ideally with a different LLM than the implementer.** The diff surface is small (~6 lines added in `main.rs`; ~30 lines new in `src/arena/mod.rs`); a 3-agent review is appropriate but may produce few findings given the narrow scope. Specific review attention areas: (a) the FixedPostUpdate-vs-FixedUpdate semantic gap — the architecture says "FixedUpdate" colloquially, the implementation uses `Time::<Fixed>::from_hz(60.0)` which is the correct Avian 0.6 idiom; (b) the generic-cleanup function placement decision (`src/arena/mod.rs` vs. `src/core/cleanup.rs`); (c) the `ArenaSystems::Setup`-with-no-consumers `dead_code` risk; (d) confirmation that no debug PhysicsDebugPlugin sneaked in.
+  - [x] Story awaits code review. **Code review recommended via `bmad-code-review` skill, ideally with a different LLM than the implementer.** The diff surface is small (~6 lines added in `main.rs`; ~30 lines new in `src/arena/mod.rs`); a 3-agent review is appropriate but may produce few findings given the narrow scope. Specific review attention areas: (a) the FixedPostUpdate-vs-FixedUpdate semantic gap — the architecture says "FixedUpdate" colloquially, the implementation uses `Time::<Fixed>::from_hz(60.0)` which is the correct Avian 0.6 idiom; (b) the generic-cleanup function placement decision (`src/arena/mod.rs` vs. `src/core/cleanup.rs`); (c) the `ArenaSystems::Setup`-with-no-consumers `dead_code` risk; (d) confirmation that no debug PhysicsDebugPlugin sneaked in.
+
+### Review Findings
+
+- [x] [Review][Patch] Module doc line 2 contains story-id reference "Story 3.3" — violates spec constraint (no story-id references per Story 1.5 review patch BH8 precedent); replace with a generic forward reference [`src/arena/mod.rs:2`] — fixed: replaced with "Later stories attach asteroid spawning; following stories add player ship, projectiles, and HUD."
+- [x] [Review][Defer] No mechanism to enforce that future arena-spawned entities carry the `ArenaEntity` marker — `cleanup_on_exit::<ArenaEntity>` silently skips unmarked entities; risk materializes in Story 3.3+ [`src/arena/mod.rs` — future consumers] — deferred, architectural convention risk, not introduced by this story
 
 ## Dev Notes
 
