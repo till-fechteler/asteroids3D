@@ -6,7 +6,7 @@ use bevy::prelude::*;
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 #[allow(
     dead_code,
-    reason = "no current consumer; gameplay consumer arrives in Story 4.5 (SemanticAccent wiring on gameplay entities)"
+    reason = "Neutral consumed by spawn_arena_zone; Enemy/Salvage/Hazard/PlayerOwned variants pending consumer in Story 4.5"
 )]
 pub enum SemanticAccent {
     Enemy,
@@ -17,10 +17,6 @@ pub enum SemanticAccent {
     Neutral,
 }
 
-#[allow(
-    dead_code,
-    reason = "no current consumer; gameplay consumer arrives in Story 4.5 (SemanticAccent wiring on gameplay entities)"
-)]
 pub fn color_for(accent: SemanticAccent) -> Color {
     match accent {
         SemanticAccent::Enemy => Color::srgb_u8(0xD5, 0x5E, 0x00), // #D55E00 vermillion
