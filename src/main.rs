@@ -2,8 +2,10 @@
 //! Initializes tracing subscriber + panic-hook-to-file before Bevy startup.
 //! Registers DefaultPlugins (minus LogPlugin), GameState, splash flow, and gameplay plugins.
 
+use avian3d::prelude::{Gravity, PhysicsPlugins};
 use bevy::prelude::*;
 
+mod arena;
 mod logging;
 mod splash;
 mod state;
@@ -11,6 +13,7 @@ mod tuning;
 mod ui;
 mod visual;
 
+use arena::ArenaPlugin;
 use logging::init_logging;
 use splash::{SplashConfig, cleanup_loading_entities, spawn_splash, tick_splash_timer};
 use state::{GameState, log_arena_entered, log_loading_entered, log_mainmenu_entered};
@@ -29,9 +32,13 @@ fn main() -> AppExit {
     App::new()
         .add_plugins(default_plugins)
         .init_state::<GameState>()
+        .add_plugins(PhysicsPlugins::default())
+        .insert_resource(Time::<Fixed>::from_hz(60.0))
+        .insert_resource(Gravity(Vec3::ZERO))
         .add_plugins(TuningPlugin)
         .add_plugins(VisualPlugin)
         .add_plugins(UiPlugin)
+        .add_plugins(ArenaPlugin)
         .init_resource::<SplashConfig>()
         .add_systems(
             OnEnter(GameState::Loading),
