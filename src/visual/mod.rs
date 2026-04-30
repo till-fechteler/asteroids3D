@@ -1,13 +1,9 @@
 //! Visual presentation plugin: toon shader, outlines, palette.
-//! Story 2.1 establishes the skeleton + a dev-only reference scene gated by debug_assertions.
-//! Story 2.2 adds the SemanticAccent palette primitives (FR50 / NFR-A1 foundation).
 //! Story 2.3 adds the WGSL `ToonMaterial` (FR49) wired through `MaterialPlugin`.
 //! Story 2.4 adds `bevy_mod_outline::OutlinePlugin` wiring + outline hot-reload propagation (FR49).
-//! Story 2.5 adds opt-in screenshot capture (`ASTEROIDS3D_CAPTURE_PNG`) for M1 backend-parity validation.
 
 use bevy::prelude::*;
 
-pub mod capture;
 pub mod outline;
 pub mod palette;
 pub mod toon_material;
@@ -37,9 +33,6 @@ impl Plugin for VisualPlugin {
             )
                 .in_set(crate::tuning::TuningSystems::Reload),
         );
-
-        #[cfg(debug_assertions)]
-        app.add_plugins(reference_scene::ReferenceScenePlugin);
     }
 }
 
@@ -55,6 +48,3 @@ fn apply_tuning_to_toon_materials(
         }
     }
 }
-
-#[cfg(debug_assertions)]
-mod reference_scene;

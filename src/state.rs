@@ -27,6 +27,10 @@ pub fn log_mainmenu_entered() {
     info!("entered MainMenu");
 }
 
+pub fn log_arena_entered() {
+    info!("entered Arena");
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

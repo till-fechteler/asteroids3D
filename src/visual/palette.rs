@@ -4,12 +4,9 @@
 use bevy::prelude::*;
 
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
-#[cfg_attr(
-    not(debug_assertions),
-    allow(
-        dead_code,
-        reason = "reference_scene (debug-only consumer) is cfg-gated; release consumer arrives in Story 4.5"
-    )
+#[allow(
+    dead_code,
+    reason = "no current consumer; gameplay consumer arrives in Story 4.5 (SemanticAccent wiring on gameplay entities)"
 )]
 pub enum SemanticAccent {
     Enemy,
@@ -20,12 +17,9 @@ pub enum SemanticAccent {
     Neutral,
 }
 
-#[cfg_attr(
-    not(debug_assertions),
-    allow(
-        dead_code,
-        reason = "reference_scene (debug-only consumer) is cfg-gated; release consumer arrives in Story 4.5"
-    )
+#[allow(
+    dead_code,
+    reason = "no current consumer; gameplay consumer arrives in Story 4.5 (SemanticAccent wiring on gameplay entities)"
 )]
 pub fn color_for(accent: SemanticAccent) -> Color {
     match accent {
