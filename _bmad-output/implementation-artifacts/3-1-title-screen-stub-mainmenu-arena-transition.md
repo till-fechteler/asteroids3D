@@ -1,6 +1,6 @@
 # Story 3.1: Title Screen Stub — MainMenu → Arena Transition
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -920,8 +920,14 @@ Backend confirmed Metal on Apple M5 Pro per AC #5.
 - `src/visual/reference_scene.rs` (236 lines, 0 tests, debug-only)
 - `.github/workflows/parity-capture.yml` (133 lines, manual `workflow_dispatch` only)
 
+### Review Findings
+
+- [x] [Review][Defer] SplashConfig timer stays finished on Loading re-entry [`src/splash.rs`] — deferred, pre-existing issue not caused by this diff; no re-entry path exists in 3.1
+- [x] [Review][Defer] `spawn_main_menu` not idempotent on MainMenu re-entry [`src/ui/main_menu.rs:17`] — deferred, stub scope; no re-entry path in 3.1; module rewritten in Story 4.7
+
 ### Change Log
 
 | Date | Change | By |
 |---|---|---|
 | 2026-04-30 | Story 3.1 implementation: title-screen stub (`src/ui/`) + M1 capture/reference-scene/parity-capture teardown; status ready-for-dev → review | claude-opus-4-7 (1M ctx) via dev-story |
+| 2026-04-30 | Code review passed (0 patches, 2 deferred, 12 dismissed); status review → done | claude-sonnet-4-6 via bmad-code-review |
