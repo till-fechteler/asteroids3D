@@ -7,6 +7,7 @@ use bevy::prelude::*;
 
 mod arena;
 mod logging;
+mod pause;
 mod splash;
 mod state;
 mod tuning;
@@ -15,6 +16,7 @@ mod visual;
 
 use arena::ArenaPlugin;
 use logging::init_logging;
+use pause::PausePlugin;
 use splash::{SplashConfig, cleanup_loading_entities, spawn_splash, tick_splash_timer};
 use state::{GameState, log_arena_entered, log_loading_entered, log_mainmenu_entered};
 use tuning::TuningPlugin;
@@ -39,6 +41,7 @@ fn main() -> AppExit {
         .add_plugins(VisualPlugin)
         .add_plugins(UiPlugin)
         .add_plugins(ArenaPlugin)
+        .add_plugins(PausePlugin)
         .init_resource::<SplashConfig>()
         .add_systems(
             OnEnter(GameState::Loading),
