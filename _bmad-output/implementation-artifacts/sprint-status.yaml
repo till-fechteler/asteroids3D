@@ -1,5 +1,5 @@
 # generated: 2026-04-22
-# last_updated: 2026-04-30 (Story 3.2 review → done — code review passed, 1 patch applied)
+# last_updated: 2026-04-30 (Story 3.3 review → done — code review passed, 2 patches applied)
 # project: asteroids3D
 # project_key: NOKEY
 # tracking_system: file-system
@@ -36,7 +36,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-22
-last_updated: 2026-04-30 (Story 3.2 review → done — code review passed, 1 patch applied)
+last_updated: 2026-04-30 (Story 3.3 review → done — code review passed, 2 patches applied)
 project: asteroids3D
 project_key: NOKEY
 tracking_system: file-system
@@ -70,7 +70,7 @@ development_status:
   epic-3: in-progress
   3-1-title-screen-stub-mainmenu-arena-transition: done
   3-2-avian-physics-foundation-arena-state-skeleton: done
-  3-3-hand-designed-arena-zone-with-static-asteroid-field: backlog
+  3-3-hand-designed-arena-zone-with-static-asteroid-field: done
   3-4-pause-on-focus-loss-pause-menu-stub: backlog
   3-5-cockpit-camera-playership-entity: backlog
   3-6-flight-input-6-dof-translation: backlog
