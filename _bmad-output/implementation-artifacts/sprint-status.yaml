@@ -1,5 +1,5 @@
 # generated: 2026-04-22
-# last_updated: 2026-04-30 (Story 3.2 backlog → ready-for-dev — Avian physics foundation + ArenaPlugin skeleton)
+# last_updated: 2026-04-30 (Story 3.2 in-progress → review — Avian physics foundation + ArenaPlugin skeleton)
 # project: asteroids3D
 # project_key: NOKEY
 # tracking_system: file-system
@@ -36,7 +36,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-22
-last_updated: 2026-04-30 (Story 3.2 backlog → ready-for-dev — Avian physics foundation + ArenaPlugin skeleton)
+last_updated: 2026-04-30 (Story 3.2 in-progress → review — Avian physics foundation + ArenaPlugin skeleton)
 project: asteroids3D
 project_key: NOKEY
 tracking_system: file-system
@@ -69,7 +69,7 @@ development_status:
   # Epic 3: Arena Flight & First Combat (First Playable)
   epic-3: in-progress
   3-1-title-screen-stub-mainmenu-arena-transition: done
-  3-2-avian-physics-foundation-arena-state-skeleton: ready-for-dev
+  3-2-avian-physics-foundation-arena-state-skeleton: review
   3-3-hand-designed-arena-zone-with-static-asteroid-field: backlog
   3-4-pause-on-focus-loss-pause-menu-stub: backlog
   3-5-cockpit-camera-playership-entity: backlog
