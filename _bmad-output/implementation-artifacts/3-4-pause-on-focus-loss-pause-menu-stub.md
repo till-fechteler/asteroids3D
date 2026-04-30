@@ -1,6 +1,6 @@
 # Story 3.4: Pause on Focus Loss + Pause Menu Stub
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -1038,5 +1038,14 @@ src/pause/mod.rs:54:                cleanup_on_exit::<PauseOverlayEntity>,
 - `_bmad-output/implementation-artifacts/sprint-status.yaml` (3-4 status flip ready-for-dev → in-progress → review; `last_updated` bump)
 - `_bmad-output/implementation-artifacts/3-4-pause-on-focus-loss-pause-menu-stub.md` (this file: tasks/subtasks checked except Commit 1/Commit 2 awaiting authorization, Dev Agent Record populated, Status → review)
 - `_bmad-output/implementation-artifacts/deferred-work.md` (appended new "Deferred from: 3-4-..." section with 5 entries — gate-widening for Caravan/Combat states, focus-gain-overrides-Esc UX hazard, generic-cleanup-3rd-consumer trigger, PauseInitiator-resource-lifetime, GameState-needs-Copy)
+
+### Review Findings
+
+Code review conducted 2026-04-30 via `bmad-code-review` skill (3 parallel agents: Blind Hunter, Edge Case Hunter, Acceptance Auditor). 0 decision-needed, 0 patch, 4 defer, ~12 dismissed.
+
+- [x] [Review][Defer] `PauseInitiator` resource lifetime — persists across pause cycles; stale value after resume [`src/pause/mod.rs:21-25`] — deferred, pre-existing (filed by dev in deferred-work.md:186 under Story 3.4 section)
+- [x] [Review][Defer] focus-gain auto-resumes user-initiated Esc-pause — `resume_on_focus_gain` ignores `PauseInitiator` [`src/pause/mod.rs:77-92`] — deferred, pre-existing (filed by dev in deferred-work.md:182 under Story 3.4 section)
+- [x] [Review][Defer] Dual simultaneous `WindowFocused` events in same frame — if OS delivers `focused:false` + `focused:true` in the same frame, `resume_on_focus_gain` may miss the gain event (it runs in `Paused`, state not yet flushed) → game stuck in Paused until Esc [`src/pause/mod.rs:77-92`] — deferred, OS-specific edge case; same root cause as focus-gain/Esc-latch hazard above; resolution path is the PauseLatch fix in deferred-work.md
+- [x] [Review][Defer] Camera2d `order: 1` — no documented reservation convention; future stories adding a Camera2d must be aware of this slot [`src/pause/mod.rs:148-157`] — deferred, forward-compat note; no conflict currently exists
 
 **Untouched (verified):** `Cargo.toml`, `Cargo.lock`, `src/state.rs`, `src/splash.rs`, `src/logging.rs`, `src/ui/**`, `src/visual/**`, `src/arena/**`, `src/tuning/**`, `assets/**`, `docs/**`, `.github/workflows/**`, `rust-toolchain.toml`, `rustfmt.toml`, `clippy.toml`, `.gitignore`.
