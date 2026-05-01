@@ -1,6 +1,6 @@
 # Story 3.5: Cockpit Camera + PlayerShip Entity
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -588,4 +588,7 @@ $ grep -c 'ArenaEntity' src/flight/mod.rs
 
 ### Review Findings
 
-_(populated after `bmad-code-review` runs in fresh context post-implementation)_
+_(code review run 2026-05-01 — 3 layers: Blind Hunter, Edge Case Hunter, Acceptance Auditor — 0 decision-needed, 0 patch, 2 deferred, 22+ dismissed)_
+
+- [x] [Review][Defer] Implicit cockpit Camera3d render order [`src/flight/mod.rs:84-88`] — deferred, pre-existing; `Camera3d::default()` has no explicit `order: 0`; future cameras (HUD, photo-mode) could shadow without warning. Already tracked in deferred-work.md:192 (Story 3.4 camera-order slot-reservation entry). Extend that entry when Story 3.11 (HUD) introduces a second camera.
+- [x] [Review][Defer] Pause resume may re-trigger OnEnter(Arena) — double-spawn risk unverified [`src/flight/mod.rs:38-41`] — deferred, pre-existing; smoke test (Deviation #1) did NOT exercise Esc pause/resume cycles. If Paused→Arena fires OnEnter(Arena), `spawn_player_ship` runs before `cleanup_on_exit::<ArenaEntity>`, producing a duplicate PlayerShip. Same risk exists for `spawn_arena_zone` (Story 3.3). Verify architecture when Story 3.6 adds flight input systems that would make duplicate ships visible.
