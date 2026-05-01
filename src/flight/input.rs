@@ -11,6 +11,12 @@ pub enum FlightAction {
     StrafeRight,
     ThrustUp,
     ThrustDown,
+    #[actionlike(Axis)]
+    Pitch,
+    #[actionlike(Axis)]
+    Yaw,
+    RollLeft,
+    RollRight,
 }
 
 pub fn default_input_map() -> InputMap<FlightAction> {
@@ -21,5 +27,9 @@ pub fn default_input_map() -> InputMap<FlightAction> {
         (FlightAction::StrafeRight, KeyCode::KeyD),
         (FlightAction::ThrustUp, KeyCode::Space),
         (FlightAction::ThrustDown, KeyCode::ControlLeft),
+        (FlightAction::RollLeft, KeyCode::KeyQ),
+        (FlightAction::RollRight, KeyCode::KeyE),
     ])
+    .with_axis(FlightAction::Pitch, MouseMoveAxis::Y)
+    .with_axis(FlightAction::Yaw, MouseMoveAxis::X)
 }

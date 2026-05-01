@@ -6,6 +6,7 @@ pub mod physics;
 
 use avian3d::prelude::{AngularVelocity, Collider, LinearVelocity, RigidBody};
 use bevy::prelude::*;
+use bevy::window::{CursorGrabMode, CursorOptions, PrimaryWindow};
 use bevy_mod_outline::OutlineVolume;
 use leafwing_input_manager::prelude::*;
 
@@ -50,10 +51,12 @@ impl Plugin for FlightPlugin {
         app.configure_sets(FixedUpdate, FlightSystems::ApplyForces);
         app.add_systems(
             FixedUpdate,
-            physics::apply_thrust
+            (physics::apply_thrust, physics::apply_torque)
                 .in_set(FlightSystems::ApplyForces)
                 .run_if(in_state(GameState::Arena)),
         );
+        app.add_systems(OnEnter(GameState::Arena), grab_cursor_for_arena);
+        app.add_systems(OnExit(GameState::Arena), release_cursor_on_arena_exit);
     }
 }
 
@@ -108,4 +111,16 @@ pub fn spawn_player_ship(
         });
 
     info!("spawned PlayerShip at origin with cockpit Camera3d child");
+}
+
+pub fn grab_cursor_for_arena(mut window: Single<&mut CursorOptions, With<PrimaryWindow>>) {
+    // CursorGrabMode::Confined falls back to Locked on macOS, to Confined on X11
+    // (per bevy_window-0.18 platform notes); both achieve cockpit-aim feel.
+    window.grab_mode = CursorGrabMode::Confined;
+    window.visible = false;
+}
+
+pub fn release_cursor_on_arena_exit(mut window: Single<&mut CursorOptions, With<PrimaryWindow>>) {
+    window.grab_mode = CursorGrabMode::None;
+    window.visible = true;
 }
