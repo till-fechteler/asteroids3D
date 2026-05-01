@@ -1,11 +1,16 @@
-//! FlightPlugin — owns PlayerShip + CockpitCamera spawn on Arena entry.
-//! Later stories attach 6-DOF input, rotation, dampener, weapons via additional systems.
+//! FlightPlugin — owns PlayerShip + CockpitCamera spawn and 6-DOF translation thrust.
+//! Rotation, dampener, weapons land in subsequent stories via additional systems.
+
+pub mod input;
+pub mod physics;
 
 use avian3d::prelude::{AngularVelocity, Collider, LinearVelocity, RigidBody};
 use bevy::prelude::*;
 use bevy_mod_outline::OutlineVolume;
+use leafwing_input_manager::prelude::*;
 
 use crate::arena::{ArenaEntity, ArenaSystems};
+use crate::flight::input::{FlightAction, default_input_map};
 use crate::state::GameState;
 use crate::tuning::TuningHandle;
 use crate::tuning::config::TuningConfig;
@@ -17,6 +22,7 @@ pub struct FlightPlugin;
 #[derive(SystemSet, Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum FlightSystems {
     Setup,
+    ApplyForces,
 }
 
 #[derive(Component)]
@@ -37,6 +43,17 @@ impl Plugin for FlightPlugin {
         app.add_systems(
             OnEnter(GameState::Arena),
             spawn_player_ship.in_set(FlightSystems::Setup),
+        );
+
+        // Story 3.6 — leafwing input + per-tick thrust. Plugin first so ActionState<A> is
+        // populated by leafwing's PreUpdate before our FixedUpdate system reads it.
+        app.add_plugins(InputManagerPlugin::<FlightAction>::default());
+        app.configure_sets(FixedUpdate, FlightSystems::ApplyForces);
+        app.add_systems(
+            FixedUpdate,
+            physics::apply_thrust
+                .in_set(FlightSystems::ApplyForces)
+                .run_if(in_state(GameState::Arena)),
         );
     }
 }
@@ -80,6 +97,8 @@ pub fn spawn_player_ship(
             Collider::sphere(2.0),
             LinearVelocity(Vec3::ZERO),
             AngularVelocity(Vec3::ZERO),
+            default_input_map(),
+            ActionState::<FlightAction>::default(),
         ))
         .with_children(|parent| {
             parent.spawn((
