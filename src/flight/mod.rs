@@ -45,8 +45,7 @@ impl Plugin for FlightPlugin {
             spawn_player_ship.in_set(FlightSystems::Setup),
         );
 
-        // Story 3.6 — leafwing input + per-tick thrust. Plugin first so ActionState<A> is
-        // populated by leafwing's PreUpdate before our FixedUpdate system reads it.
+        // add_plugins first so ActionState<A> is populated by leafwing's PreUpdate before our FixedUpdate reads it.
         app.add_plugins(InputManagerPlugin::<FlightAction>::default());
         app.configure_sets(FixedUpdate, FlightSystems::ApplyForces);
         app.add_systems(

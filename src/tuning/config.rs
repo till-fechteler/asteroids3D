@@ -18,7 +18,6 @@ pub struct TuningConfig {
     pub outline_width: f32,
     #[serde(default = "default_outline_color")]
     pub outline_color: [f32; 4],
-    // M2 Story 3.6 — gameplay knob (FR2 6-DOF translation thrust magnitude in newtons).
     #[serde(default = "default_ship_thrust_newtons")]
     pub ship_thrust_newtons: f32,
 }
