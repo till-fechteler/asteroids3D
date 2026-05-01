@@ -1,6 +1,6 @@
 # Story 3.6: Flight Input → 6-DOF Translation
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -734,4 +734,7 @@ $ grep -c 'ArenaEntity' src/flight/mod.rs
 
 ### Review Findings
 
-(populated by code-review run after dev-story completes)
+Review run: 2026-05-01 — 3 layers (Blind Hunter, Edge Case Hunter, Acceptance Auditor). 17 raw findings → 15 dismissed, 0 deferred, 0 decision-needed, **2 patches**.
+
+- [x] [Review][Patch] Story-ID-Kommentar in config.rs entfernen [`src/tuning/config.rs:21`] — Zeile `// M2 Story 3.6 — gameplay knob (FR2 6-DOF translation thrust magnitude in newtons).` verstößt gegen die No-Story-ID-Konvention (Story 1.5 Patch BH8 + 3.2 Commit-Precedent). Kommentar ersatzlos gestrichen. ✅ fixed 2026-05-01
+- [x] [Review][Patch] Story-ID-Kommentar in mod.rs entfernen [`src/flight/mod.rs:47`] — Zeile `// Story 3.6 — leafwing input + per-tick thrust. ...` verstößt gegen dieselbe Konvention. Kommentar auf reine Begründung gekürzt: `// add_plugins first so ActionState<A> is populated by leafwing's PreUpdate before our FixedUpdate reads it.` ✅ fixed 2026-05-01
