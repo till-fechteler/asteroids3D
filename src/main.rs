@@ -6,6 +6,7 @@ use avian3d::prelude::{Gravity, PhysicsPlugins};
 use bevy::prelude::*;
 
 mod arena;
+mod flight;
 mod logging;
 mod pause;
 mod splash;
@@ -15,6 +16,7 @@ mod ui;
 mod visual;
 
 use arena::ArenaPlugin;
+use flight::FlightPlugin;
 use logging::init_logging;
 use pause::PausePlugin;
 use splash::{SplashConfig, cleanup_loading_entities, spawn_splash, tick_splash_timer};
@@ -41,6 +43,7 @@ fn main() -> AppExit {
         .add_plugins(VisualPlugin)
         .add_plugins(UiPlugin)
         .add_plugins(ArenaPlugin)
+        .add_plugins(FlightPlugin)
         .add_plugins(PausePlugin)
         .init_resource::<SplashConfig>()
         .add_systems(

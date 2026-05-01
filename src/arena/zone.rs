@@ -61,13 +61,6 @@ pub fn spawn_arena_zone(
         }
     };
 
-    // Stand-in Camera3d — Story 3.5 replaces with cockpit camera (child of PlayerShip).
-    commands.spawn((
-        Camera3d::default(),
-        Transform::from_xyz(0.0, 5.0, 80.0).looking_at(Vec3::ZERO, Vec3::Y),
-        ArenaEntity,
-    ));
-
     // Key light — non-axis-aligned for legible posterization on multi-facet asteroids.
     commands.spawn((
         DirectionalLight {
