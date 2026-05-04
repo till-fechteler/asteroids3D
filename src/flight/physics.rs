@@ -3,6 +3,7 @@
 //! Forces query (auto-cleared each FixedUpdate).
 
 use avian3d::prelude::*;
+use bevy::input::mouse::AccumulatedMouseMotion;
 use bevy::prelude::*;
 use leafwing_input_manager::prelude::*;
 
@@ -10,6 +11,18 @@ use crate::flight::PlayerShip;
 use crate::flight::input::FlightAction;
 use crate::tuning::TuningHandle;
 use crate::tuning::config::TuningConfig;
+
+/// Per-Update mouse-motion accumulator drained by FixedUpdate's apply_torque.
+/// Decouples per-render-frame mouse delta from fixed-step physics integration:
+/// total angular impulse over 1 s is independent of render framerate.
+#[derive(Resource, Default)]
+pub struct MouseLookDelta(pub Vec2);
+
+/// PreUpdate ticks left during which accumulate_mouse_look drops incoming mouse
+/// delta. Set on cursor grab so the OS cursor-warp motion (which arrives 1–2
+/// frames after the grab is requested) does not become a torque spike.
+#[derive(Resource, Default)]
+pub struct MouseLookSuppressFrames(pub u8);
 
 /// Sum of pressed-action axes in ship-LOCAL space. Magnitude is NOT clamped:
 /// pressing W+D returns √2 magnitude per epic-3 spec ("forces sum"). Returns
@@ -56,21 +69,21 @@ pub fn apply_thrust(
 }
 
 /// Sum of pitch/yaw/roll contributions in ship-LOCAL space.
-/// Pitch (mouse Y axis) → torque around local +X (positive mouse_y → +X → nose-down).
-/// Yaw (mouse X axis) → torque around local -Y (positive mouse_x → -Y → yaw-right).
+/// `mouse_pitch` (mouse Y delta) → torque around local +X (positive mouse_y → +X → nose-down).
+/// `mouse_yaw` (mouse X delta) → torque around local -Y (positive mouse_x → -Y → yaw-right).
 /// Roll (Q/E buttons) → torque around local ±Z (RollLeft → +Z, RollRight → -Z).
 /// Magnitude is NOT clamped: large mouse flicks produce proportionally large torque.
-/// Returns Vec3::ZERO if no axis has a non-zero value AND neither roll button is pressed.
+/// Returns Vec3::ZERO if mouse_pitch + mouse_yaw are both 0 AND neither roll button is pressed.
 pub fn ship_local_torque_vector(
     action_state: &ActionState<FlightAction>,
+    mouse_pitch: f32,
+    mouse_yaw: f32,
     mouse_sensitivity: f32,
     ship_torque_nm: f32,
 ) -> Vec3 {
     let mut torque = Vec3::ZERO;
-    let pitch = action_state.value(&FlightAction::Pitch);
-    let yaw = action_state.value(&FlightAction::Yaw);
-    torque.x += pitch * mouse_sensitivity;
-    torque.y += -yaw * mouse_sensitivity;
+    torque.x += mouse_pitch * mouse_sensitivity;
+    torque.y += -mouse_yaw * mouse_sensitivity;
     if action_state.pressed(&FlightAction::RollLeft) {
         torque.z += ship_torque_nm;
     }
@@ -80,18 +93,42 @@ pub fn ship_local_torque_vector(
     torque
 }
 
+/// Reads `AccumulatedMouseMotion::delta` (per-render-frame, reset by Bevy each
+/// frame) and adds it to the FixedUpdate-drained `MouseLookDelta` buffer.
+/// Skips while `MouseLookSuppressFrames > 0` so cursor-warp motion after a
+/// grab does not bleed into the buffer.
+pub fn accumulate_mouse_look(
+    mouse_motion: Res<AccumulatedMouseMotion>,
+    mut buffer: ResMut<MouseLookDelta>,
+    mut suppress: ResMut<MouseLookSuppressFrames>,
+) {
+    if suppress.0 > 0 {
+        suppress.0 -= 1;
+        return;
+    }
+    buffer.0 += mouse_motion.delta;
+}
+
 pub fn apply_torque(
     tuning_assets: Res<Assets<TuningConfig>>,
     tuning_handle: Res<TuningHandle>,
+    mut mouse_buffer: ResMut<MouseLookDelta>,
     mut ships: Query<(Forces, &ActionState<FlightAction>), With<PlayerShip>>,
 ) {
     let tuning = tuning_assets
         .get(tuning_handle.0.id())
         .cloned()
         .unwrap_or_default();
+    // Drain buffered mouse motion: subsequent FixedUpdate catch-up ticks in the
+    // same frame see zero, so total angular impulse per render-frame's worth of
+    // motion is independent of fixed-tick rate.
+    let mouse = mouse_buffer.0;
+    mouse_buffer.0 = Vec2::ZERO;
     for (mut forces, action_state) in &mut ships {
         let local_torque = ship_local_torque_vector(
             action_state,
+            mouse.y,
+            mouse.x,
             tuning.mouse_sensitivity,
             tuning.ship_torque_nm,
         );
@@ -112,20 +149,6 @@ mod tests {
         let mut state = ActionState::default();
         for &a in actions {
             state.press(&a);
-        }
-        state
-    }
-
-    fn pressed_with_axes(
-        buttons: &[FlightAction],
-        axes: &[(FlightAction, f32)],
-    ) -> ActionState<FlightAction> {
-        let mut state = ActionState::default();
-        for &b in buttons {
-            state.press(&b);
-        }
-        for &(axis, value) in axes {
-            state.set_value(&axis, value);
         }
         state
     }
@@ -164,15 +187,14 @@ mod tests {
 
     #[test]
     fn no_input_returns_zero_torque() {
-        let v = ship_local_torque_vector(&no_input(), 1.0, 80.0);
+        let v = ship_local_torque_vector(&no_input(), 0.0, 0.0, 1.0, 80.0);
         assert_eq!(v, Vec3::ZERO);
     }
 
     #[test]
     fn pitch_axis_value_maps_to_local_x_torque() {
         // pitch=5.0, sensitivity=2.0 → +X torque of 10.0 (positive mouse_y → +X → nose-down).
-        let state = pressed_with_axes(&[], &[(FlightAction::Pitch, 5.0)]);
-        let v = ship_local_torque_vector(&state, 2.0, 80.0);
+        let v = ship_local_torque_vector(&no_input(), 5.0, 0.0, 2.0, 80.0);
         assert!(
             (v - Vec3::new(10.0, 0.0, 0.0)).length() < 1e-5,
             "got {:?}",
@@ -183,8 +205,7 @@ mod tests {
     #[test]
     fn yaw_axis_value_maps_to_negative_local_y_torque() {
         // yaw=3.0, sensitivity=1.0 → -Y torque of 3.0 (positive mouse_x → -Y → yaw-right).
-        let state = pressed_with_axes(&[], &[(FlightAction::Yaw, 3.0)]);
-        let v = ship_local_torque_vector(&state, 1.0, 80.0);
+        let v = ship_local_torque_vector(&no_input(), 0.0, 3.0, 1.0, 80.0);
         assert!(
             (v - Vec3::new(0.0, -3.0, 0.0)).length() < 1e-5,
             "got {:?}",
@@ -196,7 +217,7 @@ mod tests {
     fn roll_left_maps_to_positive_local_z_torque() {
         // RollLeft → +Z torque of magnitude ship_torque_nm (right-hand rule + Bevy local +Z = backward).
         let state = pressed(&[FlightAction::RollLeft]);
-        let v = ship_local_torque_vector(&state, 1.0, 80.0);
+        let v = ship_local_torque_vector(&state, 0.0, 0.0, 1.0, 80.0);
         assert!(
             (v - Vec3::new(0.0, 0.0, 80.0)).length() < 1e-5,
             "got {:?}",
@@ -207,12 +228,21 @@ mod tests {
     #[test]
     fn pitch_plus_roll_right_sums_components() {
         // Pitch contributes (2, 0, 0); RollRight contributes (0, 0, -80); sum = (2, 0, -80).
-        let state = pressed_with_axes(&[FlightAction::RollRight], &[(FlightAction::Pitch, 2.0)]);
-        let v = ship_local_torque_vector(&state, 1.0, 80.0);
+        let state = pressed(&[FlightAction::RollRight]);
+        let v = ship_local_torque_vector(&state, 2.0, 0.0, 1.0, 80.0);
         assert!(
             (v - Vec3::new(2.0, 0.0, -80.0)).length() < 1e-5,
             "got {:?}",
             v
         );
+    }
+
+    #[test]
+    fn roll_left_plus_roll_right_cancels_to_zero() {
+        // Q+E held simultaneously: +Z and -Z roll contributions cancel exactly.
+        // Behavioural note: the helper does not pick a "winner"; chord-input → no roll.
+        let state = pressed(&[FlightAction::RollLeft, FlightAction::RollRight]);
+        let v = ship_local_torque_vector(&state, 0.0, 0.0, 1.0, 80.0);
+        assert_eq!(v, Vec3::ZERO);
     }
 }

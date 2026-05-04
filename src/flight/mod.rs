@@ -1,5 +1,5 @@
-//! FlightPlugin — owns PlayerShip + CockpitCamera spawn and 6-DOF translation thrust.
-//! Rotation, dampener, weapons land in subsequent stories via additional systems.
+//! FlightPlugin — owns PlayerShip + CockpitCamera spawn, 6-DOF translation, 3-axis
+//! rotation, and Arena cursor-grab. Dampener and weapons land in subsequent stories.
 
 pub mod input;
 pub mod physics;
@@ -12,6 +12,7 @@ use leafwing_input_manager::prelude::*;
 
 use crate::arena::{ArenaEntity, ArenaSystems};
 use crate::flight::input::{FlightAction, default_input_map};
+use crate::flight::physics::{MouseLookDelta, MouseLookSuppressFrames};
 use crate::state::GameState;
 use crate::tuning::TuningHandle;
 use crate::tuning::config::TuningConfig;
@@ -48,6 +49,12 @@ impl Plugin for FlightPlugin {
 
         // add_plugins first so ActionState<A> is populated by leafwing's PreUpdate before our FixedUpdate reads it.
         app.add_plugins(InputManagerPlugin::<FlightAction>::default());
+        app.init_resource::<MouseLookDelta>();
+        app.init_resource::<MouseLookSuppressFrames>();
+        app.add_systems(
+            PreUpdate,
+            physics::accumulate_mouse_look.run_if(in_state(GameState::Arena)),
+        );
         app.configure_sets(FixedUpdate, FlightSystems::ApplyForces);
         app.add_systems(
             FixedUpdate,
@@ -113,11 +120,20 @@ pub fn spawn_player_ship(
     info!("spawned PlayerShip at origin with cockpit Camera3d child");
 }
 
-pub fn grab_cursor_for_arena(mut window: Single<&mut CursorOptions, With<PrimaryWindow>>) {
-    // CursorGrabMode::Confined falls back to Locked on macOS, to Confined on X11
-    // (per bevy_window-0.18 platform notes); both achieve cockpit-aim feel.
+pub fn grab_cursor_for_arena(
+    mut window: Single<&mut CursorOptions, With<PrimaryWindow>>,
+    mut buffer: ResMut<MouseLookDelta>,
+    mut suppress: ResMut<MouseLookSuppressFrames>,
+) {
+    // CursorGrabMode::Confined: native on Windows / X11; on macOS Bevy auto-falls-back
+    // to Locked (per bevy_window-0.18 platform notes). Both achieve cockpit-aim feel.
     window.grab_mode = CursorGrabMode::Confined;
     window.visible = false;
+    // Discard any pre-grab accumulated mouse motion and suppress the next 3
+    // PreUpdate accumulations so the OS cursor-warp delta (arrives 1–2 frames
+    // after grab) does not register as a torque spike on Arena entry / resume.
+    buffer.0 = Vec2::ZERO;
+    suppress.0 = 3;
 }
 
 pub fn release_cursor_on_arena_exit(mut window: Single<&mut CursorOptions, With<PrimaryWindow>>) {
