@@ -1,6 +1,6 @@
 # Story 3.7: Flight Input → 3-Axis Rotation (Pitch / Yaw / Roll)
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -425,6 +425,40 @@ So that I can aim freely in 3D per FR3, completing the cockpit-flight feel from 
   - [ ] **Commit 1 (feat):** stage `src/flight/input.rs`, `src/flight/physics.rs`, `src/flight/mod.rs`, `src/tuning/config.rs`, `assets/config/tuning.ron`. Message: `feat: 3-axis rotation + cursor grab (Story 3.7)`. **DO NOT COMMIT UNLESS TILL AUTHORIZES.**
   - [ ] **Commit 2 (bmad):** stage `_bmad-output/implementation-artifacts/sprint-status.yaml`, `_bmad-output/implementation-artifacts/3-7-flight-input-3-axis-rotation-pitch-yaw-roll.md`, AND `_bmad-output/implementation-artifacts/deferred-work.md` IF a new entry was added. Message: `bmad: story 3.7 ready-for-dev → review (3-axis rotation)`. **DO NOT COMMIT UNLESS TILL AUTHORIZES.**
   - [ ] **DO NOT push.** Push happens only after explicit authorization, AND only after Story 3.7 code review (`bmad-code-review`) passes per Story 3.5/3.6 precedent.
+
+### Review Findings
+
+Code review run 2026-05-04 — three parallel layers (Blind Hunter, Edge Case Hunter, Acceptance Auditor). Findings classified after dedup.
+
+**Decision-needed (3) — RESOLVED 2026-05-04:**
+
+- [x] [Review][Decision→Patch] **FixedUpdate-tick rate vs per-frame mouse-delta mismatch** — Resolved as Patch (option b): added `MouseLookDelta` resource, new `accumulate_mouse_look` system in `PreUpdate` (Arena-gated) that adds per-frame `AccumulatedMouseMotion::delta` into the buffer; `apply_torque` reads and drains the buffer each FixedUpdate tick. Total angular impulse over 1 s is now independent of render framerate. Combined with D2 (single coherent change). Source: blind+edge.
+- [x] [Review][Decision→Patch] **First-frame torque spike on cursor grab acquisition / Paused→Arena resume** — Resolved as Patch (option b combined with D1 design): added `MouseLookSuppressFrames` resource; `grab_cursor_for_arena` zeroes `MouseLookDelta` and sets suppress=3 so the next 3 PreUpdate accumulations (covering the OS cursor-warp delta) are dropped. Roll torque from Q/E is unaffected during the suppression window. Source: edge.
+- [x] [Review][Decision→Dismiss] **`apply_torque` bundled into `apply_thrust` tuple deviates from literal AC #3 wording** — Dismissed (option 1): idiomatic Bevy 0.18 pattern accepted; deviation already documented in Dev Agent Record. Source: auditor.
+
+**Patch (3 → 5 after decision-resolution) — APPLIED 2026-05-04:**
+
+- [x] [Review][Patch] **P3: X11 cursor-fallback comment misleading** [src/flight/mod.rs:117-118] — applied: rewritten to "native on Windows / X11; on macOS Bevy auto-falls-back to Locked".
+- [x] [Review][Patch] **P4: Stale module doc comment in `flight/mod.rs`** [src/flight/mod.rs:1-2] — applied: generalized to mention 3-axis rotation + cursor grab.
+- [x] [Review][Patch] **P5: Q+E simultaneous roll cancels to zero — undocumented and untested** [src/flight/physics.rs tests block] — applied: added unit test `roll_left_plus_roll_right_cancels_to_zero`. Test count 29 → 30.
+- [x] [Review][Patch] **P1 (from D1): Mouse-look accumulator decouples FixedUpdate from per-frame mouse delta** [src/flight/physics.rs, src/flight/mod.rs] — applied: see D1 resolution. Helper `ship_local_torque_vector` signature changed to take `mouse_pitch: f32, mouse_yaw: f32` directly; 5 existing rotation tests updated; `pressed_with_axes` test helper removed (unused after signature change).
+- [x] [Review][Patch] **P2 (from D2): Cursor-warp delta suppressed on grab** [src/flight/mod.rs grab_cursor_for_arena] — applied: see D2 resolution.
+
+**Defer (5)** — appended to deferred-work.md:
+
+- [x] [Review][Defer] **No NaN/inf guard on mouse axis or tuning scalars** [src/flight/physics.rs:64-81] — deferred, pre-existing pattern (thrust system has same gap).
+- [x] [Review][Defer] **`Single<&mut CursorOptions, With<PrimaryWindow>>` silently skips on zero/multi window with no diagnostic log** [src/flight/mod.rs:116, 123] — deferred, spec-prescribed parameter; correct Bevy 0.18 behavior is silent skip (not panic); add diagnostic logging when headless tests or multi-window stories arrive.
+- [x] [Review][Defer] **Cursor policy undefined for PhotoMode/Caravan/PostRun** [src/flight/mod.rs:58-59] — deferred, forward-compat; future stories must wire equivalent OnEnter/OnExit handlers.
+- [x] [Review][Defer] **No range/sign validation on `mouse_sensitivity` / `ship_torque_nm` deserialization** [src/tuning/config.rs:23-27, 41-47] — deferred, pre-existing pattern (`ship_thrust_newtons` has the same gap; canonical tuning surface is trusted by convention).
+- [x] [Review][Defer] **Forward-compat trap: extending `apply_torque` `run_if` beyond Arena would couple to paused physics clock** [src/flight/mod.rs:52-57] — deferred, no current consumer; document if a future story adds non-Arena rotation.
+- [x] [Review][Defer] **Touchpad UX: mouse Pitch/Yaw is hard to dose on macOS Touchpad** [src/flight/input.rs:6-35] — deferred (post-smoke 2026-05-04), Till identified during Story 3.7 runtime smoke that touchpad-driven mouse axes are uncomfortable. Recommended follow-up: Story 3.7.1 or fold into Story 3.8 — additive keyboard pitch/yaw bindings (Arrow keys or I/J/K/L) parallel to mouse axes; spec-compliant with AC #1 (mouse bindings remain). Full design options in deferred-work.md.
+
+**Dismissed (4):**
+
+- Pitch/yaw torque ignores `ship_torque_nm` (Blind Hunter): false positive — AC #5 explicitly prescribes pitch = `value*mouse_sensitivity`, yaw = `-value*mouse_sensitivity`, roll = `±ship_torque_nm`.
+- Test `pitch_axis_value_maps_to_local_x_torque` "masks unit-mismatch" (Blind Hunter): related to above; verifies prescribed behavior.
+- `apply_local_torque(Vec3::ZERO)` no-op claim unverified (Blind Hunter): Avian's documented invariant; spec already cites it.
+- `apply_thrust` + `apply_torque` tuple implicit ordering on shared `Forces` query (Blind Hunter): Bevy scheduler serializes; Avian accumulates independently.
 
 ## Dev Notes
 
