@@ -117,3 +117,4 @@
     - [Story 10.10: macOS Codesign + Notarization (Optional Stretch)](./epic-10-polish-pass-mvp-completion.md#story-1010-macos-codesign-notarization-optional-stretch)
     - [Story 10.11: Crash-Fix Backlog from M6–M8 Playtesting](./epic-10-polish-pass-mvp-completion.md#story-1011-crash-fix-backlog-from-m6m8-playtesting)
     - [Story 10.12: 4-Journey Playtest Validation — 3 Platforms, 60 FPS, Zero-Crash](./epic-10-polish-pass-mvp-completion.md#story-1012-4-journey-playtest-validation-3-platforms-60-fps-zero-crash)
+    - [Story 10.13: Final Mesh Assets — Asteroid Variants + Cockpit Interior + Ship Silhouette + Waypoint Arrow](./epic-10-polish-pass-mvp-completion.md#story-1013-final-mesh-assets-asteroid-variants-cockpit-interior-ship-silhouette-waypoint-arrow)

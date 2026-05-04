@@ -1,6 +1,6 @@
 # Epic 10: Polish Pass & MVP Completion
 
-Balance tuning, profiling to 60 FPS, asset-load audit, audio pass-2 (SFX + ambient), UI polish (instrument-panel refinement), 3 additional unlock definitions, crash-fix backlog, string-table audit, shield-absorb VFX, optional macOS codesign (FR48 stretch), 4-journey playtest validation across Windows + macOS + Linux-CI. Full polished MVP ready for Itch.io / Steam release. M-alignment: M9 🏁. FRs covered: FR48 (optional stretch per Till 2026-04-22). NFRs: P1, P2, P3, P4, P5, R1, U1, A3, L1, L3.
+Balance tuning, profiling to 60 FPS, asset-load audit, audio pass-2 (SFX + ambient), UI polish (instrument-panel refinement), 3 additional unlock definitions, crash-fix backlog, string-table audit, shield-absorb VFX, optional macOS codesign (FR48 stretch), final mesh assets replacing Epics 3–6 placeholders (asteroid variants + cockpit interior + ship silhouette + waypoint arrow), 4-journey playtest validation across Windows + macOS + Linux-CI. Full polished MVP ready for Itch.io / Steam release. M-alignment: M9 🏁. FRs covered: FR48 (optional stretch per Till 2026-04-22). NFRs: P1, P2, P3, P4, P5, R1, U1, A3, L1, L3.
 
 ## Story 10.1: Performance Profiling + 60 FPS Target on Reference Hardware
 
@@ -371,5 +371,51 @@ So that the M9 completion gate is met.
 **Then** they route to Story 10.11's backlog
 **And** Story 10.12 re-runs until all 4 journeys pass clean
 
-<!-- Epic 10 complete — 12 stories deliver M9 Polish + MVP Completion. All 10 Epics decomposed. Next: Step 4 final validation. -->
+## Story 10.13: Final Mesh Assets — Asteroid Variants + Cockpit Interior + Ship Silhouette + Waypoint Arrow
+
+As the project author,
+I want hand-authored glTF meshes replacing the icosphere asteroids, cuboid/silhouette ship-cockpit, and chevron waypoint-arrow placeholders carried through Epics 3–6,
+So that M9 closes with the visual identity the toon-shader tech spike was always pointing toward, instead of shipping recognizable Bevy primitives in the polished MVP.
+
+**Acceptance Criteria:**
+
+**Given** the typed Resource wrappers from Story 10.2 (`AsteroidModels`, `CockpitMesh`, `ShipModel`)
+**When** Blender source files are authored under `assets/source/blender/` (committed for reproducibility, excluded from release builds)
+**Then** the following glTF outputs land in `assets/meshes/`:
+- `assets/meshes/asteroids/{small,medium,large}.gltf` — three size variants matching Story 3.4's 3.0–12.0 m radius range
+- `assets/meshes/ship/cockpit.gltf` — first-person cockpit interior with HUD-mount surfaces compatible with Story 10.5's HUD layout
+- `assets/meshes/ship/exterior.gltf` — external ship silhouette visible in Photo Mode (Epic 9), FR8 cockpit-only respected in gameplay
+- `assets/meshes/ui/waypoint_arrow.gltf` — replaces the chevron placeholder from Epic 6 (final mesh deferred there with explicit "Epic 10 polish" pointer)
+
+**Given** the new glTF assets exist
+**When** `OnEnter(GameState::Loading)` runs (per Story 10.2's centralized loading)
+**Then** the typed wrappers hold `Handle<Scene>` to the final glTF meshes
+**And** no `Mesh3d::from(Sphere/Cuboid/Icosphere)` literals remain in non-debug code paths (grep-verified in CI; debug-only reference scenes from Story 2.1 retain primitives by design)
+
+**Given** the Epic 2 toon visual pipeline (M1 GO-toon decision per Story 2.6)
+**When** the new meshes render in-game
+**Then** each mesh carries `ToonMaterial` (or M1 fallback if Story 2.7 was triggered) plus `OutlineBundle` per the existing reference-scene pattern
+**And** posterized banding and silhouette outlines remain visible at gameplay viewing distances
+
+**Given** NFR-P1 (60 FPS sustained) baselined by Story 10.1
+**When** profiling re-runs after asset import
+**Then** per-asset triangle counts are documented in `docs/perf/mesh-budget.md`
+**And** the 60 FPS budget on the GTX 1060 / RX 580 / M1 reference set holds with 30 simultaneous asteroids on screen
+**And** any asset exceeding budget is decimated in Blender and re-exported (single-LOD only — LOD system is post-MVP)
+
+**Given** the Blender→glTF pipeline established in tech decisions
+**When** assets are exported
+**Then** `docs/art/asset-pipeline.md` documents Blender version, export settings (Y-up, single-take animation if any, embedded textures only if used), and a reproducible export-runbook
+**And** export settings disable `KHR_materials_unlit` so `ToonMaterial` overrides the base material
+
+**Given** projectile placeholders from Story 3.x
+**When** this story is reviewed
+**Then** projectile sphere meshes are intentionally retained (visible <100 ms per shot; primitive geometry is sufficient — recorded as deliberate non-replacement in `docs/art/asset-pipeline.md`)
+
+**Given** the asset replacement is complete
+**When** Story 10.12 4-journey playtest validation runs
+**Then** Story 10.13 has status `done` (hard sequencing dependency — final playtest validates the final-look game)
+**And** if Story 10.5 (HUD legibility) or Story 10.8 (UI polish) completed before this story, those audits re-run against the final cockpit interior before Story 10.12
+
+<!-- Epic 10 complete — 13 stories deliver M9 Polish + MVP Completion. Story 10.13 added 2026-05-04 per Till's "final assets ship in MVP" decision. All 10 Epics decomposed. Next: Step 4 final validation. -->
 
