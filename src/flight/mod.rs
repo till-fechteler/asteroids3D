@@ -40,12 +40,20 @@ impl Plugin for FlightPlugin {
         // Cross-plugin chain: PlayerShip spawn must run after spawn_arena_zone so the
         // origin-cleared corridor (≥3 asteroids within 50 m) is queryable. Architecture
         // forbids `.after(specific_function)`; configure_sets is the approved pattern.
+        // Spawn lives on `OnTransition { MainMenu → Arena }` (NOT `OnEnter(Arena)`) so
+        // Pause round-trip (Arena ↔ Paused) does not respawn the ship at origin.
         app.configure_sets(
-            OnEnter(GameState::Arena),
+            OnTransition {
+                exited: GameState::MainMenu,
+                entered: GameState::Arena,
+            },
             (ArenaSystems::Setup, FlightSystems::Setup).chain(),
         );
         app.add_systems(
-            OnEnter(GameState::Arena),
+            OnTransition {
+                exited: GameState::MainMenu,
+                entered: GameState::Arena,
+            },
             spawn_player_ship.in_set(FlightSystems::Setup),
         );
 

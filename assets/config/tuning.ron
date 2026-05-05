@@ -9,4 +9,7 @@ TuningConfig(
     ship_torque_nm: 80.0,
     dampener_linear_strength: 2.0,
     dampener_angular_strength: 3.0,
+    projectile_speed: 120.0,
+    projectile_fire_rate_hz: 4.0,
+    projectile_ttl_seconds: 3.0,
 )

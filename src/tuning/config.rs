@@ -28,6 +28,12 @@ pub struct TuningConfig {
     pub dampener_linear_strength: f32,
     #[serde(default = "default_dampener_angular_strength")]
     pub dampener_angular_strength: f32,
+    #[serde(default = "default_projectile_speed")]
+    pub projectile_speed: f32,
+    #[serde(default = "default_projectile_fire_rate_hz")]
+    pub projectile_fire_rate_hz: f32,
+    #[serde(default = "default_projectile_ttl_seconds")]
+    pub projectile_ttl_seconds: f32,
 }
 
 fn default_outline_width() -> f32 {
@@ -58,6 +64,18 @@ fn default_dampener_angular_strength() -> f32 {
     3.0
 }
 
+fn default_projectile_speed() -> f32 {
+    120.0
+}
+
+fn default_projectile_fire_rate_hz() -> f32 {
+    4.0
+}
+
+fn default_projectile_ttl_seconds() -> f32 {
+    3.0
+}
+
 impl Default for TuningConfig {
     fn default() -> Self {
         Self {
@@ -71,6 +89,9 @@ impl Default for TuningConfig {
             ship_torque_nm: default_ship_torque_nm(),
             dampener_linear_strength: default_dampener_linear_strength(),
             dampener_angular_strength: default_dampener_angular_strength(),
+            projectile_speed: default_projectile_speed(),
+            projectile_fire_rate_hz: default_projectile_fire_rate_hz(),
+            projectile_ttl_seconds: default_projectile_ttl_seconds(),
         }
     }
 }
@@ -124,12 +145,15 @@ mod tests {
         assert_eq!(cfg.ship_torque_nm, 80.0);
         assert_eq!(cfg.dampener_linear_strength, 2.0);
         assert_eq!(cfg.dampener_angular_strength, 3.0);
+        assert_eq!(cfg.projectile_speed, 120.0);
+        assert_eq!(cfg.projectile_fire_rate_hz, 4.0);
+        assert_eq!(cfg.projectile_ttl_seconds, 3.0);
     }
 
     #[test]
     fn tuning_config_deserializes_from_ron_bytes() {
         // RON parses `[T; N]` fixed-size arrays via serde's tuple deserializer → tuple syntax `(...)`.
-        let bytes = b"TuningConfig(toon_steps: 5, toon_rim_power: 1.5, toon_rim_intensity: 0.4, outline_width: 5.0, outline_color: (1.0, 0.0, 0.0, 1.0), ship_thrust_newtons: 750.0, mouse_sensitivity: 0.5, ship_torque_nm: 120.0, dampener_linear_strength: 4.0, dampener_angular_strength: 6.0)";
+        let bytes = b"TuningConfig(toon_steps: 5, toon_rim_power: 1.5, toon_rim_intensity: 0.4, outline_width: 5.0, outline_color: (1.0, 0.0, 0.0, 1.0), ship_thrust_newtons: 750.0, mouse_sensitivity: 0.5, ship_torque_nm: 120.0, dampener_linear_strength: 4.0, dampener_angular_strength: 6.0, projectile_speed: 200.0, projectile_fire_rate_hz: 8.0, projectile_ttl_seconds: 5.0)";
         let cfg: TuningConfig = ron::de::from_bytes(bytes).unwrap();
         assert_eq!(cfg.toon_steps, 5);
         assert_eq!(cfg.toon_rim_power, 1.5);
@@ -141,6 +165,9 @@ mod tests {
         assert_eq!(cfg.ship_torque_nm, 120.0);
         assert_eq!(cfg.dampener_linear_strength, 4.0);
         assert_eq!(cfg.dampener_angular_strength, 6.0);
+        assert_eq!(cfg.projectile_speed, 200.0);
+        assert_eq!(cfg.projectile_fire_rate_hz, 8.0);
+        assert_eq!(cfg.projectile_ttl_seconds, 5.0);
     }
 
     #[test]
@@ -157,5 +184,8 @@ mod tests {
         assert_eq!(cfg.ship_torque_nm, 80.0);
         assert_eq!(cfg.dampener_linear_strength, 2.0);
         assert_eq!(cfg.dampener_angular_strength, 3.0);
+        assert_eq!(cfg.projectile_speed, 120.0);
+        assert_eq!(cfg.projectile_fire_rate_hz, 4.0);
+        assert_eq!(cfg.projectile_ttl_seconds, 3.0);
     }
 }
