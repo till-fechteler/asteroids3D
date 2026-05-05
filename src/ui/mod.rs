@@ -3,6 +3,7 @@
 
 use bevy::prelude::*;
 
+pub mod hud;
 pub mod main_menu;
 
 pub struct UiPlugin;
@@ -20,6 +21,17 @@ impl Plugin for UiPlugin {
         .add_systems(
             OnExit(crate::state::GameState::MainMenu),
             main_menu::cleanup_main_menu,
+        );
+
+        // 3.11: HUD spawn on MainMenu → Arena. Cleanup transitively via
+        // cleanup_on_exit::<ArenaEntity> registered by ArenaPlugin (HUD
+        // entities are dual-marked HudEntity + ArenaEntity).
+        app.add_systems(
+            OnTransition {
+                exited: crate::state::GameState::MainMenu,
+                entered: crate::state::GameState::Arena,
+            },
+            hud::spawn_hud,
         );
     }
 }
