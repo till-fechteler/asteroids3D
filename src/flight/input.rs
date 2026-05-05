@@ -17,6 +17,7 @@ pub enum FlightAction {
     Yaw,
     RollLeft,
     RollRight,
+    ToggleDampener,
 }
 
 pub fn default_input_map() -> InputMap<FlightAction> {
@@ -29,6 +30,7 @@ pub fn default_input_map() -> InputMap<FlightAction> {
         (FlightAction::ThrustDown, KeyCode::ControlLeft),
         (FlightAction::RollLeft, KeyCode::KeyQ),
         (FlightAction::RollRight, KeyCode::KeyE),
+        (FlightAction::ToggleDampener, KeyCode::KeyX),
     ])
     .with_axis(FlightAction::Pitch, MouseMoveAxis::Y)
     .with_axis(FlightAction::Yaw, MouseMoveAxis::X)

@@ -1,6 +1,6 @@
-//! Flight force/torque application (FR2 6-DOF translation, FR3 3-axis rotation).
-//! Reads ActionState<FlightAction>, applies ship-local force/torque via Avian's
-//! Forces query (auto-cleared each FixedUpdate).
+//! Flight force/torque/acceleration application (FR2 6-DOF translation, FR3 3-axis
+//! rotation, FR5 inertial dampener). Reads ActionState<FlightAction>, applies
+//! ship-local force/torque/acceleration via Avian's Forces query (auto-cleared each FixedUpdate).
 
 use avian3d::prelude::*;
 use bevy::input::mouse::AccumulatedMouseMotion;
@@ -8,6 +8,7 @@ use bevy::prelude::*;
 use leafwing_input_manager::prelude::*;
 
 use crate::flight::PlayerShip;
+use crate::flight::components::DampenerState;
 use crate::flight::input::FlightAction;
 use crate::tuning::TuningHandle;
 use crate::tuning::config::TuningConfig;
@@ -137,6 +138,74 @@ pub fn apply_torque(
     }
 }
 
+/// Linear and angular acceleration to bleed velocity toward zero when
+/// `state.active`. Returns (Vec3::ZERO, Vec3::ZERO) when inactive — the
+/// early return covers the dampener-off case before any arithmetic.
+/// Linear strength scales linear-velocity-opposing acceleration; angular
+/// strength scales angular-velocity-opposing acceleration. Contributions
+/// are independent (linear vs. angular axes do not couple).
+pub fn dampener_acceleration(
+    state: DampenerState,
+    linear_velocity: Vec3,
+    angular_velocity: Vec3,
+    linear_strength: f32,
+    angular_strength: f32,
+) -> (Vec3, Vec3) {
+    if !state.active {
+        return (Vec3::ZERO, Vec3::ZERO);
+    }
+    (
+        -linear_velocity * linear_strength,
+        -angular_velocity * angular_strength,
+    )
+}
+
+pub fn apply_dampener(
+    tuning_assets: Res<Assets<TuningConfig>>,
+    tuning_handle: Res<TuningHandle>,
+    mut ships: Query<(Forces, &DampenerState), With<PlayerShip>>,
+) {
+    // PATTERN DEVIATION: Avian's apply_*_acceleration bypasses the mass/inertia
+    // divisor; mathematically equivalent to applying force = -velocity * strength * mass
+    // per the AC, but skips a redundant query of ComputedMass / ComputedAngularInertia.
+    // apply_*_acceleration operate in world-space, matching forces.linear/angular_velocity()
+    // — no local-frame transform needed (contrast: apply_thrust uses apply_local_force).
+    let tuning = tuning_assets
+        .get(tuning_handle.0.id())
+        .cloned()
+        .unwrap_or_default();
+    for (mut forces, state) in &mut ships {
+        let (linear_accel, angular_accel) = dampener_acceleration(
+            *state,
+            forces.linear_velocity(),
+            forces.angular_velocity(),
+            tuning.dampener_linear_strength,
+            tuning.dampener_angular_strength,
+        );
+        // apply_*_acceleration are no-ops for Vec3::ZERO (avoids waking sleeping bodies).
+        forces.apply_linear_acceleration(linear_accel);
+        forces.apply_angular_acceleration(angular_accel);
+    }
+}
+
+pub fn toggle_dampener(
+    mut ships: Query<(&ActionState<FlightAction>, &mut DampenerState), With<PlayerShip>>,
+) {
+    for (action_state, mut dampener) in &mut ships {
+        if action_state.just_pressed(&FlightAction::ToggleDampener) {
+            dampener.active = !dampener.active;
+            info!(
+                "dampener {}",
+                if dampener.active {
+                    "engaged"
+                } else {
+                    "disengaged"
+                }
+            );
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -244,5 +313,91 @@ mod tests {
         let state = pressed(&[FlightAction::RollLeft, FlightAction::RollRight]);
         let v = ship_local_torque_vector(&state, 0.0, 0.0, 1.0, 80.0);
         assert_eq!(v, Vec3::ZERO);
+    }
+
+    #[test]
+    fn dampener_inactive_returns_zero_acceleration() {
+        // Inactive dampener with non-zero velocities returns zero — verifies the early-return gate.
+        let (lin, ang) = dampener_acceleration(
+            DampenerState { active: false },
+            Vec3::new(2.0, 0.0, 0.0),
+            Vec3::new(0.0, 3.0, 0.0),
+            2.0,
+            3.0,
+        );
+        assert_eq!(lin, Vec3::ZERO);
+        assert_eq!(ang, Vec3::ZERO);
+    }
+
+    #[test]
+    fn dampener_active_zero_velocity_returns_zero_acceleration() {
+        // Active dampener with zero velocities returns zero — verifies the no-op-quiet case.
+        let (lin, ang) = dampener_acceleration(
+            DampenerState { active: true },
+            Vec3::ZERO,
+            Vec3::ZERO,
+            2.0,
+            3.0,
+        );
+        assert_eq!(lin, Vec3::ZERO);
+        assert_eq!(ang, Vec3::ZERO);
+    }
+
+    #[test]
+    fn dampener_active_linear_velocity_returns_negative_proportional_acceleration() {
+        // lin=(2,0,0), strength=2.0 → linear accel of (-4,0,0); angular zero (no coupling).
+        let (lin, ang) = dampener_acceleration(
+            DampenerState { active: true },
+            Vec3::new(2.0, 0.0, 0.0),
+            Vec3::ZERO,
+            2.0,
+            3.0,
+        );
+        assert!(
+            (lin - Vec3::new(-4.0, 0.0, 0.0)).length() < 1e-5,
+            "got {:?}",
+            lin
+        );
+        assert_eq!(ang, Vec3::ZERO);
+    }
+
+    #[test]
+    fn dampener_active_angular_velocity_returns_negative_proportional_acceleration() {
+        // ang=(0,3,0), strength=3.0 → angular accel of (0,-9,0); linear zero (no coupling).
+        let (lin, ang) = dampener_acceleration(
+            DampenerState { active: true },
+            Vec3::ZERO,
+            Vec3::new(0.0, 3.0, 0.0),
+            2.0,
+            3.0,
+        );
+        assert_eq!(lin, Vec3::ZERO);
+        assert!(
+            (ang - Vec3::new(0.0, -9.0, 0.0)).length() < 1e-5,
+            "got {:?}",
+            ang
+        );
+    }
+
+    #[test]
+    fn dampener_combines_linear_and_angular_independently() {
+        // Both axes non-zero: linear strength scales linear only, angular strength scales angular only.
+        let (lin, ang) = dampener_acceleration(
+            DampenerState { active: true },
+            Vec3::new(1.0, 2.0, 3.0),
+            Vec3::new(4.0, 5.0, 6.0),
+            2.0,
+            3.0,
+        );
+        assert!(
+            (lin - Vec3::new(-2.0, -4.0, -6.0)).length() < 1e-5,
+            "got {:?}",
+            lin
+        );
+        assert!(
+            (ang - Vec3::new(-12.0, -15.0, -18.0)).length() < 1e-5,
+            "got {:?}",
+            ang
+        );
     }
 }

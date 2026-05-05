@@ -1,6 +1,7 @@
 //! FlightPlugin — owns PlayerShip + CockpitCamera spawn, 6-DOF translation, 3-axis
-//! rotation, and Arena cursor-grab. Dampener and weapons land in subsequent stories.
+//! rotation, inertial dampener toggle, and Arena cursor-grab. Weapons land in subsequent stories.
 
+pub mod components;
 pub mod input;
 pub mod physics;
 
@@ -11,6 +12,7 @@ use bevy_mod_outline::OutlineVolume;
 use leafwing_input_manager::prelude::*;
 
 use crate::arena::{ArenaEntity, ArenaSystems};
+use crate::flight::components::DampenerState;
 use crate::flight::input::{FlightAction, default_input_map};
 use crate::flight::physics::{MouseLookDelta, MouseLookSuppressFrames};
 use crate::state::GameState;
@@ -58,9 +60,17 @@ impl Plugin for FlightPlugin {
         app.configure_sets(FixedUpdate, FlightSystems::ApplyForces);
         app.add_systems(
             FixedUpdate,
-            (physics::apply_thrust, physics::apply_torque)
+            (
+                physics::apply_thrust,
+                physics::apply_torque,
+                physics::apply_dampener,
+            )
                 .in_set(FlightSystems::ApplyForces)
                 .run_if(in_state(GameState::Arena)),
+        );
+        app.add_systems(
+            Update,
+            physics::toggle_dampener.run_if(in_state(GameState::Arena)),
         );
         app.add_systems(OnEnter(GameState::Arena), grab_cursor_for_arena);
         app.add_systems(OnExit(GameState::Arena), release_cursor_on_arena_exit);
@@ -108,6 +118,7 @@ pub fn spawn_player_ship(
             AngularVelocity(Vec3::ZERO),
             default_input_map(),
             ActionState::<FlightAction>::default(),
+            DampenerState::default(),
         ))
         .with_children(|parent| {
             parent.spawn((

@@ -24,6 +24,10 @@ pub struct TuningConfig {
     pub mouse_sensitivity: f32,
     #[serde(default = "default_ship_torque_nm")]
     pub ship_torque_nm: f32,
+    #[serde(default = "default_dampener_linear_strength")]
+    pub dampener_linear_strength: f32,
+    #[serde(default = "default_dampener_angular_strength")]
+    pub dampener_angular_strength: f32,
 }
 
 fn default_outline_width() -> f32 {
@@ -46,6 +50,14 @@ fn default_ship_torque_nm() -> f32 {
     80.0
 }
 
+fn default_dampener_linear_strength() -> f32 {
+    2.0
+}
+
+fn default_dampener_angular_strength() -> f32 {
+    3.0
+}
+
 impl Default for TuningConfig {
     fn default() -> Self {
         Self {
@@ -57,6 +69,8 @@ impl Default for TuningConfig {
             ship_thrust_newtons: default_ship_thrust_newtons(),
             mouse_sensitivity: default_mouse_sensitivity(),
             ship_torque_nm: default_ship_torque_nm(),
+            dampener_linear_strength: default_dampener_linear_strength(),
+            dampener_angular_strength: default_dampener_angular_strength(),
         }
     }
 }
@@ -108,12 +122,14 @@ mod tests {
         assert_eq!(cfg.ship_thrust_newtons, 500.0);
         assert_eq!(cfg.mouse_sensitivity, 1.0);
         assert_eq!(cfg.ship_torque_nm, 80.0);
+        assert_eq!(cfg.dampener_linear_strength, 2.0);
+        assert_eq!(cfg.dampener_angular_strength, 3.0);
     }
 
     #[test]
     fn tuning_config_deserializes_from_ron_bytes() {
         // RON parses `[T; N]` fixed-size arrays via serde's tuple deserializer → tuple syntax `(...)`.
-        let bytes = b"TuningConfig(toon_steps: 5, toon_rim_power: 1.5, toon_rim_intensity: 0.4, outline_width: 5.0, outline_color: (1.0, 0.0, 0.0, 1.0), ship_thrust_newtons: 750.0, mouse_sensitivity: 0.5, ship_torque_nm: 120.0)";
+        let bytes = b"TuningConfig(toon_steps: 5, toon_rim_power: 1.5, toon_rim_intensity: 0.4, outline_width: 5.0, outline_color: (1.0, 0.0, 0.0, 1.0), ship_thrust_newtons: 750.0, mouse_sensitivity: 0.5, ship_torque_nm: 120.0, dampener_linear_strength: 4.0, dampener_angular_strength: 6.0)";
         let cfg: TuningConfig = ron::de::from_bytes(bytes).unwrap();
         assert_eq!(cfg.toon_steps, 5);
         assert_eq!(cfg.toon_rim_power, 1.5);
@@ -123,6 +139,8 @@ mod tests {
         assert_eq!(cfg.ship_thrust_newtons, 750.0);
         assert_eq!(cfg.mouse_sensitivity, 0.5);
         assert_eq!(cfg.ship_torque_nm, 120.0);
+        assert_eq!(cfg.dampener_linear_strength, 4.0);
+        assert_eq!(cfg.dampener_angular_strength, 6.0);
     }
 
     #[test]
@@ -137,5 +155,7 @@ mod tests {
         assert_eq!(cfg.ship_thrust_newtons, 500.0);
         assert_eq!(cfg.mouse_sensitivity, 1.0);
         assert_eq!(cfg.ship_torque_nm, 80.0);
+        assert_eq!(cfg.dampener_linear_strength, 2.0);
+        assert_eq!(cfg.dampener_angular_strength, 3.0);
     }
 }

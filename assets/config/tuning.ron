@@ -7,4 +7,6 @@ TuningConfig(
     ship_thrust_newtons: 500.0,
     mouse_sensitivity: 1.0,
     ship_torque_nm: 80.0,
+    dampener_linear_strength: 2.0,
+    dampener_angular_strength: 3.0,
 )
