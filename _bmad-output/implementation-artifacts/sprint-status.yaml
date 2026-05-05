@@ -1,5 +1,5 @@
 # generated: 2026-04-22
-# last_updated: 2026-05-05 (Story 3.10 review → done — 2 patches applied, 45 tests green)
+# last_updated: 2026-05-05 (Story 3.11 → done; code review clean)
 # project: asteroids3D
 # project_key: NOKEY
 # tracking_system: file-system
@@ -36,7 +36,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-22
-last_updated: 2026-05-05 (Story 3.10 review → done — 2 patches applied, 45 tests green)
+last_updated: 2026-05-05 (Story 3.11 → done; code review clean)
 project: asteroids3D
 project_key: NOKEY
 tracking_system: file-system
@@ -78,7 +78,7 @@ development_status:
   3-8-inertial-dampener-toggle: done
   3-9-weapon-firing-projectile-ballistics: done
   3-10-projectile-asteroid-collision-damage: done
-  3-11-hud-baseline-screen-space-placeholders: backlog
+  3-11-hud-baseline-screen-space-placeholders: done
   epic-3-retrospective: optional
 
   # Epic 4: Enemies Alive & Stop-Ship (Itch.io Prototype)
