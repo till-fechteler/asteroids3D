@@ -1,5 +1,5 @@
 # generated: 2026-04-22
-# last_updated: 2026-05-05 (Story 3.8 review → done — code review passed, world-space comment patch applied)
+# last_updated: 2026-05-05 (Story 3.9 review → done — code review passed, 1 patch applied)
 # project: asteroids3D
 # project_key: NOKEY
 # tracking_system: file-system
@@ -36,7 +36,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-22
-last_updated: 2026-05-05 (Story 3.8 review → done — code review passed, world-space comment patch applied)
+last_updated: 2026-05-05 (Story 3.9 review → done — code review passed, 1 patch applied)
 project: asteroids3D
 project_key: NOKEY
 tracking_system: file-system
@@ -76,7 +76,7 @@ development_status:
   3-6-flight-input-6-dof-translation: done
   3-7-flight-input-3-axis-rotation-pitch-yaw-roll: done
   3-8-inertial-dampener-toggle: done
-  3-9-weapon-firing-projectile-ballistics: backlog
+  3-9-weapon-firing-projectile-ballistics: done
   3-10-projectile-asteroid-collision-damage: backlog
   3-11-hud-baseline-screen-space-placeholders: backlog
   epic-3-retrospective: optional
