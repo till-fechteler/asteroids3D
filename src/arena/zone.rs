@@ -1,11 +1,13 @@
 //! Hand-designed Arena zone — static asteroid field + key light + stand-in camera.
 //! Spawns on OnEnter(Arena); cleanup is owned by ArenaPlugin via cleanup_on_exit::<ArenaEntity>.
 
-use avian3d::prelude::{Collider, RigidBody};
+use avian3d::prelude::{Collider, CollisionEventsEnabled, CollisionLayers, LayerMask, RigidBody};
 use bevy::prelude::*;
 use bevy_mod_outline::OutlineVolume;
 
 use super::ArenaEntity;
+use crate::combat::components::AsteroidHp;
+use crate::combat::damage::GameLayer;
 use crate::tuning::TuningHandle;
 use crate::tuning::config::TuningConfig;
 use crate::visual::palette::{SemanticAccent, color_for};
@@ -93,6 +95,9 @@ pub fn spawn_arena_zone(
             RigidBody::Static,
             Collider::sphere(radius),
             outline_volume(),
+            AsteroidHp { current: 1 },
+            CollisionLayers::new([GameLayer::Asteroid], LayerMask::ALL),
+            CollisionEventsEnabled,
             ArenaEntity,
         ));
     }

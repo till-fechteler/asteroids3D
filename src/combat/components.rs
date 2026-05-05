@@ -10,10 +10,6 @@ use bevy::prelude::*;
 /// applied by Story 3.10's damage system. Default damage in 3.9 is 1
 /// (single-hit asteroid destruction); future weapon archetypes vary it.
 #[derive(Component, Debug, Clone, Copy)]
-#[allow(
-    dead_code,
-    reason = "Projectile.damage is read by Story 3.10's ProjectileHitAsteroid event handler — pre-wired here per the architecture-prescribed component shape"
-)]
 pub struct Projectile {
     pub ttl: f32,
     pub damage: u32,
@@ -27,6 +23,18 @@ pub struct PrimaryWeaponCooldown {
     pub remaining: f32,
 }
 
+/// Asteroid hit-point pool. Epic 3 default `current = 1` for single-hit
+/// destruction (per Story 3.10 spec); Epic 4/5 multi-HP asteroids will spawn
+/// with higher initial values via the same component. Decremented by
+/// `combat::damage::apply_asteroid_damage`; despawn fires when current == 0.
+///
+/// NO Default derive — callers always specify `current` explicitly. A
+/// silent default of 0 would mean "pre-destroyed", a hazardous footgun.
+#[derive(Component, Debug, Clone, Copy, PartialEq)]
+pub struct AsteroidHp {
+    pub current: u32,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -34,5 +42,13 @@ mod tests {
     #[test]
     fn primary_weapon_cooldown_default_is_zero() {
         assert_eq!(PrimaryWeaponCooldown::default().remaining, 0.0);
+    }
+
+    #[test]
+    fn asteroid_hp_construction_is_explicit() {
+        // No Default derive — this test guards against accidental future Default
+        // addition that would silently default current=0 (pre-destroyed footgun).
+        let hp = AsteroidHp { current: 1 };
+        assert_eq!(hp.current, 1);
     }
 }

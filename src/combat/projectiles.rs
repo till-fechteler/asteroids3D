@@ -9,12 +9,15 @@
 //! Story 3.10 adds CollisionLayers + ProjectileHitAsteroid event +
 //! damage routing on top of the entity bundle established here.
 
-use avian3d::prelude::{Collider, LinearVelocity, RigidBody};
+use avian3d::prelude::{
+    Collider, CollisionEventsEnabled, CollisionLayers, LinearVelocity, RigidBody,
+};
 use bevy::prelude::*;
 use leafwing_input_manager::prelude::*;
 
 use crate::arena::ArenaEntity;
 use crate::combat::components::{PrimaryWeaponCooldown, Projectile};
+use crate::combat::damage::GameLayer;
 use crate::combat::input::{CombatAction, default_input_map};
 use crate::flight::PlayerShip;
 use crate::tuning::TuningHandle;
@@ -119,6 +122,8 @@ pub fn fire_primary_weapon(
                 RigidBody::Dynamic,
                 Collider::sphere(PROJECTILE_RADIUS),
                 LinearVelocity(velocity),
+                CollisionLayers::new([GameLayer::Projectile], [GameLayer::Asteroid]),
+                CollisionEventsEnabled,
             ));
 
             cooldown.remaining = 1.0 / tuning.projectile_fire_rate_hz.max(f32::EPSILON);
