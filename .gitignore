@@ -1,5 +1,6 @@
 /target
 .claude/settings.local.json
+.claude/scheduled_tasks.lock
 
 # Bevy processed-asset cache (generated at runtime when asset-processing is enabled)
 /imported_assets
