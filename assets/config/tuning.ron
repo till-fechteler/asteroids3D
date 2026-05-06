@@ -12,4 +12,9 @@ TuningConfig(
     projectile_speed: 120.0,
     projectile_fire_rate_hz: 4.0,
     projectile_ttl_seconds: 3.0,
+    enemy_detection_range: 100.0,
+    enemy_engagement_range: 50.0,
+    enemy_speed: 20.0,
+    enemy_fire_rate_hz: 1.0,
+    enemy_ai_hysteresis_pct: 0.1,
 )

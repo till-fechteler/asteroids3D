@@ -3,11 +3,17 @@
 //! routing land in Stories 4.2 / 4.3. SemanticAccent::Enemy tagging here also
 //! prefigures Story 4.5's full retroactive accent sweep on existing entities.
 
-use avian3d::prelude::{AngularVelocity, Collider, LinearVelocity, RigidBody};
+use avian3d::prelude::{
+    AngularVelocity, Collider, CollisionEventsEnabled, CollisionLayers, LayerMask, LinearVelocity,
+    RigidBody,
+};
 use bevy::prelude::*;
 use bevy_mod_outline::OutlineVolume;
 
 use crate::arena::ArenaEntity;
+use crate::combat::damage::GameLayer;
+use crate::combat::enemy_ai::{EnemyAiState, EnemyFireCooldown};
+use crate::combat::health::Health;
 use crate::tuning::TuningHandle;
 use crate::tuning::config::TuningConfig;
 use crate::visual::palette::{SemanticAccent, color_for};
@@ -60,19 +66,35 @@ pub fn spawn_enemy_ship(
         ..default()
     });
 
+    // Bevy 0.18 caps `Bundle` tuple-impls at arity 15; this spawn carries 20
+    // components, so they are grouped into nested tuples (Bevy auto-flattens).
     commands.spawn((
-        Enemy,
-        EnemyShip::Standard,
-        SemanticAccent::Enemy,
-        ArenaEntity,
-        Mesh3d(enemy_mesh),
-        MeshMaterial3d(enemy_material),
-        Transform::from_translation(ENEMY_SPAWN_POSITION),
-        outline,
-        RigidBody::Dynamic,
-        Collider::capsule(ENEMY_CAPSULE_RADIUS, ENEMY_CAPSULE_LENGTH),
-        LinearVelocity(Vec3::ZERO),
-        AngularVelocity(Vec3::ZERO),
+        (
+            Enemy,
+            EnemyShip::Standard,
+            SemanticAccent::Enemy,
+            Name::new("EnemyShip"),
+            EnemyAiState::Idle,
+            EnemyFireCooldown::default(),
+            Health { current: 2, max: 2 },
+        ),
+        (
+            ArenaEntity,
+            Mesh3d(enemy_mesh),
+            MeshMaterial3d(enemy_material),
+            outline,
+        ),
+        (
+            Transform::from_translation(ENEMY_SPAWN_POSITION),
+            RigidBody::Dynamic,
+            Collider::capsule(ENEMY_CAPSULE_RADIUS, ENEMY_CAPSULE_LENGTH),
+            LinearVelocity(Vec3::ZERO),
+            AngularVelocity(Vec3::ZERO),
+        ),
+        (
+            CollisionLayers::new([GameLayer::Enemy], LayerMask::ALL),
+            CollisionEventsEnabled,
+        ),
     ));
 
     info!(

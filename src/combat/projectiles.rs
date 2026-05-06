@@ -122,7 +122,10 @@ pub fn fire_primary_weapon(
                 RigidBody::Dynamic,
                 Collider::sphere(PROJECTILE_RADIUS),
                 LinearVelocity(velocity),
-                CollisionLayers::new([GameLayer::Projectile], [GameLayer::Asteroid]),
+                CollisionLayers::new(
+                    [GameLayer::Projectile],
+                    [GameLayer::Asteroid, GameLayer::Enemy],
+                ),
                 CollisionEventsEnabled,
             ));
 

@@ -5,13 +5,17 @@
 pub mod components;
 pub mod damage;
 pub mod enemy;
+pub mod enemy_ai;
+pub mod health;
 pub mod input;
 pub mod projectiles;
 
 use bevy::prelude::*;
 use leafwing_input_manager::prelude::*;
 
-use crate::combat::damage::{AsteroidDestroyed, ProjectileHitAsteroid};
+use crate::combat::damage::{
+    AsteroidDestroyed, EnemyDestroyed, ProjectileHitAsteroid, ProjectileHitEnemy,
+};
 use crate::combat::input::CombatAction;
 use crate::flight::FlightSystems;
 use crate::state::GameState;
@@ -21,6 +25,7 @@ pub struct CombatPlugin;
 #[derive(SystemSet, Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum CombatSystems {
     Setup,
+    EnemyAi,
     Fire,
     Lifecycle,
     EvaluateHits,
@@ -44,10 +49,14 @@ impl Plugin for CombatPlugin {
         // 3.10: register collision-driven damage events.
         app.add_message::<ProjectileHitAsteroid>();
         app.add_message::<AsteroidDestroyed>();
+        // 4.2: register enemy-targeted damage events.
+        app.add_message::<ProjectileHitEnemy>();
+        app.add_message::<EnemyDestroyed>();
 
         app.configure_sets(
             FixedUpdate,
             (
+                CombatSystems::EnemyAi,
                 CombatSystems::Fire,
                 CombatSystems::Lifecycle,
                 CombatSystems::EvaluateHits,
@@ -69,7 +78,13 @@ impl Plugin for CombatPlugin {
         app.add_systems(
             FixedUpdate,
             (
+                enemy_ai::apply_enemy_ai
+                    .in_set(CombatSystems::EnemyAi)
+                    .run_if(in_state(GameState::Arena)),
                 projectiles::fire_primary_weapon
+                    .in_set(CombatSystems::Fire)
+                    .run_if(in_state(GameState::Arena)),
+                enemy_ai::enemy_fire_weapon
                     .in_set(CombatSystems::Fire)
                     .run_if(in_state(GameState::Arena)),
                 projectiles::tick_projectile_ttl
@@ -78,7 +93,13 @@ impl Plugin for CombatPlugin {
                 damage::detect_projectile_asteroid_hits
                     .in_set(CombatSystems::EvaluateHits)
                     .run_if(in_state(GameState::Arena)),
+                damage::detect_projectile_enemy_hits
+                    .in_set(CombatSystems::EvaluateHits)
+                    .run_if(in_state(GameState::Arena)),
                 damage::apply_asteroid_damage
+                    .in_set(CombatSystems::ApplyDamage)
+                    .run_if(in_state(GameState::Arena)),
+                damage::apply_enemy_damage
                     .in_set(CombatSystems::ApplyDamage)
                     .run_if(in_state(GameState::Arena)),
             ),

@@ -6,8 +6,9 @@ use bevy::prelude::*;
 use bevy_mod_outline::OutlineVolume;
 
 use super::ArenaEntity;
-use crate::combat::components::AsteroidHp;
+use crate::combat::components::Asteroid;
 use crate::combat::damage::GameLayer;
+use crate::combat::health::Health;
 use crate::tuning::TuningHandle;
 use crate::tuning::config::TuningConfig;
 use crate::visual::palette::{SemanticAccent, color_for};
@@ -95,7 +96,8 @@ pub fn spawn_arena_zone(
             RigidBody::Static,
             Collider::sphere(radius),
             outline_volume(),
-            AsteroidHp { current: 1 },
+            Asteroid,
+            Health { current: 1, max: 1 },
             CollisionLayers::new([GameLayer::Asteroid], LayerMask::ALL),
             CollisionEventsEnabled,
             ArenaEntity,

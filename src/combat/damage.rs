@@ -16,7 +16,9 @@
 use avian3d::prelude::{CollisionStart, PhysicsLayer};
 use bevy::prelude::*;
 
-use crate::combat::components::{AsteroidHp, Projectile};
+use crate::combat::components::{Asteroid, Projectile};
+use crate::combat::enemy::Enemy;
+use crate::combat::health::Health;
 
 /// Avian collision-layer enum. Bit 0 (`Default`) is reserved for the implicit
 /// default layer; the player ship stays on it (no CollisionLayers component on
@@ -28,6 +30,7 @@ pub enum GameLayer {
     Default,
     Asteroid,
     Projectile,
+    Enemy,
 }
 
 /// Emitted by `detect_projectile_asteroid_hits` when a projectile and an
@@ -52,6 +55,26 @@ pub struct AsteroidDestroyed {
     pub asteroid: Entity,
 }
 
+/// Emitted by `detect_projectile_enemy_hits` when a player projectile and
+/// an enemy begin contacting. Consumed by `apply_enemy_damage`.
+#[derive(Message, Debug, Clone, Copy)]
+pub struct ProjectileHitEnemy {
+    pub projectile: Entity,
+    pub enemy: Entity,
+    pub damage: u32,
+}
+
+/// Emitted by `apply_enemy_damage` when an enemy's Health reaches zero.
+/// Story 4.5 (salvage retro-tint) and Epic 8 (audio cues) are downstream consumers.
+#[derive(Message, Debug, Clone, Copy)]
+#[allow(
+    dead_code,
+    reason = "EnemyDestroyed.enemy is read by Story 4.5 salvage retro-tint and Epic 8 audio cues — pre-wired here per the architecture-prescribed event shape"
+)]
+pub struct EnemyDestroyed {
+    pub enemy: Entity,
+}
+
 /// Saturating-subtraction damage application. Returns the new HP, clamped at
 /// zero to prevent underflow on over-damage cases (e.g., a Story 4.4 high-damage
 /// weapon vs. a 1-HP asteroid). Pure function — no ECS access, trivially
@@ -68,7 +91,7 @@ pub fn apply_damage(current: u32, damage: u32) -> u32 {
 pub fn detect_projectile_asteroid_hits(
     mut collisions: MessageReader<CollisionStart>,
     projectiles: Query<&Projectile>,
-    asteroids: Query<(), With<AsteroidHp>>,
+    asteroids: Query<(), With<Asteroid>>,
     mut hits: MessageWriter<ProjectileHitAsteroid>,
 ) {
     for event in collisions.read() {
@@ -97,13 +120,74 @@ pub fn detect_projectile_asteroid_hits(
     }
 }
 
+/// FixedUpdate — reads Avian's `CollisionStart` messages and emits
+/// `ProjectileHitEnemy` whenever a projectile-enemy contact pair is detected.
+/// NO `EnemyProjectile` filter is needed — enemy projectiles use filter mask
+/// `[GameLayer::Default]` (cannot reach the `Enemy` layer), so only player
+/// projectiles can collide with enemies. Mirrors the asteroid-pair pattern.
+pub fn detect_projectile_enemy_hits(
+    mut collisions: MessageReader<CollisionStart>,
+    projectiles: Query<&Projectile>,
+    enemies: Query<(), With<Enemy>>,
+    mut hits: MessageWriter<ProjectileHitEnemy>,
+) {
+    for event in collisions.read() {
+        let (projectile_entity, enemy_entity) = if projectiles.get(event.collider1).is_ok()
+            && enemies.get(event.collider2).is_ok()
+        {
+            (event.collider1, event.collider2)
+        } else if enemies.get(event.collider1).is_ok() && projectiles.get(event.collider2).is_ok()
+        {
+            (event.collider2, event.collider1)
+        } else {
+            continue; // Not a projectile-enemy pair.
+        };
+
+        let projectile = projectiles
+            .get(projectile_entity)
+            .expect("projectile_entity verified above");
+        hits.write(ProjectileHitEnemy {
+            projectile: projectile_entity,
+            enemy: enemy_entity,
+            damage: projectile.damage,
+        });
+    }
+}
+
+/// FixedUpdate — applies damage from `ProjectileHitEnemy` events to enemy
+/// `Health` components, despawns the projectile, and on HP=0 despawns the
+/// enemy + emits `EnemyDestroyed`. Mirrors `apply_asteroid_damage`.
+pub fn apply_enemy_damage(
+    mut hits: MessageReader<ProjectileHitEnemy>,
+    mut commands: Commands,
+    mut enemies: Query<&mut Health, With<Enemy>>,
+    mut destroyed: MessageWriter<EnemyDestroyed>,
+) {
+    for event in hits.read() {
+        commands.entity(event.projectile).despawn();
+        if let Ok(mut hp) = enemies.get_mut(event.enemy) {
+            if hp.current == 0 {
+                continue;
+            }
+            hp.current = apply_damage(hp.current, event.damage);
+            if hp.current == 0 {
+                commands.entity(event.enemy).despawn();
+                destroyed.write(EnemyDestroyed {
+                    enemy: event.enemy,
+                });
+                info!("enemy destroyed: entity={:?}", event.enemy);
+            }
+        }
+    }
+}
+
 /// FixedUpdate — applies damage from `ProjectileHitAsteroid` events to
-/// `AsteroidHp` components, despawns the projectile (single-hit-per-projectile
+/// asteroid `Health` components, despawns the projectile (single-hit-per-projectile
 /// per Epic 3 AC), and on HP=0 despawns the asteroid + emits `AsteroidDestroyed`.
 pub fn apply_asteroid_damage(
     mut hits: MessageReader<ProjectileHitAsteroid>,
     mut commands: Commands,
-    mut asteroids: Query<&mut AsteroidHp>,
+    mut asteroids: Query<&mut Health, With<Asteroid>>,
     mut destroyed: MessageWriter<AsteroidDestroyed>,
 ) {
     for event in hits.read() {

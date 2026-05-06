@@ -23,17 +23,13 @@ pub struct PrimaryWeaponCooldown {
     pub remaining: f32,
 }
 
-/// Asteroid hit-point pool. Epic 3 default `current = 1` for single-hit
-/// destruction (per Story 3.10 spec); Epic 4/5 multi-HP asteroids will spawn
-/// with higher initial values via the same component. Decremented by
-/// `combat::damage::apply_asteroid_damage`; despawn fires when current == 0.
-///
-/// NO Default derive — callers always specify `current` explicitly. A
-/// silent default of 0 would mean "pre-destroyed", a hazardous footgun.
-#[derive(Component, Debug, Clone, Copy, PartialEq)]
-pub struct AsteroidHp {
-    pub current: u32,
-}
+/// Marker for asteroid entities. Queried by `detect_projectile_asteroid_hits`
+/// to disambiguate projectile-vs-asteroid collision pairs from other pairs
+/// (e.g., projectile-vs-enemy, ship-vs-asteroid). Health is on a separate
+/// component to allow Stories 4.2/4.3 enemy + player to share the same
+/// Health vocabulary.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct Asteroid;
 
 #[cfg(test)]
 mod tests {
@@ -44,11 +40,4 @@ mod tests {
         assert_eq!(PrimaryWeaponCooldown::default().remaining, 0.0);
     }
 
-    #[test]
-    fn asteroid_hp_construction_is_explicit() {
-        // No Default derive — this test guards against accidental future Default
-        // addition that would silently default current=0 (pre-destroyed footgun).
-        let hp = AsteroidHp { current: 1 };
-        assert_eq!(hp.current, 1);
-    }
 }
