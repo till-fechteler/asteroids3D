@@ -1,5 +1,5 @@
 # generated: 2026-04-22
-# last_updated: 2026-05-06 (Story 4.1 → done; code review clean)
+# last_updated: 2026-05-06 (Story 4.2 → done; code review complete, look_at patch applied)
 # project: asteroids3D
 # project_key: NOKEY
 # tracking_system: file-system
@@ -36,7 +36,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-22
-last_updated: 2026-05-06 (Story 4.1 → done; code review clean)
+last_updated: 2026-05-06 (Story 4.2 → done; code review complete, look_at patch applied)
 project: asteroids3D
 project_key: NOKEY
 tracking_system: file-system
@@ -84,7 +84,7 @@ development_status:
   # Epic 4: Enemies Alive & Stop-Ship (Itch.io Prototype)
   epic-4: in-progress
   4-1-enemy-entity-foundation-semanticaccent-enemy: done
-  4-2-enemy-ai-state-machine-detect-pursue-attack: backlog
+  4-2-enemy-ai-state-machine-detect-pursue-attack: done
   4-3-hull-component-permadeath-postrun-state: backlog
   4-4-weapon-archetype-system-shotgun-railgun-archetypes: backlog
   4-5-semanticaccent-wiring-asteroids-salvage-playership-projectiles-playerowned: backlog
