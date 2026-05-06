@@ -4,6 +4,7 @@
 
 pub mod components;
 pub mod damage;
+pub mod enemy;
 pub mod input;
 pub mod projectiles;
 
@@ -59,7 +60,11 @@ impl Plugin for CombatPlugin {
                 exited: GameState::MainMenu,
                 entered: GameState::Arena,
             },
-            projectiles::attach_combat_to_player_ship.in_set(CombatSystems::Setup),
+            (
+                projectiles::attach_combat_to_player_ship,
+                enemy::spawn_enemy_ship,
+            )
+                .in_set(CombatSystems::Setup),
         );
         app.add_systems(
             FixedUpdate,
