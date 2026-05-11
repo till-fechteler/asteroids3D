@@ -1,5 +1,5 @@
 # generated: 2026-04-22
-# last_updated: 2026-05-11 (Story 4.3 → done; code review clean, 4 findings deferred)
+# last_updated: 2026-05-11 (Story 4.4 → done; code review clean, 3 patches applied, 10 deferred)
 # project: asteroids3D
 # project_key: NOKEY
 # tracking_system: file-system
@@ -36,7 +36,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-22
-last_updated: 2026-05-11 (Story 4.3 → done; code review clean, 4 findings deferred)
+last_updated: 2026-05-11 (Story 4.4 → done; code review clean, 3 patches applied, 10 deferred)
 project: asteroids3D
 project_key: NOKEY
 tracking_system: file-system
@@ -86,7 +86,7 @@ development_status:
   4-1-enemy-entity-foundation-semanticaccent-enemy: done
   4-2-enemy-ai-state-machine-detect-pursue-attack: done
   4-3-hull-component-permadeath-postrun-state: done
-  4-4-weapon-archetype-system-shotgun-railgun-archetypes: backlog
+  4-4-weapon-archetype-system-shotgun-railgun-archetypes: done
   4-5-semanticaccent-wiring-asteroids-salvage-playership-projectiles-playerowned: backlog
   4-6-persistenceplugin-save-schema-v1: backlog
   4-7-title-screen-full-fr36-start-settings-credits-quit: backlog
