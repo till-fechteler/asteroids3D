@@ -158,7 +158,11 @@ pub fn apply_enemy_ai(
         // (player directly above/below enemy), both of which degenerate look_at.
         if next != EnemyAiState::Idle && distance > f32::EPSILON {
             let forward = (player_pos - enemy_pos).normalize();
-            let up = if forward.y.abs() > 1.0 - 1e-4 { Vec3::Z } else { Vec3::Y };
+            let up = if forward.y.abs() > 1.0 - 1e-4 {
+                Vec3::Z
+            } else {
+                Vec3::Y
+            };
             transform.look_at(player_pos, up);
         }
 

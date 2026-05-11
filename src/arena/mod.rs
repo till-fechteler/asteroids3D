@@ -38,13 +38,20 @@ impl Plugin for ArenaPlugin {
         );
         // Cleanup runs only on terminal exits (Arena → MainMenu / PostRun).
         // Forward-compat: Arena → MainMenu wiring lands in Story 4.7 title-screen
-        // restart flow; Arena → PostRun in Epic 4 death/run-end flow. Until then,
-        // the cleanup branch is dormant — Pause round-trip preserves all
-        // ArenaEntity-marked entities (PlayerShip, asteroids, projectiles).
+        // restart flow (closed Story 4.3 for the Arena → PostRun branch). Pause
+        // round-trip preserves all ArenaEntity-marked entities (PlayerShip,
+        // asteroids, projectiles) — only terminal exits cleanup.
         app.add_systems(
             OnTransition {
                 exited: GameState::Arena,
                 entered: GameState::MainMenu,
+            },
+            cleanup_on_exit::<ArenaEntity>,
+        );
+        app.add_systems(
+            OnTransition {
+                exited: GameState::Arena,
+                entered: GameState::PostRun,
             },
             cleanup_on_exit::<ArenaEntity>,
         );

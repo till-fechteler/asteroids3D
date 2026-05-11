@@ -5,13 +5,16 @@ pub mod components;
 pub mod input;
 pub mod physics;
 
-use avian3d::prelude::{AngularVelocity, Collider, LinearVelocity, RigidBody};
+use avian3d::prelude::{
+    AngularVelocity, Collider, CollisionEventsEnabled, LinearVelocity, RigidBody,
+};
 use bevy::prelude::*;
 use bevy::window::{CursorGrabMode, CursorOptions, PrimaryWindow};
 use bevy_mod_outline::OutlineVolume;
 use leafwing_input_manager::prelude::*;
 
 use crate::arena::{ArenaEntity, ArenaSystems};
+use crate::combat::health::Health;
 use crate::flight::components::DampenerState;
 use crate::flight::input::{FlightAction, default_input_map};
 use crate::flight::physics::{MouseLookDelta, MouseLookSuppressFrames};
@@ -124,6 +127,11 @@ pub fn spawn_player_ship(
             Collider::sphere(2.0),
             LinearVelocity(Vec3::ZERO),
             AngularVelocity(Vec3::ZERO),
+            CollisionEventsEnabled,
+            Health {
+                current: tuning.player_hull_max,
+                max: tuning.player_hull_max,
+            },
             default_input_map(),
             ActionState::<FlightAction>::default(),
             DampenerState::default(),

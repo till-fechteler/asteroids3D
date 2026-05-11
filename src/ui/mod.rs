@@ -33,5 +33,13 @@ impl Plugin for UiPlugin {
             },
             hud::spawn_hud,
         );
+
+        // 4.3: live Hull wiring — read PlayerShip Health and write to the
+        // Hull HUD text node. Update-schedule + Arena gate keeps Pause-state
+        // HUD updates suppressed (paused gameplay should not visually mutate).
+        app.add_systems(
+            Update,
+            hud::update_hud_hull.run_if(in_state(crate::state::GameState::Arena)),
+        );
     }
 }

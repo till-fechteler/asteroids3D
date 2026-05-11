@@ -6,6 +6,8 @@
 use bevy::prelude::*;
 
 use crate::arena::ArenaEntity;
+use crate::combat::health::Health;
+use crate::flight::PlayerShip;
 
 const SHIELDS_LABEL: &str = "SHIELDS 100";
 const HULL_LABEL: &str = "HULL 100";
@@ -38,14 +40,10 @@ pub enum HudField {
 
 /// Companion component on each HUD value-text node. Future systems mutate
 /// the sibling Text component using HudField as the dispatch discriminant.
-/// Story 3.11 sets these once at spawn; Epic 5/6 will add update systems
-/// that re-write the Text content based on game state.
+/// Story 3.11 sets these once at spawn; Story 4.3 wires Hull live; Epic 5
+/// wires Shields, Epic 6 wires Salvage.
 #[derive(Component, Debug, Clone, Copy)]
 pub struct HudPlaceholder {
-    #[allow(
-        dead_code,
-        reason = "HudPlaceholder.field is read by Epic 5 (Shields/Hull update systems) and Epic 6 (Salvage update system); Story 3.11 wires the placeholder slot only."
-    )]
     pub field: HudField,
 }
 
@@ -144,6 +142,24 @@ pub fn spawn_hud(mut commands: Commands) {
             ));
         });
     info!("spawned HUD with 4 corner placeholders (Shields/Hull/Ammo/Salvage)");
+}
+
+/// Update — writes live PlayerShip Hull to the HUD's Hull text node when
+/// the PlayerShip's `Health` changes. The `Changed<Health>` filter prevents
+/// redundant Text writes every frame; the loop short-circuits via the
+/// `HudField::Hull` discriminant so Shields/Ammo/Salvage nodes are skipped.
+pub fn update_hud_hull(
+    players: Query<&Health, (With<PlayerShip>, Changed<Health>)>,
+    mut hud_texts: Query<(&mut Text, &HudPlaceholder)>,
+) {
+    let Ok(health) = players.single() else {
+        return;
+    };
+    for (mut text, placeholder) in &mut hud_texts {
+        if placeholder.field == HudField::Hull {
+            **text = format!("HULL {}", health.current);
+        }
+    }
 }
 
 #[cfg(test)]

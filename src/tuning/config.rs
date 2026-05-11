@@ -44,6 +44,8 @@ pub struct TuningConfig {
     pub enemy_fire_rate_hz: f32,
     #[serde(default = "default_enemy_ai_hysteresis_pct")]
     pub enemy_ai_hysteresis_pct: f32,
+    #[serde(default = "default_player_hull_max")]
+    pub player_hull_max: u32,
 }
 
 fn default_outline_width() -> f32 {
@@ -106,6 +108,10 @@ fn default_enemy_ai_hysteresis_pct() -> f32 {
     0.1
 }
 
+fn default_player_hull_max() -> u32 {
+    3
+}
+
 impl Default for TuningConfig {
     fn default() -> Self {
         Self {
@@ -127,6 +133,7 @@ impl Default for TuningConfig {
             enemy_speed: default_enemy_speed(),
             enemy_fire_rate_hz: default_enemy_fire_rate_hz(),
             enemy_ai_hysteresis_pct: default_enemy_ai_hysteresis_pct(),
+            player_hull_max: default_player_hull_max(),
         }
     }
 }
@@ -188,12 +195,13 @@ mod tests {
         assert_eq!(cfg.enemy_speed, 20.0);
         assert_eq!(cfg.enemy_fire_rate_hz, 1.0);
         assert_eq!(cfg.enemy_ai_hysteresis_pct, 0.1);
+        assert_eq!(cfg.player_hull_max, 3);
     }
 
     #[test]
     fn tuning_config_deserializes_from_ron_bytes() {
         // RON parses `[T; N]` fixed-size arrays via serde's tuple deserializer → tuple syntax `(...)`.
-        let bytes = b"TuningConfig(toon_steps: 5, toon_rim_power: 1.5, toon_rim_intensity: 0.4, outline_width: 5.0, outline_color: (1.0, 0.0, 0.0, 1.0), ship_thrust_newtons: 750.0, mouse_sensitivity: 0.5, ship_torque_nm: 120.0, dampener_linear_strength: 4.0, dampener_angular_strength: 6.0, projectile_speed: 200.0, projectile_fire_rate_hz: 8.0, projectile_ttl_seconds: 5.0, enemy_detection_range: 150.0, enemy_engagement_range: 75.0, enemy_speed: 30.0, enemy_fire_rate_hz: 2.0, enemy_ai_hysteresis_pct: 0.2)";
+        let bytes = b"TuningConfig(toon_steps: 5, toon_rim_power: 1.5, toon_rim_intensity: 0.4, outline_width: 5.0, outline_color: (1.0, 0.0, 0.0, 1.0), ship_thrust_newtons: 750.0, mouse_sensitivity: 0.5, ship_torque_nm: 120.0, dampener_linear_strength: 4.0, dampener_angular_strength: 6.0, projectile_speed: 200.0, projectile_fire_rate_hz: 8.0, projectile_ttl_seconds: 5.0, enemy_detection_range: 150.0, enemy_engagement_range: 75.0, enemy_speed: 30.0, enemy_fire_rate_hz: 2.0, enemy_ai_hysteresis_pct: 0.2, player_hull_max: 5)";
         let cfg: TuningConfig = ron::de::from_bytes(bytes).unwrap();
         assert_eq!(cfg.toon_steps, 5);
         assert_eq!(cfg.toon_rim_power, 1.5);
@@ -213,6 +221,7 @@ mod tests {
         assert_eq!(cfg.enemy_speed, 30.0);
         assert_eq!(cfg.enemy_fire_rate_hz, 2.0);
         assert_eq!(cfg.enemy_ai_hysteresis_pct, 0.2);
+        assert_eq!(cfg.player_hull_max, 5);
     }
 
     #[test]
@@ -237,5 +246,6 @@ mod tests {
         assert_eq!(cfg.enemy_speed, 20.0);
         assert_eq!(cfg.enemy_fire_rate_hz, 1.0);
         assert_eq!(cfg.enemy_ai_hysteresis_pct, 0.1);
+        assert_eq!(cfg.player_hull_max, 3);
     }
 }

@@ -14,7 +14,8 @@ use bevy::prelude::*;
 use leafwing_input_manager::prelude::*;
 
 use crate::combat::damage::{
-    AsteroidDestroyed, EnemyDestroyed, ProjectileHitAsteroid, ProjectileHitEnemy,
+    AsteroidDestroyed, EnemyDestroyed, HullDepleted, ProjectileHitAsteroid, ProjectileHitEnemy,
+    ProjectileHitPlayer,
 };
 use crate::combat::input::CombatAction;
 use crate::flight::FlightSystems;
@@ -30,6 +31,7 @@ pub enum CombatSystems {
     Lifecycle,
     EvaluateHits,
     ApplyDamage,
+    CheckDeath,
 }
 
 impl Plugin for CombatPlugin {
@@ -52,6 +54,9 @@ impl Plugin for CombatPlugin {
         // 4.2: register enemy-targeted damage events.
         app.add_message::<ProjectileHitEnemy>();
         app.add_message::<EnemyDestroyed>();
+        // 4.3: register player-targeted damage + run-end events.
+        app.add_message::<ProjectileHitPlayer>();
+        app.add_message::<HullDepleted>();
 
         app.configure_sets(
             FixedUpdate,
@@ -61,6 +66,7 @@ impl Plugin for CombatPlugin {
                 CombatSystems::Lifecycle,
                 CombatSystems::EvaluateHits,
                 CombatSystems::ApplyDamage,
+                CombatSystems::CheckDeath,
             )
                 .chain(),
         );
@@ -72,6 +78,7 @@ impl Plugin for CombatPlugin {
             (
                 projectiles::attach_combat_to_player_ship,
                 enemy::spawn_enemy_ship,
+                damage::record_run_started_at,
             )
                 .in_set(CombatSystems::Setup),
         );
@@ -101,6 +108,15 @@ impl Plugin for CombatPlugin {
                     .run_if(in_state(GameState::Arena)),
                 damage::apply_enemy_damage
                     .in_set(CombatSystems::ApplyDamage)
+                    .run_if(in_state(GameState::Arena)),
+                damage::detect_projectile_player_hits
+                    .in_set(CombatSystems::EvaluateHits)
+                    .run_if(in_state(GameState::Arena)),
+                damage::apply_player_damage
+                    .in_set(CombatSystems::ApplyDamage)
+                    .run_if(in_state(GameState::Arena)),
+                damage::check_player_death
+                    .in_set(CombatSystems::CheckDeath)
                     .run_if(in_state(GameState::Arena)),
             ),
         );

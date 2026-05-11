@@ -39,5 +39,4 @@ mod tests {
     fn primary_weapon_cooldown_default_is_zero() {
         assert_eq!(PrimaryWeaponCooldown::default().remaining, 0.0);
     }
-
 }
