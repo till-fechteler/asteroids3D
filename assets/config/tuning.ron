@@ -10,6 +10,8 @@ TuningConfig(
     dampener_linear_strength: 2.0,
     dampener_angular_strength: 3.0,
     projectile_speed: 120.0,
+    // Superseded by weapon_pulse.fire_rate_hz for the player fire path (Story 4.4).
+    // Still present for hot-reload convenience and forward-compat; removable in a future cleanup.
     projectile_fire_rate_hz: 4.0,
     projectile_ttl_seconds: 3.0,
     enemy_detection_range: 100.0,
@@ -18,4 +20,7 @@ TuningConfig(
     enemy_fire_rate_hz: 1.0,
     enemy_ai_hysteresis_pct: 0.1,
     player_hull_max: 3,
+    weapon_pulse:   (damage: 1, fire_rate_hz: 4.0, projectile_speed: 120.0, projectile_count: 1, spread_deg: 0.0),
+    weapon_shotgun: (damage: 1, fire_rate_hz: 1.5, projectile_speed: 80.0,  projectile_count: 5, spread_deg: 15.0),
+    weapon_railgun: (damage: 5, fire_rate_hz: 0.5, projectile_speed: 300.0, projectile_count: 1, spread_deg: 0.0),
 )

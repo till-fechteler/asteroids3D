@@ -31,6 +31,10 @@ pub struct TuningConfig {
     #[serde(default = "default_projectile_speed")]
     pub projectile_speed: f32,
     #[serde(default = "default_projectile_fire_rate_hz")]
+    #[allow(
+        dead_code,
+        reason = "Story 3.9 baseline player-fire-rate; superseded by per-archetype weapon_*.fire_rate_hz in Story 4.4. Kept for hot-reload-during-development convenience and forward-compat with pre-4.4 tuning.ron files; a future cleanup story may remove."
+    )]
     pub projectile_fire_rate_hz: f32,
     #[serde(default = "default_projectile_ttl_seconds")]
     pub projectile_ttl_seconds: f32,
@@ -46,6 +50,28 @@ pub struct TuningConfig {
     pub enemy_ai_hysteresis_pct: f32,
     #[serde(default = "default_player_hull_max")]
     pub player_hull_max: u32,
+    // M3 Story 4.4 — weapon archetype stats (FR10). Per-field serde defaults
+    // preserve forward compat with pre-4.4 tuning.ron files.
+    #[serde(default = "default_weapon_pulse")]
+    pub weapon_pulse: WeaponArchetypeStats,
+    #[serde(default = "default_weapon_shotgun")]
+    pub weapon_shotgun: WeaponArchetypeStats,
+    #[serde(default = "default_weapon_railgun")]
+    pub weapon_railgun: WeaponArchetypeStats,
+}
+
+/// Per-archetype weapon stats consumed by `fire_primary_weapon` via
+/// `WeaponArchetype::stats_from`. Story 4.4 ships 3 archetype stat blocks
+/// (Pulse/Shotgun/Railgun) — the active archetype's stats determine
+/// projectile damage, fire-rate-cooldown, muzzle speed, fan-spread, and
+/// per-trigger projectile count.
+#[derive(Debug, Clone, Copy, Deserialize, PartialEq)]
+pub struct WeaponArchetypeStats {
+    pub damage: u32,
+    pub fire_rate_hz: f32,
+    pub projectile_speed: f32,
+    pub projectile_count: u32,
+    pub spread_deg: f32,
 }
 
 fn default_outline_width() -> f32 {
@@ -112,6 +138,36 @@ fn default_player_hull_max() -> u32 {
     3
 }
 
+fn default_weapon_pulse() -> WeaponArchetypeStats {
+    WeaponArchetypeStats {
+        damage: 1,
+        fire_rate_hz: 4.0,
+        projectile_speed: 120.0,
+        projectile_count: 1,
+        spread_deg: 0.0,
+    }
+}
+
+fn default_weapon_shotgun() -> WeaponArchetypeStats {
+    WeaponArchetypeStats {
+        damage: 1,
+        fire_rate_hz: 1.5,
+        projectile_speed: 80.0,
+        projectile_count: 5,
+        spread_deg: 15.0,
+    }
+}
+
+fn default_weapon_railgun() -> WeaponArchetypeStats {
+    WeaponArchetypeStats {
+        damage: 5,
+        fire_rate_hz: 0.5,
+        projectile_speed: 300.0,
+        projectile_count: 1,
+        spread_deg: 0.0,
+    }
+}
+
 impl Default for TuningConfig {
     fn default() -> Self {
         Self {
@@ -134,6 +190,9 @@ impl Default for TuningConfig {
             enemy_fire_rate_hz: default_enemy_fire_rate_hz(),
             enemy_ai_hysteresis_pct: default_enemy_ai_hysteresis_pct(),
             player_hull_max: default_player_hull_max(),
+            weapon_pulse: default_weapon_pulse(),
+            weapon_shotgun: default_weapon_shotgun(),
+            weapon_railgun: default_weapon_railgun(),
         }
     }
 }
@@ -196,12 +255,28 @@ mod tests {
         assert_eq!(cfg.enemy_fire_rate_hz, 1.0);
         assert_eq!(cfg.enemy_ai_hysteresis_pct, 0.1);
         assert_eq!(cfg.player_hull_max, 3);
+        // Story 4.4: per-archetype weapon stats (5 sub-fields × 3 archetypes).
+        assert_eq!(cfg.weapon_pulse.damage, 1);
+        assert_eq!(cfg.weapon_pulse.fire_rate_hz, 4.0);
+        assert_eq!(cfg.weapon_pulse.projectile_speed, 120.0);
+        assert_eq!(cfg.weapon_pulse.projectile_count, 1);
+        assert_eq!(cfg.weapon_pulse.spread_deg, 0.0);
+        assert_eq!(cfg.weapon_shotgun.damage, 1);
+        assert_eq!(cfg.weapon_shotgun.fire_rate_hz, 1.5);
+        assert_eq!(cfg.weapon_shotgun.projectile_speed, 80.0);
+        assert_eq!(cfg.weapon_shotgun.projectile_count, 5);
+        assert_eq!(cfg.weapon_shotgun.spread_deg, 15.0);
+        assert_eq!(cfg.weapon_railgun.damage, 5);
+        assert_eq!(cfg.weapon_railgun.fire_rate_hz, 0.5);
+        assert_eq!(cfg.weapon_railgun.projectile_speed, 300.0);
+        assert_eq!(cfg.weapon_railgun.projectile_count, 1);
+        assert_eq!(cfg.weapon_railgun.spread_deg, 0.0);
     }
 
     #[test]
     fn tuning_config_deserializes_from_ron_bytes() {
         // RON parses `[T; N]` fixed-size arrays via serde's tuple deserializer → tuple syntax `(...)`.
-        let bytes = b"TuningConfig(toon_steps: 5, toon_rim_power: 1.5, toon_rim_intensity: 0.4, outline_width: 5.0, outline_color: (1.0, 0.0, 0.0, 1.0), ship_thrust_newtons: 750.0, mouse_sensitivity: 0.5, ship_torque_nm: 120.0, dampener_linear_strength: 4.0, dampener_angular_strength: 6.0, projectile_speed: 200.0, projectile_fire_rate_hz: 8.0, projectile_ttl_seconds: 5.0, enemy_detection_range: 150.0, enemy_engagement_range: 75.0, enemy_speed: 30.0, enemy_fire_rate_hz: 2.0, enemy_ai_hysteresis_pct: 0.2, player_hull_max: 5)";
+        let bytes = b"TuningConfig(toon_steps: 5, toon_rim_power: 1.5, toon_rim_intensity: 0.4, outline_width: 5.0, outline_color: (1.0, 0.0, 0.0, 1.0), ship_thrust_newtons: 750.0, mouse_sensitivity: 0.5, ship_torque_nm: 120.0, dampener_linear_strength: 4.0, dampener_angular_strength: 6.0, projectile_speed: 200.0, projectile_fire_rate_hz: 8.0, projectile_ttl_seconds: 5.0, enemy_detection_range: 150.0, enemy_engagement_range: 75.0, enemy_speed: 30.0, enemy_fire_rate_hz: 2.0, enemy_ai_hysteresis_pct: 0.2, player_hull_max: 5, weapon_pulse: (damage: 2, fire_rate_hz: 6.0, projectile_speed: 150.0, projectile_count: 2, spread_deg: 5.0), weapon_shotgun: (damage: 3, fire_rate_hz: 2.5, projectile_speed: 100.0, projectile_count: 7, spread_deg: 20.0), weapon_railgun: (damage: 10, fire_rate_hz: 1.0, projectile_speed: 400.0, projectile_count: 1, spread_deg: 0.0))";
         let cfg: TuningConfig = ron::de::from_bytes(bytes).unwrap();
         assert_eq!(cfg.toon_steps, 5);
         assert_eq!(cfg.toon_rim_power, 1.5);
@@ -222,6 +297,22 @@ mod tests {
         assert_eq!(cfg.enemy_fire_rate_hz, 2.0);
         assert_eq!(cfg.enemy_ai_hysteresis_pct, 0.2);
         assert_eq!(cfg.player_hull_max, 5);
+        // Story 4.4: per-archetype round-trip with distinct values.
+        assert_eq!(cfg.weapon_pulse.damage, 2);
+        assert_eq!(cfg.weapon_pulse.fire_rate_hz, 6.0);
+        assert_eq!(cfg.weapon_pulse.projectile_speed, 150.0);
+        assert_eq!(cfg.weapon_pulse.projectile_count, 2);
+        assert_eq!(cfg.weapon_pulse.spread_deg, 5.0);
+        assert_eq!(cfg.weapon_shotgun.damage, 3);
+        assert_eq!(cfg.weapon_shotgun.fire_rate_hz, 2.5);
+        assert_eq!(cfg.weapon_shotgun.projectile_speed, 100.0);
+        assert_eq!(cfg.weapon_shotgun.projectile_count, 7);
+        assert_eq!(cfg.weapon_shotgun.spread_deg, 20.0);
+        assert_eq!(cfg.weapon_railgun.damage, 10);
+        assert_eq!(cfg.weapon_railgun.fire_rate_hz, 1.0);
+        assert_eq!(cfg.weapon_railgun.projectile_speed, 400.0);
+        assert_eq!(cfg.weapon_railgun.projectile_count, 1);
+        assert_eq!(cfg.weapon_railgun.spread_deg, 0.0);
     }
 
     #[test]
@@ -247,5 +338,9 @@ mod tests {
         assert_eq!(cfg.enemy_fire_rate_hz, 1.0);
         assert_eq!(cfg.enemy_ai_hysteresis_pct, 0.1);
         assert_eq!(cfg.player_hull_max, 3);
+        // Story 4.4: per-archetype fields default via serde-default fns when absent.
+        assert_eq!(cfg.weapon_pulse, default_weapon_pulse());
+        assert_eq!(cfg.weapon_shotgun, default_weapon_shotgun());
+        assert_eq!(cfg.weapon_railgun, default_weapon_railgun());
     }
 }

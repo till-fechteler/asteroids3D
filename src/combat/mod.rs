@@ -9,6 +9,7 @@ pub mod enemy_ai;
 pub mod health;
 pub mod input;
 pub mod projectiles;
+pub mod weapons;
 
 use bevy::prelude::*;
 use leafwing_input_manager::prelude::*;
@@ -88,7 +89,16 @@ impl Plugin for CombatPlugin {
                 enemy_ai::apply_enemy_ai
                     .in_set(CombatSystems::EnemyAi)
                     .run_if(in_state(GameState::Arena)),
-                projectiles::fire_primary_weapon
+                // Story 4.4: cycle/select must run BEFORE fire on the same tick so a
+                // Tab-then-LMB combo applies to the newly-active archetype. Same Fire set;
+                // intra-set ordering via `.chain()`. The standalone `fire_primary_weapon`
+                // registration from 3.9 is replaced by this 3-system chain.
+                (
+                    weapons::cycle_active_weapon,
+                    weapons::select_active_weapon,
+                    projectiles::fire_primary_weapon,
+                )
+                    .chain()
                     .in_set(CombatSystems::Fire)
                     .run_if(in_state(GameState::Arena)),
                 enemy_ai::enemy_fire_weapon

@@ -15,6 +15,7 @@ use leafwing_input_manager::prelude::*;
 
 use crate::arena::{ArenaEntity, ArenaSystems};
 use crate::combat::health::Health;
+use crate::combat::weapons::WeaponLoadout;
 use crate::flight::components::DampenerState;
 use crate::flight::input::{FlightAction, default_input_map};
 use crate::flight::physics::{MouseLookDelta, MouseLookSuppressFrames};
@@ -115,26 +116,36 @@ pub fn spawn_player_ship(
         ..default()
     });
 
+    // Story 4.4 added WeaponLoadout → 16 components total; Bevy 0.18 Bundle
+    // derive caps tuple impls at arity 15. Grouped into 3 sub-tuples (visual:6,
+    // physics:5, state:5) which Bevy auto-flattens. Mirrors enemy.rs:71-98 precedent.
     commands
         .spawn((
-            PlayerShip,
-            ArenaEntity,
-            Mesh3d(ship_mesh),
-            MeshMaterial3d(ship_material),
-            Transform::from_xyz(0.0, 0.0, 0.0),
-            outline,
-            RigidBody::Dynamic,
-            Collider::sphere(2.0),
-            LinearVelocity(Vec3::ZERO),
-            AngularVelocity(Vec3::ZERO),
-            CollisionEventsEnabled,
-            Health {
-                current: tuning.player_hull_max,
-                max: tuning.player_hull_max,
-            },
-            default_input_map(),
-            ActionState::<FlightAction>::default(),
-            DampenerState::default(),
+            (
+                PlayerShip,
+                ArenaEntity,
+                Mesh3d(ship_mesh),
+                MeshMaterial3d(ship_material),
+                Transform::from_xyz(0.0, 0.0, 0.0),
+                outline,
+            ),
+            (
+                RigidBody::Dynamic,
+                Collider::sphere(2.0),
+                LinearVelocity(Vec3::ZERO),
+                AngularVelocity(Vec3::ZERO),
+                CollisionEventsEnabled,
+            ),
+            (
+                Health {
+                    current: tuning.player_hull_max,
+                    max: tuning.player_hull_max,
+                },
+                default_input_map(),
+                ActionState::<FlightAction>::default(),
+                DampenerState::default(),
+                WeaponLoadout::default(),
+            ),
         ))
         .with_children(|parent| {
             parent.spawn((

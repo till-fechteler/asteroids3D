@@ -16,8 +16,13 @@ pub struct Projectile {
 }
 
 /// Per-ship primary-weapon rate-limit state. `remaining` counts seconds
-/// until the next shot is permitted. Default `0.0` so the first
-/// `FirePrimary` press fires instantly.
+/// until the next shot is permitted (regardless of archetype — the cooldown
+/// is a single shared timer, NOT per-archetype). Cycling to a different
+/// archetype does NOT reset the cooldown — the player cannot dodge a slow
+/// archetype's cooldown by cycling away then back. Cooldown duration on
+/// each fire is computed from the active archetype's `fire_rate_hz`
+/// (Story 4.4) — was `tuning.projectile_fire_rate_hz` (Story 3.9).
+/// Default `0.0` so the first `FirePrimary` press fires instantly.
 #[derive(Component, Debug, Clone, Copy, Default, PartialEq)]
 pub struct PrimaryWeaponCooldown {
     pub remaining: f32,

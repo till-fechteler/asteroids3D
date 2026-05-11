@@ -19,6 +19,7 @@ use crate::arena::ArenaEntity;
 use crate::combat::components::{PrimaryWeaponCooldown, Projectile};
 use crate::combat::damage::GameLayer;
 use crate::combat::input::{CombatAction, default_input_map};
+use crate::combat::weapons::{WeaponArchetype, WeaponLoadout, spread_forwards};
 use crate::flight::PlayerShip;
 use crate::tuning::TuningHandle;
 use crate::tuning::config::TuningConfig;
@@ -32,7 +33,18 @@ const PROJECTILE_SPAWN_OFFSET: f32 = 3.0;
 
 /// Projectile mesh AND collider radius (matched for collision-trustworthiness
 /// per the Story 3.3 mesh==collider precedent). Small-but-visible from cockpit.
+/// Used by Pulse + Shotgun archetypes; Railgun uses a capsule (see below).
 const PROJECTILE_RADIUS: f32 = 0.2;
+
+/// Story 4.4 — Railgun lance shape (placeholder-grade per epic-4.4 AC line 146;
+/// final visuals are Epic 10 polish). Capsule cross-section radius matches
+/// `PROJECTILE_RADIUS` for spawn-clearance parity with Pulse/Shotgun; the
+/// `LENGTH` is the cylindrical section between hemisphere caps (Bevy convention).
+/// Total tip-to-tip extent = LENGTH + 2*RADIUS = 1.4 m; half-extent along the
+/// flight axis = RADIUS + LENGTH/2 = 0.7 m; spawn clearance margin against the
+/// 2.0 m ship collider at PROJECTILE_SPAWN_OFFSET=3.0 is 0.3 m (positive).
+const RAILGUN_CAPSULE_RADIUS: f32 = 0.2;
+const RAILGUN_CAPSULE_LENGTH: f32 = 1.0;
 
 /// OnEnter(Arena) — attach combat input map + cooldown to the PlayerShip
 /// AFTER FlightSystems::Setup has spawned the ship. CombatPlugin owns these
@@ -82,6 +94,7 @@ pub fn fire_primary_weapon(
             &Transform,
             &LinearVelocity,
             &mut PrimaryWeaponCooldown,
+            &WeaponLoadout,
         ),
         With<PlayerShip>,
     >,
@@ -91,20 +104,70 @@ pub fn fire_primary_weapon(
         .cloned()
         .unwrap_or_default();
     let dt = time.delta_secs();
-    for (action, transform, ship_velocity, mut cooldown) in &mut ships {
+    for (action, transform, ship_velocity, mut cooldown, loadout) in &mut ships {
         cooldown.remaining = (cooldown.remaining - dt).max(0.0);
-        if action.pressed(&CombatAction::FirePrimary) && cooldown.remaining <= 0.0 {
-            let forward: Vec3 = *transform.forward();
-            let spawn_pos = transform.translation + forward * PROJECTILE_SPAWN_OFFSET;
-            let velocity =
-                projectile_initial_velocity(ship_velocity.0, forward, tuning.projectile_speed);
+        if !action.pressed(&CombatAction::FirePrimary) || cooldown.remaining > 0.0 {
+            continue;
+        }
+        // Active-archetype lookup — skip the fire path if the active slot is
+        // empty (Epic 7 unlock-shop forward-compat).
+        let Some(archetype) = loadout.active() else {
+            continue;
+        };
+        let stats = archetype.stats_from(&tuning);
 
-            let projectile_mesh = meshes.add(
-                Sphere::new(PROJECTILE_RADIUS)
-                    .mesh()
-                    .ico(2)
-                    .expect("ico(2): subdivision=2 is within MAX_SUBDIVISIONS=80"),
+        // Defensive guards against tuning corruption / zero-stats. Closes
+        // deferred-work.md:289 (zero-damage projectile silently despawning).
+        // Cooldown is reset before continuing so the warn fires at fire_rate_hz
+        // frequency rather than every FixedUpdate tick while LMB is held.
+        if stats.damage == 0 {
+            warn!(
+                "zero-damage archetype {:?} suppressed (would despawn projectiles harmlessly)",
+                archetype
             );
+            cooldown.remaining = 1.0 / stats.fire_rate_hz.max(f32::EPSILON);
+            continue;
+        }
+        if stats.projectile_count == 0 {
+            warn!("zero-projectile archetype {:?} suppressed", archetype);
+            cooldown.remaining = 1.0 / stats.fire_rate_hz.max(f32::EPSILON);
+            continue;
+        }
+
+        let forward: Vec3 = *transform.forward();
+        let up: Vec3 = *transform.up();
+        let directions = spread_forwards(forward, up, stats.projectile_count, stats.spread_deg);
+
+        for direction in directions {
+            let spawn_pos = transform.translation + direction * PROJECTILE_SPAWN_OFFSET;
+            let velocity =
+                projectile_initial_velocity(ship_velocity.0, direction, stats.projectile_speed);
+
+            // Per-archetype mesh + collider + spawn-rotation (placeholder-grade
+            // per epic-4.4 AC line 146; Epic 10 polish-pass owns final visuals):
+            //   - Pulse/Shotgun: 0.2 m sphere, no rotation needed.
+            //   - Railgun: 0.2 m × 1.0 m capsule (lance), rotated so its Y-axis
+            //     (Bevy capsule convention) aligns with the projectile direction.
+            let (projectile_mesh, projectile_collider, projectile_rotation) = match archetype {
+                WeaponArchetype::Pulse | WeaponArchetype::Shotgun => (
+                    meshes.add(
+                        Sphere::new(PROJECTILE_RADIUS)
+                            .mesh()
+                            .ico(2)
+                            .expect("ico(2): subdivision=2 is within MAX_SUBDIVISIONS=80"),
+                    ),
+                    Collider::sphere(PROJECTILE_RADIUS),
+                    Quat::IDENTITY,
+                ),
+                WeaponArchetype::Railgun => (
+                    meshes.add(Capsule3d::new(
+                        RAILGUN_CAPSULE_RADIUS,
+                        RAILGUN_CAPSULE_LENGTH,
+                    )),
+                    Collider::capsule(RAILGUN_CAPSULE_RADIUS, RAILGUN_CAPSULE_LENGTH),
+                    Quat::from_rotation_arc(Vec3::Y, direction),
+                ),
+            };
             let projectile_material = materials.add(ToonMaterial {
                 tint: color_for(SemanticAccent::Neutral).into(),
                 ..default()
@@ -113,14 +176,14 @@ pub fn fire_primary_weapon(
             commands.spawn((
                 Projectile {
                     ttl: tuning.projectile_ttl_seconds,
-                    damage: 1,
+                    damage: stats.damage,
                 },
                 ArenaEntity,
                 Mesh3d(projectile_mesh),
                 MeshMaterial3d(projectile_material),
-                Transform::from_translation(spawn_pos),
+                Transform::from_translation(spawn_pos).with_rotation(projectile_rotation),
                 RigidBody::Dynamic,
-                Collider::sphere(PROJECTILE_RADIUS),
+                projectile_collider,
                 LinearVelocity(velocity),
                 CollisionLayers::new(
                     [GameLayer::Projectile],
@@ -128,14 +191,14 @@ pub fn fire_primary_weapon(
                 ),
                 CollisionEventsEnabled,
             ));
-
-            cooldown.remaining = 1.0 / tuning.projectile_fire_rate_hz.max(f32::EPSILON);
-
-            info!(
-                "fired projectile at velocity={:?} ttl={}",
-                velocity, tuning.projectile_ttl_seconds
-            );
         }
+
+        cooldown.remaining = 1.0 / stats.fire_rate_hz.max(f32::EPSILON);
+
+        info!(
+            "fired {:?}: {} projectiles at fire_rate={:.2}Hz (next-fire {:.2}s)",
+            archetype, stats.projectile_count, stats.fire_rate_hz, cooldown.remaining
+        );
     }
 }
 
